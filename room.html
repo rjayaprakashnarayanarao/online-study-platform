@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SEM-MATE</title>
+    <link rel="stylesheet" href="./styles/room.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" />
+</head>
+<body>
+    <header>
+        <div class="logo-container">
+            <img src="./Images/Logo.png" alt="logo">
+            <span class="site-name">SEM-MATE</span>
+        </div>
+        <div class="button-container">
+            <span id="room-timer" class="room-timer">00:00:00</span>
+            <button class="details-button">Details <i class="fa-solid fa-info-circle"></i></button>
+            <button class="exit-button" onclick="exitRoom()">Exit <i class="fa-solid fa-door-open"></i></button>
+            <a href="upload.html">
+                <button class="upload-button">Upload <i class="fa-solid fa-upload"></i></button>
+            </a>
+        </div>
+    </header>
+    
+
+    <div class="room-container">
+        <div class="room-card">
+            <div class="grid-container">
+                <div class="left-grid">
+                    <div class="person-details">Person Details</div>
+                    <div class="second-grid">
+                        <!-- Example button in room.html -->
+                        <button>Button 1</button> 
+                        <button>Button 2</button>
+                        <button>Button 3</button>
+                        <button>Button 4</button>
+                        <button>Button 5</button>
+                        <button>Button 6</button>
+                        <button>Button 7</button>
+                        <button>Button 8</button>
+                        <button>Button 9</button>
+                        <button>Button 10</button>
+                    </div>
+                </div>
+                <!-- Modify the HTML to include the content for each section -->
+                <div class="right-grid">
+                    <div class="section materials" onclick="toggleHiddenGrid('materials')">
+                        <h2>Materials</h2>
+                    </div>
+                    <div class="section study-plan" onclick="toggleHiddenGrid('study-plan')">
+                        <h2>Study Plan</h2>
+                    </div>
+                    <div class="section resources" onclick="toggleHiddenGrid('resources')">
+                        <h2>Resources</h2>
+                    </div>
+                    <div class="hidden-grid">
+                        <div class="materials-content hidden">
+                            <!-- Add materials content here -->
+                            <h3>Materials Content</h3>
+                            <p>This is the materials content.</p>
+                        </div>
+                        <div class="study-plan-content hidden">
+                            <!-- Add study plan content here -->
+                            <h3>Study Plan Content</h3>
+                            <p>This is the study plan content.</p>
+                        </div>
+                        <div class="resources-content hidden">
+                            <!-- Add resources content here -->
+                            <h3>Resources Content</h3>
+                            <p>This is the resources content.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="popup-card" class="popup-card">
+        <div class="popup-header">
+            <button class="close-popup" onclick="closePopup()">✖</button>
+            <h1 id="room-details-label">Room Details</h1>
+            <h2 id="popup-title">
+                <span id="room-name-label">Room Name:</span>
+                <span id="room-name"></span>
+                <br><br>
+                <span id="room-number-label">Room Number:</span>
+                <span id="room-number"></span>
+            </h2>
+        </div>
+        <div class="room-number-container">
+            <div class="icon-container">
+                <i class="fa-solid fa-copy copy-icon" id="copy-icon"></i>
+                <span class="copy-tooltip">Copy to clipboard</span>
+            </div>
+            <div class="icon-container">
+                <i class="fa-solid fa-share-nodes share-icon" id="share-icon"></i>
+                <span class="share-tooltip">Share</span>
+            </div>
+            <div class="share-options" id="share-options">
+                <div class="wrapper">
+                    <a href="mailto:?subject=Room%20Details&body=Room%20Name:%20%24{roomName}%0ARoom%20Number:%20%24{roomNumber}" target="_blank" class="icon gmail" id="gmail-share-link">
+                        <div class="tooltip">Gmail</div>
+                        <span><img src="https://img.icons8.com/ios/50/000000/gmail.png" alt="Gmail Logo" style="width: 20px; height: 20px;"> </span>
+                    </a>                    
+                    <a href="#" target="_blank" class="icon linkedin" id="linkedin-share-link">
+                        <div class="tooltip">LinkedIn</div>
+                        <span><i class="fab fa-linkedin"></i></span>
+                    </a>
+                    <a href="#" target="_blank" class="icon whatsapp" id="whatsapp-share-link">
+                        <div class="tooltip">WhatsApp</div>
+                        <span><i class="fab fa-whatsapp"></i></span>
+                    </a>
+                </div>
+            </div>            
+        </div>
+    </div>
+
+    <script src="./scripts/room.js"></script>
+</body>
+</html>

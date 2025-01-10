@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Page</title>
+    <link rel="stylesheet" href="./styles/upload.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" />
+</head>
+<body>
+    <header>
+        <img src="" alt="logo">
+        <div class="button-container">
+            <button class="exit-button" onclick="window.location.href='index.html'">Exit <i class="fa-solid fa-door-open"></i></button>
+            <div class="fixed-back-button" onclick="window.location.href='room.html'">BACK TO ROOM <i class="fa-solid fa-arrow-left"></i></div>
+        </div>
+    </header>
+    <div class="upload-container">
+        <div class="header">
+            <div class="title">UPLOAD</div>
+            <div class="card-back-button" onclick="goBack()">BACK <i class="fa-solid fa-arrow-left"></i></div>
+        </div>
+        <div class="menu">
+            <div class="item active">SEM - MATE</div>
+        </div>
+        <div class="main-content">
+            <div class="sub-menu">
+                <div class="step">
+                    <div class="item" onclick="showSection('materials')">MATERIALS</div>
+                </div>
+                <div class="step">
+                    <div class="item" onclick="showSection('study-plan')">STUDY PLAN</div>
+                </div>
+                <div class="step">
+                    <div class="item" onclick="showSection('resources')">RESOURCE ONLINE</div>
+                </div>
+            </div>
+            <div class="content">
+                <div class="upload-area">
+                    <div class="upload-icon">+</div>
+                    <div class="upload-text">CLICK TO UPLOAD</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="./scripts/upload.js"></script>
+</body>
+</html>

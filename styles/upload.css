@@ -1,0 +1,341 @@
+/* Basic styles for the body and html */
+body, html {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
+    box-sizing: border-box;
+}
+
+/* Basic styles for the header */
+header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 10px; /* Reduced padding */
+    background-color: #14213D; /* Matching header color */
+    color: #fff;
+    border-bottom: 1px solid #ddd;
+    z-index: 100; /* Ensures the header stays on top */
+}
+
+/* Header image styling */
+header img {
+    height: 30px; /* Further reduced size */
+    margin: 0;
+}
+
+/* Button styles in the header */
+.exit-button{
+    background-color: #14213D; /* Matching header color */
+    color: #fff;
+    padding: 6px 12px; /* Adjusted padding */
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px; /* Consistent gap between icon and text */
+    margin-right: 8px; /* Space between buttons */
+    font-size: 14px; /* Reduced font size */
+    margin-top: 2px; /* Move buttons slightly up */
+}
+
+.upload-button{
+    background-color: #FCA311; /* Matching header color */
+    color: #fff;
+    padding: 6px 12px; /* Adjusted padding */
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px; /* Consistent gap between icon and text */
+    margin-right: 8px; /* Space between buttons */
+    font-size: 14px; /* Reduced font size */
+    margin-top: 2px;
+}
+
+.exit-button:hover {
+    background-color: #ff0011; /* Red for exit button */
+}
+
+.details-button:hover {
+    background-color: #9de468; /* Green for details button */
+}
+
+/* Additional styles for the header buttons */
+.details-button, .exit-button, .upload-button {
+    background-color: #14213D; /* Matching header color */
+    border: none;
+    padding: 6px 12px; /* Consistent padding */
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px; /* Consistent gap */
+    margin-right: 8px; /* Space between buttons */
+    font-size: 14px; /* Reduced font size */
+}
+
+/* Other styles */
+.upload-container {
+    width: 80%;
+    margin: 150px auto 20px; /* Increased top margin to push the card further down */
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+
+
+.header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+    background-color: #333;
+    color: #fff;
+}
+
+.title {
+    font-weight: bold;
+    font-size: 30px; /* Adjusted font size */
+}
+
+.menu {
+    display: flex;
+    justify-content: left;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+.menu .item {
+    padding: 10px;
+    text-align: center;
+    cursor: pointer;
+    font-size: 16px; /* Adjusted font size */
+}
+
+.menu .item.active {
+    background-color: #333;
+    color: #fff;
+}
+
+.main-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.sub-menu {
+    width: 30%;
+    padding: 20px;
+}
+
+.step {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.step-number {
+    width: 30px;
+    height: 30px;
+    background-color: #333;
+    color: #fff;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 18px;
+    margin-right: 10px;
+}
+
+.step .item {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 18px;
+}
+
+.content {
+    width: 60%;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.back-button {
+    background-color: #007BFF; /* Blue color */
+    color: #fff;
+    padding: 8px 16px; /* Adjusted padding for height */
+    border-radius: 5px;
+    cursor: pointer;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 4px; /* Reduced gap */
+    font-size: 12px; /* Adjusted font size */
+    position: fixed; /* Fixed position */
+    right: 20px; /* Space from the right edge */
+    bottom: 20px; /* Space from the bottom edge */
+    z-index: 10;
+    margin-bottom: 610px; /* Ensure it is above other content */
+}
+
+.back-button:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+}
+
+.back-button::after {
+    content: "Going back to room page";
+    position: absolute;
+    left: 50%; /* Center the tooltip horizontally */
+    top: 100%; /* Position it below the button */
+    transform: translateX(-50%); /* Center the tooltip horizontally */
+    opacity: 0;
+    transition: opacity 0.3s;
+    background-color: #333;
+    color: #fff;
+    padding: 4px 8px;
+    border-radius: 5px;
+    font-size: 12px;
+    white-space: nowrap;
+    margin-top: 8px; /* Space between button and tooltip */
+}
+
+.back-button:hover::after {
+    opacity: 0.5;
+}
+
+
+
+.upload-text-link {
+    background-color: #14213D; /* Matching header color */
+    color: #fff;
+    padding: 6px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    margin-right: 8px;
+    margin-top: 2px;
+}
+
+.upload-area {
+    width: 300px;
+    height: 200px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    cursor: pointer;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    background-color: #f9f9f9;
+}
+
+.upload-icon {
+    font-size: 60px;
+    font-weight: bold;
+    color: #333;
+}
+
+.upload-text {
+    margin-top: 10px;
+    font-size: 24px;
+    color: #666;
+}
+
+.sub-menu-container {
+    display: flex;
+    align-items: center;
+}
+
+.sub-menu {
+    margin-right: 20px;
+}
+
+.button-container {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.button {
+    width: 30%;
+    height: 40px;
+    border: none;
+    border-radius: 5px;
+    background-color: #4CAF50;
+    color: #fff;
+    cursor: pointer;
+}
+
+.button:hover {
+    background-color: #3e8e41;
+}
+
+.upload-text-link:hover {
+    background-color: #FCA311; /* Yellow on hover */
+}
+
+/* Fixed Back Button */
+.fixed-back-button {
+    color: #fff;
+    padding: 8px 10px;
+    border-radius: 5px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.fixed-back-button:hover {
+    background-color: #0056b3;
+}
+
+/* Card Back Button */
+.card-back-button {
+    background-color: #007BFF;
+    color: #fff;
+    padding: 4px 8px;
+    border-radius: 5px;
+    cursor: pointer;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    position: absolute;
+    right: 20px;
+    top: 10px;
+}
+
+.card-back-button {
+    display: none;
+}
+
+.menu .item.highlight {
+    background-color: #f0f0f0; /* Light grey */
+    color: #333; /* Dark text */
+    font-weight: bold;
+    border-radius: 5px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+}

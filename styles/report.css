@@ -1,0 +1,34 @@
+/* Basic styles for the header */
+header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    /* display: flex; */
+    /* justify-content: space-between; */
+    align-items: center;
+    padding: 20px;
+    background-color: #14213D;
+    color: #fff;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  header img {
+    margin: 0;
+  }
+
+a {
+    appearance: none;
+    text-decoration: none;
+    color: white;
+}
+
+.cointainer-form{
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    left: auto;
+    right: auto;
+    text-align: center;
+}

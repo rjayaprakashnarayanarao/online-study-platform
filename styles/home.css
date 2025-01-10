@@ -1,0 +1,359 @@
+/* 1. Global Styles */
+
+body {
+  font-family: 'Roboto', sans-serif;
+  background-color: #f7f7f7;
+  margin: 0;
+  padding: 0;
+}
+
+header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center; /* Aligns items (like the logo) vertically */
+  padding: 10px 20px; /* Adjust padding as needed */
+  background-color: #14213D;
+  color: #fff;
+  border-bottom: 1px solid #ddd;
+  height: 60px; /* Define a fixed height for the header */
+  box-sizing: border-box; /* Includes padding in height calculation */
+}
+
+header img {
+  height: 100%; /* Matches the header height */
+  max-height: 40px; /* Ensures the image doesn't become too large */
+  width: auto; /* Maintains aspect ratio */
+  object-fit: contain; /* Fits the image within the bounds without distortion */
+  border-radius: 10px; /* Adds smooth corners to the image */
+  margin-top: 5px; /* Moves the image slightly downward */
+}
+
+.report-issue {
+  text-decoration: none;
+  color: #FCA311;
+}
+
+/* 2. Rooms */
+
+.public-rooms {
+  background: #14213D;
+  width: 400px !important;
+  margin-left: 2%;
+  margin-top: 8%;
+  margin-bottom: 5%;
+  background-color: #E5E5E5;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  justify-content: space-between;
+  display: flex;
+  flex-direction: column;
+  border-top: 4px solid #000; /* Dark black line on top */
+  border-bottom: 4px solid #000; /* Dark black line on bottom */
+}
+
+.public-rooms h2 {
+  font-weight: bold;
+  font-size: 34px;
+  color: #000000;
+  margin-bottom: 4%;
+}
+
+.profile-section {
+  width: 400px !important;
+  margin-right: 2%;
+  margin-top: 8%;
+  background-color: #E5E5E5;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  border-top: 4px solid #000; /* Dark black line on top */
+  border-bottom: 4px solid #000; /* Dark black line on bottom */
+  margin-left: auto; /* Ensures it stays on the right */
+}
+
+.profile-section h3 {
+  font-weight: bold;
+  font-size: 25px;
+  color: #000000;
+  margin-bottom: 4%;
+  padding-left: 2%;
+}
+
+.profile-section a {
+  text-decoration: none;
+  background-color: #FCA311;
+  padding: 10px;
+  text-align: center;
+  font-size: 20px;
+  font-family: 'Roboto', sans-serif;
+  border-radius: 8px;
+  font-weight: bold;
+  color: white;
+  margin-bottom: 1%;
+}
+
+.fa-brands {
+  background-color: #3e8e41;
+  margin-left: 1%;
+}
+
+.rooms {
+  border: 1px solid black;
+  padding: 2% 4%;
+  border-radius: 10px;
+  margin-bottom: 2%;
+  transition: transform 0.25s ease; /* Smooth transition for scaling effect */
+}
+
+.rooms:hover {
+  transform: scale(1.1); /* Slightly increase size on hover */
+}
+
+/* 3. Buttons */
+
+.join-btn, .create-btn {
+  background-color: #FCA311;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: 0.25s;
+  margin: 2% 2%;
+  text-align: center;
+}
+
+.close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: #ddd;
+  color: #333;
+  border: none;
+  padding: 6px 10px;
+  font-size: 14px;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: 0.25s;
+}
+
+.close:hover {
+  background-color: rgb(203, 0, 0);
+  color: white;
+}
+
+.public-btn, .private-btn {
+  background-color: #FCA311;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: 0.25s;
+}
+
+.public-btn:hover, .private-btn:hover, .join-btn:hover, .create-btn:hover {
+  background-color: #000000;
+  font-weight: bold;
+  border-radius: 12px;
+}
+
+.go-btn {
+  width: 100%;
+  font-size: 16px;
+  background-color: #14213D;
+  color: #fff;
+  padding: 10px 20px;
+  border: 1px solid #000000;
+  border-radius: 15px;
+  cursor: pointer;
+  transition: 0.25s;
+}
+
+.go-btn:hover {
+  background-color: #3e8e41;
+}
+
+/* 4. Screens */
+
+.screen {
+  width: 20%;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #E5E5E5;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  justify-content: space-between;
+  display: flex;
+  flex-direction: column;
+}
+
+.popup-screen {
+  text-align: center;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #fff;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  width: 30%;
+  z-index: 1;
+  display: none;
+}
+
+.popup-screen.show {
+  display: block;
+}
+
+/* 5. Containers */
+
+.popup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.buttons {
+  display: flex;
+  justify-content: center; /* Updated to center the buttons */
+  margin-top: 20px;
+}
+
+.join-container, .create-container {
+  margin-top: 20px;
+}
+
+.public-private {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+/* 6. Typography */
+
+h2 {
+  font-weight: bold;
+  font-size: 24px;
+  margin: 0;
+}
+
+/* 7. Input Fields */
+
+.input-field {
+  width: 95%;
+  padding: 10px;
+  margin-bottom: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.input-field:focus {
+  border-color: #4CAF50;
+}
+
+/* 8. Responsive Design */
+
+@media (max-width: 768px) {
+  .screen {
+    width: 90%;
+  }
+}
+
+@media (max-width: 480px) {
+  .screen {
+    width: 100%;
+  }
+  .popup-screen {
+    width: 80%;
+  }
+}
+
+/* For JavaScript */
+
+.hide {
+  display: none;
+}
+
+.show {
+  display: block;
+}
+
+.active {
+  background-color: green !important;
+}
+
+/* Flex container for aligning the public-rooms section */
+.container {
+  display: flex;
+  align-items: flex-start; /* Aligns items to the start of the container */
+  padding: 20px;
+}
+
+/* Style for the public-rooms container on the left */
+.public-rooms {
+  width: 300px; /* Adjust width as needed */
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+/* Set height and enable scrolling for the rooms-grid */
+.rooms-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 20px;
+  max-height: 400px; /* Adjust this value to fit your design */
+  overflow-y: auto;
+  padding: 10px;
+  box-sizing: border-box;
+  overflow-y: scroll; /* Enables scrolling for the content */
+  scrollbar-width: none; /* Hides the scrollbar in Firefox */
+}
+
+.rooms-grid::-webkit-scrollbar {
+  display: none; /* Hides the scrollbar in Chrome, Edge, and Safari */
+}
+
+/* Style for individual room blocks */
+.rooms {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background-color: #fff;
+  transition: transform 0.3s ease; /* Smooth transition for scaling effect */
+}
+
+/* Scale down the room block on hover */
+.rooms:hover {
+  transform: scale(0.95); /* Slightly decrease size */
+}
+
+.site-name {
+  font-size: 28px; /* Larger size for a prominent heading */
+  font-weight: bold; /* Makes the text stand out */
+  color: white; /* White text for contrast */
+  margin-left: 10px; /* Spacing between the logo and the text */
+  vertical-align: middle; /* Aligns the text with the logo vertically */
+  line-height: 20px; /* Matches the logo's height for alignment */
+  display: inline-block; /* Keeps the text inline with the logo */
+  position: relative; /* Enables fine-tuning with top adjustment */
+  top: -13px; /* Adjust for better vertical alignment with the logo */
+  font-family: 'Garamond', serif; /* Classic serif font for elegance */
+}

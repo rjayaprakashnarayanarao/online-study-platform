@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SEM-MATE</title>
+    <link rel="stylesheet" href="./styles/home.css">
+    <!-- google fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
+    <!-- fontawesome for icons -->
+    <script src="https://kit.fontawesome.com/68d572b50a.js" crossorigin="anonymous"></script>
+</head>
+<body>
+    <header>
+        <div class="logo-container">
+            <img src="./Images/Logo.png" alt="logo">
+            <span class="site-name">SEM-MATE</span>
+        </div>
+        <a href="report.html" class="report-issue">Report issue <i class="fa-solid fa-bug"></i></a>
+    </header>
+
+    <div class="container">
+        
+        <!-- Public Rooms Section -->
+        <div class="public-rooms">
+            <h2>Public Rooms:</h2>
+            <div class="rooms-grid">
+                <!-- this is only for demo purposes; original code should be dynamic through JS -->
+                <div class="rooms">
+                    <h3>10th maths class</h3>
+                    <button class="go-btn">Enter Room</button>
+                </div>
+                <div class="rooms">
+                    <h3>inter 1st year physics</h3>
+                    <button class="go-btn">Enter Room</button>
+                </div>
+                <div class="rooms">
+                    <h3>degree 2nd year computers</h3>
+                    <button class="go-btn">Enter Room</button>
+                </div>
+                <div class="rooms">
+                    <h3>b.tech cse software architecture</h3>
+                    <button class="go-btn">Enter Room</button>
+                </div>
+                <div class="rooms">
+                    <h3>b.tec ece advanced java</h3>
+                    <button class="go-btn">Enter Room</button>
+                </div>
+                <div class="rooms">
+                    <h3>govt job preparation</h3>
+                    <button class="go-btn">Enter Room</button>
+                </div>
+                <div class="rooms">
+                    <h3>private job preparation</h3>
+                    <button class="go-btn">Enter Room</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- profile section -->
+        <div class="profile-section">
+            <h3><i class="fa-brands fa-superpowers"></i>guest009</h3>
+            <a href="login.html">Login/Sign-up</a>
+        </div>
+
+    </div>
+
+    
+
+    <!-- Home Screen with JOIN and CREATE buttons -->
+    <div id="home-screen" class="screen">
+        <button class="join-btn" onclick="showJoinScreen()">JOIN</button>
+        <button class="create-btn" onclick="showCreateScreen()">CREATE</button>
+    </div>
+
+    <!-- JOIN Popup Screen -->
+    <div id="join-screen" class="popup-screen">
+        <div class="popup-header">
+            <h2>JOIN</h2>
+            <button class="close" onclick="closeScreen()"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="join-container">
+            <input type="text" placeholder="ENTER YOUR NAME" class="input-field" required>
+            <input type="text" placeholder="ENTER CODE" id="join-code" class="input-field" required>
+            <button class="join-btn" onclick="join()">JOIN</button>
+        </div>
+    </div>
+
+    <!-- CREATE Popup Screen -->
+    <div id="create-screen" class="popup-screen">
+        <div class="popup-header">
+            <h2>CREATE</h2>
+            <button class="close" onclick="closeScreen()"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="create-container">
+            <div class="public-private">
+                <button class="public-btn" onclick="setPublic()">PUBLIC <i class="fa-regular fa-eye"></i></button>
+                <button class="private-btn" onclick="setPrivate()">PRIVATE <i class="fa-regular fa-eye-slash"></i></button>
+            </div>
+            <!-- New field for person name -->
+            <input type="text" placeholder="ENTER YOUR NAME" id="creator-name" class="input-field" required>
+            <input type="text" placeholder="ENTER ROOM NAME" id="create-name" class="input-field" required>
+            <button class="create-btn" onclick="create()">CREATE</button>
+        </div>
+    </div>
+
+    <script src="./scripts/home.js"></script>
+</body>
+</html>
