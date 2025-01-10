@@ -1,6 +1,6 @@
 body {
 font-family: 'Arial', sans-serif;
-background-color: #333333;
+background-color: #14213D;
 margin: 0;
 padding: 0;
 box-sizing: border-box;
@@ -8,7 +8,7 @@ box-sizing: border-box;
 
 h1 {
 text-align: center;
-color: #333;
+color: #FCA311;
 font-family: "Roboto", sans-serif;
 font-weight: 700;
 }
@@ -16,45 +16,17 @@ font-weight: 700;
 form {
 max-width: 400px;
 margin: 70px auto;
-background-color: #ffffffeb;
+background-color: rgb(101, 101, 101);
 padding: 20px;
 border-radius: 8px;
 box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
-
-label {
-display: block;
-margin-bottom: 8px;
-color: #090000e3;
-font-family: "Roboto", sans-serif;
-font-weight: bold;
-font-size: large;
-}
-
-select {
-appearance: none; /* Hide the default arrow */
--webkit-appearance: none; /* Hide the default arrow for webkit browsers */
--moz-appearance: none; /* Hide the default arrow for Firefox */
-padding: 10px;
-border: 1px solid hwb(0 0% 96% / 0.432);
-border-radius: 10px;
-color: #333;
-width: 85px;
-font-size: 16px;
-font-weight: lighter;
-transition: 0.15s;
-}
-
-select:hover {
-    background-color: #333;
-    color: white;
 }
 
 input {
 width: 100%;
 padding: 10px;
 margin-bottom: 15px;
-border: 10px solid hsl(0, 10%, 6%);
+border: 1px solid #ddd;
 border-radius: 4px;
 box-sizing: border-box;
 }
@@ -65,17 +37,21 @@ text-align: center;
 
 input[type="submit"] {
 width: 50%;
-border-radius: 20px;
-color: white;
-background-color: #007bff;
-font-size: 16px;
+border-radius: 10px;
+color: black;
+background-color: #FCA311;
+font-size: 18px;
 font-family: Arial, Helvetica, sans-serif;
-transition: 0.15s;
+transition: 0.25s;
+padding: 10px 15px;
+font-weight: bold;
+margin-top: 5%;
+margin-bottom: 8%;
 }
 
 input[type="submit"]:hover {
-background-color: white;
-color: #007bff;
+background-color: black;
+color: #FCA311;
 border-radius: 10px;
 }
 
@@ -88,10 +64,13 @@ color: #d9534f;
 
 a {
 text-decoration: none;
-color: #007bff;
+color: #FCA311;
+transition: 0.25s;
 }
 
 a:hover {
 text-decoration: underline;
-color: #d9534f;
+color: #000;
+transform: scale(1.01);
+font-weight: bold;
 }
