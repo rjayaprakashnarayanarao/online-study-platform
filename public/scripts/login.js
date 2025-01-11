@@ -24,10 +24,10 @@ document.querySelector("form").addEventListener("submit", async (event) => {
         if (response.ok) {
             // alert("Login successful!");
             console.log(result);
-            sessionStorage.setItem("authToken", result.token);
+            localStorage.setItem("authToken", result.token);
 
             // Optionally store user details (avoid sensitive information like passwords)
-            sessionStorage.setItem("user", JSON.stringify(result.user));
+            localStorage.setItem("user", JSON.stringify(result.user));
             window.location.href = "/index.html"; // Redirect to another page
         } else {
             const errorMessage = result.message || "Login failed. Please try again.";
