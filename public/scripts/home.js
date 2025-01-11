@@ -110,43 +110,91 @@ goBtns.forEach(btn => {
     });
 });
 
-const superpowersIcon = document.getElementById('superpowers-icon');
-const popupBox = document.getElementById('popup-box');
-const closePopup = document.querySelector('.close-popup');
+// to show info of the user
+document.addEventListener("DOMContentLoaded", () => {
+    const superpowersIcon = document.getElementById('superpowers-icon');
+    const popupBox = document.getElementById('popup-box');
+  
+    if (superpowersIcon && popupBox) {
+      superpowersIcon.addEventListener('click', () => {
+        console.log('superpowersIcon clicked');
+  
+        const popupContent = popupBox.querySelector('.popup-content');
+        popupContent.innerHTML = ''; // Clear the previous content
 
-console.log('superpowersIcon:', superpowersIcon);
-console.log('popupBox:', popupBox);
-console.log('closePopup:', closePopup);
+        const progressData = {
+            Quizdom: 29, // Example value
+            Analytix: 10, // Example value
+            Rebuff: 5 // Example value
+        };
 
-superpowersIcon.addEventListener('click', () => {
-  console.log('superpowersIcon clicked');
+        // Update progress bars after the content is loaded
+        updateProgressBar('quizdom', progressData.Quizdom);
+        updateProgressBar('analytix', progressData.Analytix);
+        updateProgressBar('rebuff', progressData.Rebuff);
+        
+        const userData = localStorage.getItem("user");
+        if (userData && JSON.parse(userData).name) {
+          console.log('user is logged in');
+  
+          const Quizdom = document.createElement('p');
+          const Analytix = document.createElement('p');
+          const Rebuff = document.createElement('p');
+  
+        Quizdom.textContent = `Quizdom: ${progressData.Quizdom}`;
+        Analytix.textContent = `Analytix: ${progressData.Analytix}`;
+        Rebuff.textContent = `Rebuff: ${progressData.Rebuff}`;
 
-  const message = document.createElement('p');
-  const Quizdom = document.createElement('p');
-  const Analytix = document.createElement('p');
-  const Rebuff = document.createElement('p');
+        popupContent.appendChild(Quizdom);
+        popupContent.appendChild(Analytix);
+        popupContent.appendChild(Rebuff);
+        
+        } else {
+          console.log('user is not logged in');
+          const message = document.createElement('p');
+          message.textContent = 'Login is required to proceed with calculating your levels and accessing relevant data.';
+          popupContent.appendChild(message);
+        }
+  
+        const closePopup = document.createElement('span');
+        closePopup.className = 'close-popup';
+        closePopup.innerHTML = '&times;';
+        closePopup.addEventListener('click', () => {
+          popupBox.style.display = 'none';
+        });
+  
+        popupContent.appendChild(closePopup);
+        popupBox.style.display = 'block';
+      });
+    } else {
+      console.error('superpowersIcon or popupBox is not found in the DOM');
+    }
+  });
 
-  popupBox.querySelector('.popup-content').innerHTML = ''; // Clear the previous content
+  function updateProgressBar(className, progress) {
+    const circle = document.querySelector(`.progress-ring-bar.${className}`);
+    console.log(`Selector: .progress-ring-bar.${className}, Element:`, circle); // Debugging line
 
+    if (!circle) {
+        console.error(`Circle element with class ${className} not found`);
+        return;
+    }
 
-  if (localStorage.getItem("user") && JSON.parse(localStorage.getItem("user")).name) {
-    console.log('user is logged in');
+    const radius = circle.r.baseVal.value;
+    const circumference = 2 * Math.PI * radius;
 
-    Quizdom.textContent = `Quizdom: ${'29'}`;
-    Analytix.textContent = `Analytix: ${'10'}`;
-    Rebuff.textContent = `Rebuff: ${'5'}`;
-    popupBox.querySelector('.popup-content').appendChild(Quizdom);
-    popupBox.querySelector('.popup-content').appendChild(Analytix);
-    popupBox.querySelector('.popup-content').appendChild(Rebuff);
-  } else {
-    console.log('user is not logged in');
-    message.textContent = 'You need to login first';
-  }
-  popupBox.querySelector('.popup-content').appendChild(message);
-  popupBox.style.display = 'block';
-});
+    // Set circle circumference
+    circle.style.strokeDasharray = circumference;
 
-closePopup.addEventListener('click', () => {
-  popupBox.querySelector('.popup-content').innerHTML = '';
-  popupBox.style.display = 'none';
-});
+    // Calculate the offset
+    const offset = circumference - (progress / 100) * circumference;
+
+    // Set the stroke-dashoffset for progress
+    circle.style.strokeDashoffset = offset;
+
+    // Update the text in the center
+    const progressText = document.querySelector(`.circle .progress-text`);
+    if (progressText) {
+        progressText.textContent = `${progress}%`;
+    }
+}
