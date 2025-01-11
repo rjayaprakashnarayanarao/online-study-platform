@@ -27,17 +27,9 @@ function showJoinScreen() {
 }
 
 function showCreateScreen() {
-    // first need to check the authToken from localsession then if present then only it need to open box or else it need to redirect to login page
-    const authToken = localStorage.getItem("authToken");
-    const user = localStorage.getItem("user")
-    if (authToken && user) {
-        document.getElementById("home-screen").classList.add('hide');
-        document.getElementById("create-screen").classList.add('show');
-    } else {
-        window.location.href = "login.html";
-    }
+    document.getElementById("home-screen").classList.add('hide');
+    document.getElementById("create-screen").classList.add('show');
 }
-
 
 function closeScreen() {
     document.getElementById("join-screen").classList.remove('show');
