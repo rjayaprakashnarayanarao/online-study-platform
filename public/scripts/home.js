@@ -61,32 +61,25 @@ function join() {
         alert("Please enter the correct code to join the room");
     }
 }
-
+const socket = io()
 function create() {
-    // check if authToken is present or not
-    if (sessionStorage.getItem("authToken") !== null) {
-        // check if room name is not empty
-        const roomName = document.getElementById("room-name").value;
-        if (roomName) {
-            // check if room type is selected
-            if (roomType !== null) {
-                // create room
-                // ... (rest of the code)
-            }
-        }
-    }
-    if (roomType === null) {
-        alert("Please select room type (Public or Private)");
+    const creatorName = document.getElementById("creator-name").value.trim();
+    const roomName = document.getElementById("create-name").value.trim();
+
+    if (!creatorName || !roomName) {
+        alert("Please fill in all fields.");
         return;
     }
-    const roomName = document.getElementById("create-name").value;
-    if (roomName) {
-        const roomNumber = generateRoomNumber(); // Generate a 6-digit room number
-        // Redirect to room.html with roomName, roomNumber, and showPopup query parameters
-        window.location.href = `room.html?roomName=${encodeURIComponent(roomName)}&roomNumber=${encodeURIComponent(roomNumber)}&showPopup=true`;
-    } else {
-        alert("Please enter a room name.");
-    }
+
+    // Emit the event with the room type
+    socket.emit("createRoom", {
+        creatorName,
+        roomName,
+        roomType
+    });
+
+    alert(`Room "${roomName}" of type "${roomType}" created successfully!`);
+    closeScreen();
 }
 
 function generateRoomNumber() {

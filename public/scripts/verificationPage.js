@@ -8,6 +8,10 @@ function displayErrorMessage(message) {
 function handleFormSubmission(event) {
     event.preventDefault(); // Prevent default form submission behavior
 
+    //get emailID from localstorage
+    var emailID = sessionStorage.getItem("email");
+    console.log("emailID:",emailID);
+    
     const otp = document.getElementById('otp').value;
     const password = document.getElementById('password').value;
     const confirmPassword = document.getElementById('confirmPassword').value;
@@ -19,10 +23,13 @@ function handleFormSubmission(event) {
     }
 
     // Prepare data for the server
-    const data = { otp, password };
+    const data = {emailID, otp, password };
+
+    console.log("Data: ",data);
+    
 
     // Send data to the server
-    fetch('/verifyAndResetPassword', {
+    fetch('http://localhost:3000/api/auth/verifyOtpForPassword', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -31,9 +38,11 @@ function handleFormSubmission(event) {
     })
         .then(response => response.json())
         .then(result => {
-            if (result.success) {
-                alert('Password reset successful!');
-                window.location.href = '/login'; // Redirect to login page
+            console.log("result: ",result);
+            
+            if (result.user.success) {
+                // alert('Password reset successful!');
+                window.location.href = 'login.html'; // Redirect to login page
             } else {
                 displayErrorMessage(result.message || 'Failed to reset password. Please try again.');
             }

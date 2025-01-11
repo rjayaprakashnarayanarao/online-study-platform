@@ -21,6 +21,10 @@ const User = sequelize.define('Users', {
         type: DataTypes.STRING,
         allowNull: false
     },
+    otp:{
+        type: DataTypes.INTEGER,
+        allowNull:true
+    },
     created_at: {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW

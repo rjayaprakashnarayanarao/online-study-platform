@@ -1,5 +1,4 @@
 document.getElementById('resetPasswordBtn').addEventListener('click', function () {
-    const role = document.getElementById('role').value;
     const email = document.getElementById('identifier').value;
 
     // Validation
@@ -9,10 +8,10 @@ document.getElementById('resetPasswordBtn').addEventListener('click', function (
     }
 
     // Prepare the data to be sent
-    const data = { role, email };
+    const data = { email };
 
     // Make a POST request
-    fetch('/forgetPassword', {
+    fetch('http://localhost:3000/api/auth/forgetPassword', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -21,8 +20,14 @@ document.getElementById('resetPasswordBtn').addEventListener('click', function (
     })
     .then(response => response.json())
     .then(result => {
-        if (result.success) {
-            alert('Password reset link sent to your email.');
+        console.log("result: ",result);
+                
+        if (result.type =="success") {
+            //set emailID in localstorage
+            sessionStorage.setItem('email', email);
+            //redirect to verificationPage.html
+            window.location.href = 'verificationPage.html';
+            // alert('Password reset link sent to your email.');
         } else {
             alert('Failed to reset password. Please try again.');
         }

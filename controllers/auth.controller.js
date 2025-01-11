@@ -19,3 +19,31 @@ exports.login = async (req, res) => {
     res.status(401).json({ message: error.message });
   }
 };
+
+// export forgetpassword controller
+exports.forgetPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+    const type = await AuthService.forgetPassword(email);
+    res.status(200).json({ message: 'Password reset email sent successfully', type });
+  } catch (error) {
+    console.log("error: ", error);
+    
+    res.status(400).json({ message: error.message });
+  }
+};
+
+//export password verification controller
+exports.verifyPassword = async (req, res) => {
+  try {
+    console.log("body: ",req.body);
+    
+    const {emailID, otp, password } = req.body;
+    const user = await AuthService.verifyPassword(emailID, otp, password);
+    res.status(200).json({ message: 'Password reset successful', user });
+  } catch (error) {
+    console.log("error: ",error);
+    
+    res.status(400).json({ message: error.message });
+  }
+};
