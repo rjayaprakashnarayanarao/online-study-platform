@@ -121,8 +121,16 @@ document.addEventListener("DOMContentLoaded", () => {
   
         const popupContent = popupBox.querySelector('.popup-content');
         popupContent.innerHTML = ''; // Clear the previous content
+        
+        const userData = localStorage.getItem("user");
+        if (userData && JSON.parse(userData).name) {
+          console.log('user is logged in');
+  
+          const Quizdom = document.createElement('p');
+          const Analytix = document.createElement('p');
+          const Rebuff = document.createElement('p');
 
-        const progressData = {
+          const progressData = {
             Quizdom: 29, // Example value
             Analytix: 10, // Example value
             Rebuff: 5 // Example value
@@ -132,14 +140,6 @@ document.addEventListener("DOMContentLoaded", () => {
         updateProgressBar('quizdom', progressData.Quizdom);
         updateProgressBar('analytix', progressData.Analytix);
         updateProgressBar('rebuff', progressData.Rebuff);
-        
-        const userData = localStorage.getItem("user");
-        if (userData && JSON.parse(userData).name) {
-          console.log('user is logged in');
-  
-          const Quizdom = document.createElement('p');
-          const Analytix = document.createElement('p');
-          const Rebuff = document.createElement('p');
   
         Quizdom.textContent = `Quizdom: ${progressData.Quizdom}`;
         Analytix.textContent = `Analytix: ${progressData.Analytix}`;
@@ -172,28 +172,26 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   function updateProgressBar(className, progress) {
-    const circle = document.querySelector(`.progress-ring-bar.${className}`);
-    console.log(`Selector: .progress-ring-bar.${className}, Element:`, circle); // Debugging line
+    // Correct selector to target the circle element inside the SVG
+    const circle = document.querySelector(`.circle-${className}`);
+    
+    // Debugging: Log the selector and element
+    console.log(`Selector: .circle-${className} .progress-ring-bar .${className}`, circle);
 
     if (!circle) {
-        console.error(`Circle element with class ${className} not found`);
+        console.error(`Circle element with class circle-${className} not found`);
         return;
     }
 
+    // Calculate the progress bar offset
     const radius = circle.r.baseVal.value;
     const circumference = 2 * Math.PI * radius;
-
-    // Set circle circumference
     circle.style.strokeDasharray = circumference;
-
-    // Calculate the offset
     const offset = circumference - (progress / 100) * circumference;
-
-    // Set the stroke-dashoffset for progress
     circle.style.strokeDashoffset = offset;
 
-    // Update the text in the center
-    const progressText = document.querySelector(`.circle .progress-text`);
+    // Update the progress text
+    const progressText = document.querySelector(`.circle-${className} .progress-text`);
     if (progressText) {
         progressText.textContent = `${progress}%`;
     }
