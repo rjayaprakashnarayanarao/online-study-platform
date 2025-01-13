@@ -29,7 +29,7 @@ function handleFormSubmission(event) {
     
 
     // Send data to the server
-    fetch('http://localhost:3000/api/auth/verifyOtpForPassword', {
+    fetch('/api/auth/verifyOtpForPassword', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

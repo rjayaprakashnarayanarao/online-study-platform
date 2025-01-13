@@ -4,11 +4,6 @@ function getQueryParam(name) {
     return urlParams.get(name);
 }
 
-// Function to generate a 6-digit random number
-function generateRandomNumber() {
-    return Math.floor(100000 + Math.random() * 900000);
-}
-
 // Function to close the popup card
 function closePopup() {
     document.getElementById('popup-card').style.display = 'none';
@@ -24,21 +19,22 @@ function showPopup() {
 // Show popup card on page load
 window.onload = function() {
     const roomName = getQueryParam('roomName'); // Get room name from URL
-    const roomNumber = generateRandomNumber(); // Generate a 6-digit random number
-    const showPopupParam = getQueryParam('showPopup'); // Get showPopup parameter from URL
+    const roomNumber = getQueryParam('roomNumber'); // Get room number from URL
 
+    // Update the room name and number in the popup if they exist
     if (roomName) {
         document.getElementById('room-name').textContent = roomName;
     }
 
-    // Update the room number text correctly
-    document.getElementById('room-number').textContent = roomNumber;
+    if (roomNumber) {
+        document.getElementById('room-number').textContent = roomNumber;
+    }
 
-    // Check if popup should be shown
-    if (showPopupParam === 'true') {
-        showPopup();
+    // Check if both roomName and roomNumber are present in the URL
+    if (roomName && roomNumber) {
+        showPopup(); // Show the popup if both parameters are present
     } else {
-        closePopup();
+        closePopup(); // Close the popup if parameters are missing
     }
 
     // Get the copy button and room number elements
@@ -67,9 +63,6 @@ window.onload = function() {
     });
 
     // Update sharing links dynamically
-    updateShareLinks();
-
-    // Call updateShareLinks when page loads
     updateShareLinks();
 };
 
@@ -105,40 +98,10 @@ document.addEventListener('DOMContentLoaded', () => {
         showPopup();
     });
 
-    // Add click event listeners to person buttons
-    const personButtons = document.querySelectorAll('.second-grid button');
-    const materials = document.querySelector('.materials');
-    const studyPlan = document.querySelector('.study-plan');
-    const resources = document.querySelector('.resources');
-
-    personButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            materials?.classList.add('show');
-            studyPlan?.classList.add('show');
-            resources?.classList.add('show');
-        });
-    });
-
-    // Add event listeners for toggling the hidden grid content
-    document.querySelector('.materials-button')?.addEventListener('click', () => {
-        toggleHiddenGrid('materials');
-    });
-
-    document.querySelector('.study-plan-button')?.addEventListener('click', () => {
-        toggleHiddenGrid('study-plan');
-    });
-
-    document.querySelector('.resources-button')?.addEventListener('click', () => {
-        toggleHiddenGrid('resources');
-    });
-
-    document.querySelector('.upload-button')?.addEventListener('click', () => {
-        window.location.href = 'upload.html';
-    });
-
     // Start the room timer
     startRoomTimer();
 });
+
 
 // Toggle hidden grid content
 function toggleHiddenGrid(section) {

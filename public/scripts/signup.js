@@ -26,7 +26,7 @@ document.querySelector("form").addEventListener("submit", async (event) => {
 
     try {
         // Send POST request to the signup endpoint
-        const response = await fetch("http://localhost:3000/api/auth/signup", {
+        const response = await fetch("/api/auth/signup", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",

@@ -11,7 +11,7 @@ document.getElementById('resetPasswordBtn').addEventListener('click', function (
     const data = { email };
 
     // Make a POST request
-    fetch('http://localhost:3000/api/auth/forgetPassword', {
+    fetch('/api/auth/forgetPassword', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

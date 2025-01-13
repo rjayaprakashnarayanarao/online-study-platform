@@ -61,26 +61,54 @@ function join() {
         alert("Please enter the correct code to join the room");
     }
 }
-const socket = io()
-function create() {
+
+async function createRoom() {
     const creatorName = document.getElementById("creator-name").value.trim();
     const roomName = document.getElementById("create-name").value.trim();
 
-    if (!creatorName || !roomName) {
+    if (!creatorName || !roomName || !roomType) {
         alert("Please fill in all fields.");
         return;
     }
-
-    // Emit the event with the room type
-    socket.emit("createRoom", {
+    const userString = localStorage.getItem("user"); // Retrieve the string from localStorage
+    const user = userString ? JSON.parse(userString) : null; // Parse the string into an object
+    const admin_name = user ? user.name : null; // Safely access the name property
+    
+    const roomData = {
         creatorName,
         roomName,
-        roomType
-    });
+        roomType,
+        admin_name
+    };
+    
+    console.log("Room Data: ", roomData);
+    
 
-    alert(`Room "${roomName}" of type "${roomType}" created successfully!`);
-    closeScreen();
+    try {
+        const response = await fetch('/api/room/createRoom', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(roomData),
+        });
+
+        const result = await response.json();
+
+        if (response.status == 201) {
+            console.log("response: ",result);
+            
+            // Redirect to room.html with room details
+            window.location.href = `room.html?roomName=${encodeURIComponent(result.room_name)}&roomNumber=${encodeURIComponent(result.room_id)}`;
+        } else {
+            alert(result.message || 'Failed to create room. Please try again.');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('An error occurred. Please try again later.');
+    }
 }
+
 
 function generateRoomNumber() {
     return String(Math.floor(100000 + Math.random() * 900000)); // Generate a 6-digit number
