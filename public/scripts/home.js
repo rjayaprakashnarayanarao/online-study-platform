@@ -83,7 +83,6 @@ async function createRoom() {
     
     console.log("Room Data: ", roomData);
     
-
     try {
         const response = await fetch('/api/room/createRoom', {
             method: 'POST',
@@ -108,7 +107,6 @@ async function createRoom() {
         alert('An error occurred. Please try again later.');
     }
 }
-
 
 function generateRoomNumber() {
     return String(Math.floor(100000 + Math.random() * 900000)); // Generate a 6-digit number
@@ -138,7 +136,7 @@ goBtns.forEach(btn => {
     });
 });
 
-// to show info of the user
+// Event listener for the superpowers icon to show the popup
 document.addEventListener("DOMContentLoaded", () => {
     const superpowersIcon = document.getElementById('superpowers-icon');
     const popupBox = document.getElementById('popup-box');
@@ -154,29 +152,65 @@ document.addEventListener("DOMContentLoaded", () => {
         if (userData && JSON.parse(userData).name) {
           console.log('user is logged in');
   
-          const Quizdom = document.createElement('p');
-          const Analytix = document.createElement('p');
-          const Rebuff = document.createElement('p');
-
           const progressData = {
             Quizdom: 29, // Example value
             Analytix: 10, // Example value
             Rebuff: 5 // Example value
-        };
+          };
 
-        // Update progress bars after the content is loaded
-        updateProgressBar('quizdom', progressData.Quizdom);
-        updateProgressBar('analytix', progressData.Analytix);
-        updateProgressBar('rebuff', progressData.Rebuff);
-  
-        Quizdom.textContent = `Quizdom: ${progressData.Quizdom}`;
-        Analytix.textContent = `Analytix: ${progressData.Analytix}`;
-        Rebuff.textContent = `Rebuff: ${progressData.Rebuff}`;
+           // Create and append elements for each progress data
+           for (const [key, value] of Object.entries(progressData)) {
+            const progressContainer = document.createElement('div');
+            progressContainer.className = 'progress-container';
 
-        popupContent.appendChild(Quizdom);
-        popupContent.appendChild(Analytix);
-        popupContent.appendChild(Rebuff);
-        
+            const progressElement = document.createElement('div');
+            progressElement.className = 'circular-progress';
+            progressElement.setAttribute('data-inner-circle-color', 'black');
+            progressElement.setAttribute('data-percentage', value);
+            progressElement.setAttribute('data-progress-color', 'white');
+            progressElement.setAttribute('data-bg-color', 'grey');
+            progressElement.innerHTML = `
+              <div class="inner-circle"></div>
+              <p class="percentage">${value}%</p>
+            `;
+            const labelElement = document.createElement('p');
+            labelElement.textContent = key;
+            labelElement.className = 'progress-label';
+
+            progressContainer.appendChild(progressElement);
+            progressContainer.appendChild(labelElement);
+            popupContent.appendChild(progressContainer);
+        }
+
+        // Add circular progress bar functionality
+        const circularProgress = document.querySelectorAll(".circular-progress");
+
+        Array.from(circularProgress).forEach((progressBar) => {
+            const progressValue = progressBar.querySelector(".percentage");
+            const innerCircle = progressBar.querySelector(".inner-circle");
+            let startValue = 0,
+            endValue = Number(progressBar.getAttribute("data-percentage")),
+            speed = 50,
+            progressColor = progressBar.getAttribute("data-progress-color");
+
+            const progress = setInterval(() => {
+            startValue++;
+            progressValue.textContent = `${startValue}%`;
+            progressValue.style.color = `${progressColor}`;
+
+            innerCircle.style.backgroundColor = `${progressBar.getAttribute(
+                "data-inner-circle-color"
+            )}`;
+
+            progressBar.style.background = `conic-gradient(${progressColor} ${
+                startValue * 3.6
+            }deg,${progressBar.getAttribute("data-bg-color")} 0deg)`;
+            if (startValue === endValue) {
+                clearInterval(progress);
+            }
+        }, speed);
+        });
+
         } else {
           console.log('user is not logged in');
           const message = document.createElement('p');
@@ -197,30 +231,4 @@ document.addEventListener("DOMContentLoaded", () => {
     } else {
       console.error('superpowersIcon or popupBox is not found in the DOM');
     }
-  });
-
-  function updateProgressBar(className, progress) {
-    // Correct selector to target the circle element inside the SVG
-    const circle = document.querySelector(`.circle-${className}`);
-    
-    // Debugging: Log the selector and element
-    console.log(`Selector: .circle-${className} .progress-ring-bar .${className}`, circle);
-
-    if (!circle) {
-        console.error(`Circle element with class circle-${className} not found`);
-        return;
-    }
-
-    // Calculate the progress bar offset
-    const radius = circle.r.baseVal.value;
-    const circumference = 2 * Math.PI * radius;
-    circle.style.strokeDasharray = circumference;
-    const offset = circumference - (progress / 100) * circumference;
-    circle.style.strokeDashoffset = offset;
-
-    // Update the progress text
-    const progressText = document.querySelector(`.circle-${className} .progress-text`);
-    if (progressText) {
-        progressText.textContent = `${progress}%`;
-    }
-}
+});
