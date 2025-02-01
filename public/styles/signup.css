@@ -6,11 +6,18 @@ padding: 0;
 box-sizing: border-box;
 }
 
+.logo-sm {
+    width: 230px;
+    height: 100px;
+    margin-left: 17%;
+}
+
 h1 {
 text-align: center;
 color: #FCA311;
 font-family: "Roboto", sans-serif;
 font-weight: 700;
+margin-top: 5px;
 }
 
 form {

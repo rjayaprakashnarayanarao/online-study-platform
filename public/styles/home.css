@@ -18,17 +18,21 @@ header {
   background-color: #14213D;
   color: #fff;
   border-bottom: 1px solid #ddd;
-  height: 60px; /* Define a fixed height for the header */
+  height: 70px; /* Define a fixed height for the header */
   box-sizing: border-box; /* Includes padding in height calculation */
 }
 
 header img {
   height: 100%; /* Matches the header height */
-  max-height: 40px; /* Ensures the image doesn't become too large */
+  max-height: 60px; /* Ensures the image doesn't become too large */
   width: auto; /* Maintains aspect ratio */
   object-fit: contain; /* Fits the image within the bounds without distortion */
   border-radius: 10px; /* Adds smooth corners to the image */
   margin-top: 5px; /* Moves the image slightly downward */
+}
+
+.logo-sm {
+  margin-left: 20px;
 }
 
 .report-issue {

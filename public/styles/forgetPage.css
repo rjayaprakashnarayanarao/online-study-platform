@@ -14,9 +14,16 @@ body {
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
+.logo-sm {
+    width: 230px;
+    height: 100px;
+    margin-left: 17%;
+}
+
 h1 {
     text-align: center;
     color: #FCA311;
+    margin: 2px;
 }
 
 .form-group {
