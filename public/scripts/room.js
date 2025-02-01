@@ -1,3 +1,106 @@
+// Add the msg functions here
+let messages = [];
+
+function openPopup(userId, type) {
+    const popup = document.getElementById('popup');
+    const chatContainer = document.getElementById('chat-container');
+    const infoContainer = document.getElementById('info-container');
+    const popupTitle = document.getElementById('popup-title');
+    const messagesContainer = document.getElementById('messages');
+    const chatPlaceholder = document.getElementById('chat-placeholder');
+    
+    popup.classList.remove('hidden');
+    popup.setAttribute('data-user-id', userId);
+    popup.setAttribute('data-type', type);
+    
+    // Set popup title based on type
+    switch (type) {
+        case 'chat':
+            popupTitle.textContent = 'Chat';
+            chatContainer.style.display = 'flex';
+            infoContainer.style.display = 'none';
+            break;
+        case 'info':
+            popupTitle.textContent = 'User Information';
+            chatContainer.style.display = 'none';
+            infoContainer.style.display = 'block';
+            break;
+    }
+
+    // Display the messages for the selected user and option
+    renderMessages(userId, type);
+
+    // Show or hide the placeholder based on the presence of messages
+    if (messages[userId] && messages[userId][type] && messages[userId][type].length > 0) {
+        chatPlaceholder.style.display = 'none';
+    } else {
+        chatPlaceholder.style.display = 'block';
+    }
+}
+
+function closePopupBox() {
+    const popup = document.getElementById('popup');
+    popup.classList.add('hidden');
+}
+
+function sendMessage(event) {
+    event.preventDefault();
+    
+    const input = document.getElementById('message-input');
+    const text = input.value.trim();
+    
+    if (!text) return;
+
+    const userId = document.getElementById('popup').getAttribute('data-user-id');
+    const type = document.getElementById('popup').getAttribute('data-type');
+    
+    const message = {
+        id: Date.now(),
+        text: text,
+        sender: 'You',
+        timestamp: new Date().toLocaleTimeString()
+    };
+
+    if (!messages[userId]) {
+        messages[userId] = {};
+    }
+    
+    if (!messages[userId][type]) {
+        messages[userId][type] = [];
+    }
+    
+    messages[userId][type].push(message);
+    renderMessages(userId, type);
+    input.value = '';
+
+    // Hide the placeholder when a message is sent
+    document.getElementById('chat-placeholder').style.display = 'none';
+}
+
+// Function to render messages for a specific user and option
+function renderMessages(userId, type) {
+    const messagesContainer = document.getElementById('messages');
+    const userMessages = messages[userId] && messages[userId][type] ? messages[userId][type] : [];
+    messagesContainer.innerHTML = userMessages.map(message => `
+        <div class="message">
+            <div class="message-header">
+                <span class="message-sender">${message.sender}</span>
+                <span class="message-time">${message.timestamp}</span>
+            </div>
+            <p class="message-text">${message.text}</p>
+        </div>
+    `).join('');
+    
+    // Scroll to bottom
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
+
+// Initialize Lucide icons
+document.addEventListener('DOMContentLoaded', () => {
+    lucide.createIcons();
+    document.querySelector('.close-button').addEventListener('click', closePopupBox);
+});
+
 // Function to get URL parameter by name
 function getQueryParam(name) {
     const urlParams = new URLSearchParams(window.location.search);
@@ -18,11 +121,11 @@ function showPopup() {
 
 // Example user data
 const users = [
-    { name: 'Jaya Prakash'},
-    { name: 'jay' },
-    { name: 'mukesh' },
-    { name: 'just checking the length' },
-    { name: 'jai sem-mate' }
+    { id: 'user1', name: 'Jaya Prakash' },
+    { id: 'user2', name: 'jay' },
+    { id: 'user3', name: 'mukesh' },
+    { id: 'user4', name: 'just checking the length' },
+    { id: 'user5', name: 'jai sem-mate' }
 ];
 
 // Function to populate user details
@@ -36,10 +139,8 @@ function populateUserDetails() {
         userDiv.innerHTML = `
             <p>${user.name}</p>
             <div class="user-options">
-                <button class="question-box">Q</button>
-                <button class="answered-box">S</button>
-                <button class="raise-hand">R</button>
-                <button class="user-info">I</button>
+                <button class="user-info" onclick="openPopup('${user.id}', 'info')"><i class="fa-solid fa-info"></i></button>
+                <button class="chat-box" onclick="openPopup('${user.id}', 'chat')"><i class="fa-brands fa-rocketchat"></i></button>
             </div>
         `;
         userDetailsContainer.appendChild(userDiv);

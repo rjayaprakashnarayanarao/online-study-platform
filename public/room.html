@@ -66,6 +66,41 @@
         </div>
     </div>
 
+    <!-- Add the new HTML content here -->
+    <div id="popup" class="popup hidden">
+        <div class="popup-content">
+            <div class="popup-header">
+                <h2 id="popup-title"></h2>
+                <button class="close-button" onclick="closePopup()">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <div class="popup-body">
+                <div id="chat-container" class="chat-container">
+                    <div id="messages" class="messages">
+                        <div id="chat-placeholder" class="chat-placeholder">ask only questions</div>
+                        <!-- msgs will appear here -->
+                    </div>
+                    <form id="message-form" class="message-form" onsubmit="sendMessage(event)">
+                        <input 
+                            type="text" 
+                            id="message-input" 
+                            placeholder="Type your message..."
+                            class="message-input"
+                        >
+                        <button type="submit" class="send-button">Send</button>
+                    </form>
+                </div>
+                <div id="info-container" class="info-container">
+                    <div class="info-section" id="progress-section">
+                        <h3>Progress</h3>
+                        <!-- Progress bars will be dynamically added here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="popup-card" class="popup-card">
         <div class="popup-header">
             <button class="close-popup" onclick="closePopup()">✖</button>
@@ -107,5 +142,6 @@
     </div>   
 
     <script src="./scripts/room.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
 </body>
 </html>

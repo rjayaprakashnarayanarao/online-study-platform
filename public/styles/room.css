@@ -444,6 +444,212 @@ body.modal-open {
   cursor: pointer;
 }
 
+/* Add the new pop box styles here */
+.popup {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  z-index: 50;
+}
+
+.popup.hidden {
+  display: none;
+}
+
+.popup-content {
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 28rem;
+  max-height: 90vh;
+  overflow: hidden;
+}
+
+.popup-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 5px;
+  margin-bottom: 0;
+}
+
+.popup-header h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 0.25rem;
+}
+
+.close-button:hover {
+  color: #374151;
+}
+
+.popup-body {
+  padding: 1rem;
+  max-height: calc(90vh - 4rem);
+  overflow-y: auto;
+  padding-top: 8px;
+}
+
+.chat-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding-top: 0;
+}
+
+.messages {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-height: 200px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.chat-placeholder {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #6b7280;
+  font-size: 1.2em;
+  text-align: center;
+}
+
+.message {
+  margin-bottom: 8px;
+}
+
+.message-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.25rem;
+}
+
+.message-sender {
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.message-time {
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.message-text {
+  background-color: #f3f4f6;
+  padding: 10px;
+  border-radius: 0.5rem;
+  color: #1f2937;
+  margin: 0;
+}
+
+.message-form {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: auto;
+}
+
+.message-input {
+  flex: 1;
+  padding: 0.5rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  outline: none;
+}
+
+.message-input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+.send-button {
+  padding: 0.5rem 1rem;
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+}
+
+.send-button:hover {
+  background-color: #2563eb;
+}
+
+.info-container {
+  display: none;
+  gap: 1rem;
+}
+
+/* Add the circular bar styles here */
+.progress-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.circular-progress {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.circular-progress .inner-circle {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background-color: black;
+}
+
+.circular-progress .percentage {
+  position: absolute;
+  font-size: 1.2em;
+  color: white;
+}
+
+.progress-label {
+  font-size: 1em;
+  text-align: center;
+}
+
+@media screen and (max-width: 800px) {
+  :root {
+    --progress-bar-width: 150px;
+    --progress-bar-height: 150px;
+    --font-size: 1.3rem;
+  }
+}
+
+@media screen and (max-width: 500px) {
+  :root {
+    --progress-bar-width: 120px;
+    --progress-bar-height: 120px;
+    --font-size: 1rem;
+  }
+}
+
 .right-grid {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr; /* Divide into three equal columns */
