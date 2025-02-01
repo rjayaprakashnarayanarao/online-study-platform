@@ -78,17 +78,29 @@
             <div class="popup-body">
                 <div id="chat-container" class="chat-container">
                     <div id="messages" class="messages">
-                        <div id="chat-placeholder" class="chat-placeholder">ask only questions</div>
+                        <div id="chat-placeholder" class="chat-placeholder">Ask only questions</div>
                         <!-- msgs will appear here -->
                     </div>
                     <form id="message-form" class="message-form" onsubmit="sendMessage(event)">
-                        <input 
-                            type="text" 
-                            id="message-input" 
-                            placeholder="Type your message..."
-                            class="message-input"
-                        >
-                        <button type="submit" class="send-button">Send</button>
+                        <div class="message-type-options">
+                            <label class="message-type-label">
+                                <input type="radio" name="message-type" value="Q" required>
+                                <span>Question</span>
+                            </label>
+                            <label class="message-type-label">
+                                <input type="radio" name="message-type" value="A" required>
+                                <span>Answer</span>
+                            </label>
+                        </div>
+                        <div class="input-container">
+                            <input 
+                                type="text" 
+                                id="message-input" 
+                                placeholder="Type your message..."
+                                class="message-input"
+                            >
+                            <button type="submit" class="send-button">Send</button>
+                        </div>
                     </form>
                 </div>
                 <div id="info-container" class="info-container">

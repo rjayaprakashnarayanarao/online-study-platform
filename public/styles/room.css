@@ -466,7 +466,7 @@ body.modal-open {
   border-radius: 0.5rem;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   width: 100%;
-  max-width: 28rem;
+  max-width: 50rem;
   max-height: 90vh;
   overflow: hidden;
 }
@@ -520,17 +520,16 @@ body.modal-open {
   min-height: 200px;
   max-height: 400px;
   overflow-y: auto;
+  position: relative;
 }
 
 .chat-placeholder {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  color: #6b7280;
-  font-size: 1.2em;
   text-align: center;
+  color: gray;
+  font-style: italic;
+  margin-top: 10px;
 }
+
 
 .message {
   margin-bottom: 8px;
@@ -539,7 +538,14 @@ body.modal-open {
 .message-header {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   margin-bottom: 0.25rem;
+}
+
+.message-header .left {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem; /* Adjust the gap between name and message type */
 }
 
 .message-sender {
@@ -558,12 +564,122 @@ body.modal-open {
   border-radius: 0.5rem;
   color: #1f2937;
   margin: 0;
+  word-wrap: break-word; /* Ensures long words break to the next line */
+  overflow-wrap: break-word; /* Ensures long words break to the next line */
+  max-width: 620px; /* Set the maximum width */
 }
 
 .message-form {
   display: flex;
+  flex-direction: column;
   gap: 0.5rem;
   margin-top: auto;
+}
+
+.message-type {
+  font-size: 0.75rem;
+  padding: 0.125rem 0.375rem;
+  border-radius: 0.25rem;
+  margin-left: 0.5rem;
+  font-weight: bold;
+}
+
+.message-type-Q {
+  background-color: #e5f2ff;
+  color: #1a73e8;
+}
+
+.message-type-A {
+  background-color: #e6ffe6;
+  color: #28a745;
+}
+
+.message-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.like-button {
+  background: none;
+  border: none;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  transition: color 0.2s ease;
+  margin-top: 0.5rem;
+}
+
+.like-button:hover {
+  color: #3b82f6;
+}
+
+.like-button i {
+  font-size: 1rem;
+}
+
+.like-count {
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.dislike-button {
+  background: none;
+  border: none;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  transition: color 0.2s ease;
+  margin-top: 0.5rem;
+}
+
+.dislike-button:hover {
+  color: #ff4d4d;
+}
+
+.dislike-button i {
+  font-size: 1rem;
+}
+
+.dislike-count {
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.like-button.active, .dislike-button.active {
+  color: #3b82f6; /* Change color to indicate active state */
+}
+
+.dislike-button.active {
+  color: #e53e3e; /* Change color to indicate active state */
+}
+
+.message-type-options {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.message-type-label {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  cursor: pointer;
+}
+
+.message-type-label input {
+  cursor: pointer;
+}
+
+.input-container {
+  display: flex;
+  gap: 0.5rem;
 }
 
 .message-input {

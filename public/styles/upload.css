@@ -21,12 +21,21 @@ header {
     color: #fff;
     border-bottom: 1px solid #ddd;
     z-index: 100; /* Ensures the header stays on top */
+    height: 60px;
 }
 
-/* Header image styling */
 header img {
-    height: 30px; /* Further reduced size */
-    margin: 0;
+    width: 60px; /* Adjusted width */
+    height: 60px; /* Adjusted height */
+    border-radius: 10px;
+    margin-left: 5px;
+}
+
+.logo-sm {
+    width: 120px;
+    height: 60px;
+    border-radius: 10px;
+    margin-left: 20px;
 }
 
 /* Button styles in the header */

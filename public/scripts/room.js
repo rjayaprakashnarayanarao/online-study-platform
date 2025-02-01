@@ -7,7 +7,6 @@ function openPopup(userId, type) {
     const infoContainer = document.getElementById('info-container');
     const popupTitle = document.getElementById('popup-title');
     const messagesContainer = document.getElementById('messages');
-    const chatPlaceholder = document.getElementById('chat-placeholder');
     
     popup.classList.remove('hidden');
     popup.setAttribute('data-user-id', userId);
@@ -29,13 +28,6 @@ function openPopup(userId, type) {
 
     // Display the messages for the selected user and option
     renderMessages(userId, type);
-
-    // Show or hide the placeholder based on the presence of messages
-    if (messages[userId] && messages[userId][type] && messages[userId][type].length > 0) {
-        chatPlaceholder.style.display = 'none';
-    } else {
-        chatPlaceholder.style.display = 'block';
-    }
 }
 
 function closePopupBox() {
@@ -47,9 +39,15 @@ function sendMessage(event) {
     event.preventDefault();
     
     const input = document.getElementById('message-input');
-    const text = input.value.trim();
-    
+    const text = input.value.trim();    
     if (!text) return;
+
+    // Get the selected message type (Q or A)
+    const messageType = document.querySelector('input[name="message-type"]:checked');
+    if (!messageType) {
+        alert('Please select a message type (Q or A)');
+        return;
+    }
 
     const userId = document.getElementById('popup').getAttribute('data-user-id');
     const type = document.getElementById('popup').getAttribute('data-type');
@@ -58,7 +56,9 @@ function sendMessage(event) {
         id: Date.now(),
         text: text,
         sender: 'You',
-        timestamp: new Date().toLocaleTimeString()
+        timestamp: new Date().toLocaleTimeString(),
+        messageType: messageType.value,
+        likes: 0
     };
 
     if (!messages[userId]) {
@@ -73,23 +73,102 @@ function sendMessage(event) {
     renderMessages(userId, type);
     input.value = '';
 
-    // Hide the placeholder when a message is sent
-    document.getElementById('chat-placeholder').style.display = 'none';
+    // Reset the message type
+    messageType.checked = false;
+}
+
+// Function to like a message
+function likeMessage(messageId, userId, type) {
+    const userMessages = messages[userId][type];
+    const message = userMessages.find(m => m.id === messageId);
+    if (message && message.messageType === 'A') { // Only allow liking answers
+        if (message.liked) {
+            message.likes--;
+            message.liked = false;
+        } else {
+            if (message.disliked) {
+                message.dislikes--;
+                message.disliked = false;
+            }
+            message.likes++;
+            message.liked = true;
+        }
+        renderMessages(userId, type);
+    }
+}
+
+// Function to dislike a message
+function dislikeMessage(messageId, userId, type) {
+    const userMessages = messages[userId][type];
+    const message = userMessages.find(m => m.id === messageId);
+    if (message && message.messageType === 'A') { // Only allow disliking answers
+        if (message.disliked) {
+            message.dislikes--;
+            message.disliked = false;
+        } else {
+            if (message.liked) {
+                message.likes--;
+                message.liked = false;
+            }
+            if (!message.dislikes) {
+                message.dislikes = 0;
+            }
+            message.dislikes++;
+            message.disliked = true;
+        }
+        renderMessages(userId, type);
+    }
 }
 
 // Function to render messages for a specific user and option
 function renderMessages(userId, type) {
     const messagesContainer = document.getElementById('messages');
     const userMessages = messages[userId] && messages[userId][type] ? messages[userId][type] : [];
-    messagesContainer.innerHTML = userMessages.map(message => `
-        <div class="message">
-            <div class="message-header">
-                <span class="message-sender">${message.sender}</span>
-                <span class="message-time">${message.timestamp}</span>
-            </div>
-            <p class="message-text">${message.text}</p>
-        </div>
-    `).join('');
+
+    messagesContainer.innerHTML = ''; // Clear previous messages
+
+    if (userMessages.length === 0) {
+        const placeholder = document.createElement('div');
+        placeholder.id = 'chat-placeholder';
+        placeholder.className = 'chat-placeholder';
+        placeholder.textContent = 'Users are required to select Q (Question) for inquiries or clarification or A (Answer) for responses or explanations before sending a message. This ensures clear, structured, and efficient communication.';
+        messagesContainer.appendChild(placeholder);
+    } else {
+        userMessages.forEach(message => {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message';
+
+            const likeButton = message.messageType === 'A' 
+                ? `<button class="like-button" onclick="likeMessage(${message.id}, '${userId}', '${type}')">
+                     <i class="fas fa-thumbs-up"></i>
+                     <span class="like-count">${message.likes}</span>
+                   </button>`
+                : '';
+
+            const dislikeButton = message.messageType === 'A' 
+            ? `<button class="dislike-button" onclick="dislikeMessage(${message.id}, '${userId}', '${type}')">
+                    <i class="fas fa-thumbs-down"></i>
+                    <span class="dislike-count">${message.dislikes || 0}</span>
+                </button>` 
+            : '';
+
+            messageDiv.innerHTML = `
+                <div class="message-header">
+                    <div class="left">
+                        <span class="message-sender">${message.sender}</span>
+                        <span class="message-type message-type-${message.messageType}">${message.messageType}</span>
+                    </div>
+                    <span class="message-time">${message.timestamp}</span>
+                </div>
+                <div class="message-content">
+                    <p class="message-text">${message.text}</p>
+                    ${likeButton}
+                    ${dislikeButton}
+                </div>
+            `;
+            messagesContainer.appendChild(messageDiv);
+        });
+    }
     
     // Scroll to bottom
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
