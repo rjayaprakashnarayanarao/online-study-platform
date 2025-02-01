@@ -1,4 +1,5 @@
 header {
+  z-index: 1000; /* Ensures the header stays on top */
   position: fixed;
   top: 0;
   left: 0;
@@ -10,17 +11,21 @@ header {
   background-color: #14213D;
   color: #fff;
   border-bottom: 1px solid #ddd;
-  height: 60px; /* Define a fixed height for the header */
+  height: 70px; /* Define a fixed height for the header */
   box-sizing: border-box; /* Includes padding in height calculation */
 }
 
 header img {
   height: 100%; /* Matches the header height */
-  max-height: 40px; /* Ensures the image doesn't become too large */
+  max-height: 60px; /* Ensures the image doesn't become too large */
   width: auto; /* Maintains aspect ratio */
   object-fit: contain; /* Fits the image within the bounds without distortion */
   border-radius: 10px; /* Adds smooth corners to the image */
   margin-top: 5px; /* Moves the image slightly downward */
+}
+
+.logo-sm {
+  margin-left: 20px;
 }
 
 /* Button styles in the header */
@@ -318,18 +323,6 @@ body.modal-open {
   transition: 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
 
-.wrapper .facebook:hover span {
-  background: #3B5999;
-}
-
-.wrapper .twitter:hover span {
-  background: #46C1F6;
-}
-
-.wrapper .instagram:hover span {
-  background: #e1306c;
-}
-
 .wrapper .linkedin:hover span {
   background: #0077b5;
 }
@@ -387,54 +380,68 @@ body.modal-open {
 }
 
 .left-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  grid-template-rows: 1fr 1fr; /* 2 rows for the left side grids */
-  gap: 10px;
-  width: 100%;
-  height: 100%;
+  margin: 0;
+  padding: 0;
 }
 
 .person-details {
+  font-size: 35px; /* Larger font size for better readability */
+  font-weight: bold;
   background-color: #D3D3D3; /* Grey color for the grid items */
   border-radius: 10px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Light shadow for the grid items */
   padding: 20px;
   box-sizing: border-box;
-  height: 30%;
-  font-size: 44px; /* Reduced font size */
-  display: flex; /* Make the container a flexbox */
-  justify-content: center; /* Center the text horizontally */
-  align-items: center; /* Center the text vertically */
+  margin: 0 !important;
 }
 
-.second-grid {
-  background-color: #D3D3D3; /* Grey color for the grid items */
-  border-radius: 10px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Light shadow for the grid items */
+.person-details-grid {
+  margin-top: -3%;
+  background-color: #D3D3D3;
+  display: grid;
+  grid-template-columns:1fr;
+  gap: 20px;
   padding: 20px;
   box-sizing: border-box;
-  height: 167%; /* Half of the height */
-  margin-top: -200px; /* Move the grid towards the top */
-  display: flex; /* Make the second grid a flexbox */
-  flex-direction: column; /* Arrange buttons vertically */
-  align-items: center; /* Center buttons horizontally */
+  border-radius: 10px;
 }
 
-.second-grid button {
-  background-color: #727b72;
-  color: #fff;
-  padding: 10px 20px;
+.single-user {
+  border: 2px solid black;
+  border-radius: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 20px;
+  font-weight: bold;
+  background-color: #D3D3D3;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  height: 50px;
+  width: 100%;
+}
+
+.single-user:hover {
+  background-color: #f8f8f8;
+}
+
+.single-user p {
+  margin: 0;
+  margin-left: 5px;
+  font-weight: bold;
+}
+
+.user-options {
+  margin: 0;
+  margin-right: 5px;
+}
+
+.user-options button {
+  background-color: #14213D;
+  color: #FCA311;
   border: none;
-  border-radius: 5px;
+  border-radius: 40%;
+  padding: 5px 10px;
   cursor: pointer;
-  width: 80%; /* Make the button 80% width of the second grid */
-  margin-bottom: 10px; /* Add some space between buttons */
-}
-
-.second-grid button:hover {
-  background-color: #383e38;
-  color: #fff; /* Add this line to change text color to white */
 }
 
 .right-grid {
@@ -515,16 +522,4 @@ body.modal-open {
 .room-timer {
   pointer-events: none;
   user-select: none;
-}
-.site-name {
-  font-size: 28px; /* Larger size for a prominent heading */
-  font-weight: bold; /* Makes the text stand out */
-  color: white; /* White text for contrast */
-  margin-left: 10px; /* Spacing between the logo and the text */
-  vertical-align: middle; /* Aligns the text with the logo vertically */
-  line-height: 20px; /* Matches the logo's height for alignment */
-  display: inline-block; /* Keeps the text inline with the logo */
-  position: relative; /* Enables fine-tuning with top adjustment */
-  top: -13px; /* Adjust for better vertical alignment with the logo */
-  font-family: 'Garamond', serif; /* Classic serif font for elegance */
 }

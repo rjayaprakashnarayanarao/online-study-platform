@@ -16,6 +16,36 @@ function showPopup() {
     document.body.classList.add('modal-open');
 }
 
+// Example user data
+const users = [
+    { name: 'Jaya Prakash'},
+    { name: 'jay' },
+    { name: 'mukesh' },
+    { name: 'just checking the length' },
+    { name: 'jai sem-mate' }
+];
+
+// Function to populate user details
+function populateUserDetails() {
+    const userDetailsContainer = document.getElementById('user-details-container');
+    userDetailsContainer.innerHTML = ''; // Clear existing user details
+
+    users.forEach(user => {
+        const userDiv = document.createElement('div');
+        userDiv.className = 'single-user';
+        userDiv.innerHTML = `
+            <p>${user.name}</p>
+            <div class="user-options">
+                <button class="question-box">Q</button>
+                <button class="answered-box">S</button>
+                <button class="raise-hand">R</button>
+                <button class="user-info">I</button>
+            </div>
+        `;
+        userDetailsContainer.appendChild(userDiv);
+    });
+}
+
 // Show popup card on page load
 window.onload = function() {
     const roomName = getQueryParam('roomName'); // Get room name from URL
@@ -97,6 +127,9 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelector('.details-button')?.addEventListener('click', () => {
         showPopup();
     });
+
+    // Populate user details
+    populateUserDetails();
 
     // Start the room timer
     startRoomTimer();
