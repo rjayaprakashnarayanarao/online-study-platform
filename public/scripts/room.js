@@ -1,17 +1,21 @@
 // Add the msg functions here
 let messages = [];
+let roomCode = "";
+let username = "";
+const userButtons = {};
 
+// Function to open the chat popup
 function openPopup(userId, type) {
     const popup = document.getElementById('popup');
     const chatContainer = document.getElementById('chat-container');
     const infoContainer = document.getElementById('info-container');
     const popupTitle = document.getElementById('popup-title');
     const messagesContainer = document.getElementById('messages');
-    
+
     popup.classList.remove('hidden');
     popup.setAttribute('data-user-id', userId);
     popup.setAttribute('data-type', type);
-    
+
     // Set popup title based on type
     switch (type) {
         case 'chat':
@@ -30,16 +34,18 @@ function openPopup(userId, type) {
     renderMessages(userId, type);
 }
 
+// Function to close the popup
 function closePopupBox() {
     const popup = document.getElementById('popup');
     popup.classList.add('hidden');
 }
 
+// Function to send a message
 function sendMessage(event) {
     event.preventDefault();
-    
+
     const input = document.getElementById('message-input');
-    const text = input.value.trim();    
+    const text = input.value.trim();
     if (!text) return;
 
     // Get the selected message type (Q or A)
@@ -51,7 +57,7 @@ function sendMessage(event) {
 
     const userId = document.getElementById('popup').getAttribute('data-user-id');
     const type = document.getElementById('popup').getAttribute('data-type');
-    
+
     const message = {
         id: Date.now(),
         text: text,
@@ -61,14 +67,17 @@ function sendMessage(event) {
         likes: 0
     };
 
+    // Emit the message to the server
+    socket.emit('sendMessage', { roomCode, userId, message });
+
     if (!messages[userId]) {
         messages[userId] = {};
     }
-    
+
     if (!messages[userId][type]) {
         messages[userId][type] = [];
     }
-    
+
     messages[userId][type].push(message);
     renderMessages(userId, type);
     input.value = '';
@@ -138,19 +147,19 @@ function renderMessages(userId, type) {
             const messageDiv = document.createElement('div');
             messageDiv.className = 'message';
 
-            const likeButton = message.messageType === 'A' 
+            const likeButton = message.messageType === 'A'
                 ? `<button class="like-button" onclick="likeMessage(${message.id}, '${userId}', '${type}')">
                      <i class="fas fa-thumbs-up"></i>
                      <span class="like-count">${message.likes}</span>
                    </button>`
                 : '';
 
-            const dislikeButton = message.messageType === 'A' 
-            ? `<button class="dislike-button" onclick="dislikeMessage(${message.id}, '${userId}', '${type}')">
+            const dislikeButton = message.messageType === 'A'
+                ? `<button class="dislike-button" onclick="dislikeMessage(${message.id}, '${userId}', '${type}')">
                     <i class="fas fa-thumbs-down"></i>
                     <span class="dislike-count">${message.dislikes || 0}</span>
-                </button>` 
-            : '';
+                </button>`
+                : '';
 
             messageDiv.innerHTML = `
                 <div class="message-header">
@@ -169,7 +178,7 @@ function renderMessages(userId, type) {
             messagesContainer.appendChild(messageDiv);
         });
     }
-    
+
     // Scroll to bottom
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
 }
@@ -199,12 +208,13 @@ function showPopup() {
 }
 
 // Example user data
-const users = [
-    { id: 'user1', name: 'Jaya Prakash' },
-    { id: 'user2', name: 'jay' },
-    { id: 'user3', name: 'mukesh' },
-    { id: 'user4', name: 'just checking the length' },
-    { id: 'user5', name: 'jai sem-mate' }
+let users = [
+    // { id: 'user1', name: 'Jaya Prakash' },
+
+    // { id: 'user2', name: 'jay' },
+    // { id: 'user3', name: 'mukesh' },
+    // { id: 'user4', name: 'just checking the length' },
+    // { id: 'user5', name: 'jai sem-mate' }
 ];
 
 // Function to populate user details
@@ -227,7 +237,7 @@ function populateUserDetails() {
 }
 
 // Show popup card on page load
-window.onload = function() {
+window.onload = function () {
     const roomName = getQueryParam('roomName'); // Get room name from URL
     const roomNumber = getQueryParam('roomNumber'); // Get room number from URL
 
@@ -419,7 +429,7 @@ const updateShareLinks = () => {
 };
 
 // Add an event listener for the Gmail button that will open the user's Gmail compose screen with pre-filled details
-document.getElementById('gmail-share-link')?.addEventListener('click', function(event) {
+document.getElementById('gmail-share-link')?.addEventListener('click', function (event) {
     event.preventDefault();
     const gmailID = prompt('Please enter your Gmail address to send the room details:');
 
@@ -436,3 +446,162 @@ document.getElementById('gmail-share-link')?.addEventListener('click', function(
         window.location.href = gmailLink;
     }
 });
+
+// Function to extract query parameter from URL
+const getsQueryParam = (name) => {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get(name);
+};
+
+// Decrypt the encrypted data using the Web Crypto API
+async function decryptData(encryptedData) {
+    try {
+        // Ensure the input is valid Base64 before decoding
+        const decodedData = atob(encryptedData);
+
+        // Parse the JSON structure
+        const data = JSON.parse(decodedData);
+
+        const { encrypted, iv, key } = data;
+
+        // Convert arrays back to Uint8Array
+        const encryptedArray = new Uint8Array(encrypted);
+        const ivArray = new Uint8Array(iv);
+        const keyArray = new Uint8Array(key);
+
+        // Import the encryption key
+        const cryptoKey = await crypto.subtle.importKey(
+            "raw",
+            keyArray,
+            { name: "AES-GCM" },
+            false,
+            ["decrypt"]
+        );
+
+        // Decrypt the data
+        const decrypted = await crypto.subtle.decrypt(
+            {
+                name: "AES-GCM",
+                iv: ivArray,
+            },
+            cryptoKey,
+            encryptedArray
+        );
+
+        // Decode and parse the decrypted data
+        const decoder = new TextDecoder();
+        const decryptedString = decoder.decode(decrypted);
+
+        // Parse the decrypted string into an object
+        return JSON.parse(decryptedString); // ✅ Convert to object before returning
+
+    } catch (error) {
+        console.error("Decryption failed:", error.message);
+        return null;
+    }
+}
+
+// Fetch, decrypt, and log the data
+(async () => {
+    let data = getsQueryParam("data"); // Fetch encrypted data from URL
+
+    if (data) {
+        const decryptedData = await decryptData(data);
+        if (decryptedData) {
+            console.log("Decrypted Data:", decryptedData);
+
+            const socket = io("http://localhost:3000");
+
+            // Check if the user is the admin (room creator)
+            if ((decryptedData.admin_name === decryptedData.creatorName) && (decryptedData.creatorName)) {
+                console.log("Admin detected. Creating room...");
+
+                // Admin creates the room
+                socket.emit("createRoom", {
+                    roomCode: decryptedData.room_id,
+                    adminName: decryptedData.creatorName
+                });
+
+                socket.on("roomCreated", (data) => {
+                    console.log("Room created successfully:", data);
+                });
+
+            } else {
+                console.log("Participant detected. Joining room...");
+
+                // User joins an existing room
+                socket.emit("joinRoom", {
+                    roomCode: decryptedData,
+                    username: decryptedData.creatorName || "guest009"
+                });
+
+                socket.on("roomJoined", (data) => {
+                    populateUserDetails()
+                    console.log("Joined room successfully:", data);
+                });
+            }
+
+            populateUserDetails()
+
+            // Listen for new messages
+            socket.on("newMessage", (message) => {
+                console.log("New message:", message);
+            });
+
+            socket.on("error", (error) => {
+                console.log("error:", error);
+            })
+
+            socket.on("roomClosed", (message) => {
+                alert(message); // Show an alert
+                window.location.href = "index.html"; // Redirect to index.html
+            });
+
+            // Listen for users joining
+            socket.on("userJoined", ({ user, userName }) => {
+                let obj = { id: user, name: userName };
+                users.push(obj);
+                populateUserDetails()
+
+                console.log("Current Users: ", users);
+                console.log("User joined:", user);
+            });
+
+            socket.on("adminUserJoined", ({ user, userName }) => {
+                let obj = { id: user, name: userName };
+                users.push(obj);
+                populateUserDetails()
+
+                console.log("Current Users: ", users);
+                console.log("User joined:", user);
+            });
+
+            // Listen for updated user list
+            socket.on("updateUsers", ({ users: updatedUsers }) => {
+                users = Object.entries(updatedUsers).map(([id, name]) => ({ id, name }));
+                populateUserDetails();
+                console.log("Updated User List: ", users);
+            });
+
+            // Fetch existing users when joining
+            socket.on("existingUsers", ({ users: existingUsers }) => {
+                users = Object.entries(existingUsers).map(([id, name]) => ({ id, name }));
+                populateUserDetails();
+                console.log("Fetched existing users:", users);
+            });
+
+            // Listen for users leaving
+            socket.on("userLeft", (userId) => {
+                users = users.filter(user => user.id !== userId);
+                populateUserDetails();
+                console.log("User left:", userId);
+            });
+            // Listen for users leaving
+
+        } else {
+            console.log("Decryption failed. Invalid data.");
+        }
+    } else {
+        console.log("No 'data' parameter found in the URL.");
+    }
+})();

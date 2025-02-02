@@ -53,26 +53,45 @@ function closeScreen() {
     document.getElementById("home-screen").classList.remove('hide');
 }
 
-function join() {
-    const code = document.getElementById("join-code").value;
-    if (code) {
-        window.location.href = `room.html?code=${encodeURIComponent(code)}`; // Redirect without showPopup
-    } else {
+async function join() {
+    const code = document.getElementById("join-code").value.trim();
+
+    if (!code) {
         alert("Please enter the correct code to join the room");
+        return;
+    }
+
+    try {
+        // Encrypt the room code before redirecting
+        const encryptedCode = await encryptData(code);
+        console.log("Encrypted Code:", encryptedCode);
+
+        // Redirect to room.html with encrypted code as a query parameter
+        window.location.href = `room.html?data=${encodeURIComponent(encryptedCode)}`;
+    } catch (error) {
+        console.error("Encryption Error:", error);
+        alert("An error occurred while encrypting the room code.");
     }
 }
 
 async function createRoom() {
-    const creatorName = document.getElementById("creator-name").value.trim();
     const roomName = document.getElementById("create-name").value.trim();
-
-    if (!creatorName || !roomName || !roomType) {
+    
+    if ( !roomName || !roomType) {
         alert("Please fill in all fields.");
         return;
     }
-    const userString = localStorage.getItem("user"); // Retrieve the string from localStorage
-    const user = userString ? JSON.parse(userString) : null; // Parse the string into an object
-    const admin_name = user ? user.name : null; // Safely access the name property
+    // Get the username from the <h3> element
+    const heading = document.querySelector("#superpowers-icon").parentElement;
+    const text = heading.textContent.trim(); // Extracts "guest009"
+
+    // Retrieve user data from localStorage
+    const userString = localStorage.getItem("user");
+    const user = userString ? JSON.parse(userString) : null;
+
+    // If user exists and has a name, use it; otherwise, fallback to the text
+    const admin_name = user && user.name ? user.name : text;
+    const creatorName = text
     
     const roomData = {
         creatorName,
@@ -94,11 +113,16 @@ async function createRoom() {
 
         const result = await response.json();
 
-        if (response.status == 201) {
-            console.log("response: ",result);
-            
-            // Redirect to room.html with room details
-            window.location.href = `room.html?roomName=${encodeURIComponent(result.room_name)}&roomNumber=${encodeURIComponent(result.room_id)}`;
+        if (response.status === 201) {
+            console.log("response: ", result);
+
+            // Encrypt the result object
+            const encryptedData = await encryptData(result);
+            console.log("Encrypted Data: ",encryptedData);
+
+
+            // Redirect to room.html with encrypted data as a query parameter
+            window.location.href = `room.html?data=${encodeURIComponent(encryptedData)}`;
         } else {
             alert(result.message || 'Failed to create room. Please try again.');
         }
@@ -232,3 +256,45 @@ document.addEventListener("DOMContentLoaded", () => {
       console.error('superpowersIcon or popupBox is not found in the DOM');
     }
 });
+
+
+// Encryption function using Web Crypto API
+async function encryptData(data) {
+    const key = await crypto.subtle.generateKey(
+        {
+            name: "AES-GCM",
+            length: 256,
+        },
+        true,
+        ["encrypt", "decrypt"]
+    );
+
+    // Convert data to a JSON string and then to a Uint8Array
+    const encoder = new TextEncoder();
+    const encodedData = encoder.encode(JSON.stringify(data));
+
+    // Generate a random initialization vector
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+
+    // Encrypt the data
+    const encrypted = await crypto.subtle.encrypt(
+        {
+            name: "AES-GCM",
+            iv,
+        },
+        key,
+        encodedData
+    );
+
+    // Export the key for transmission/storage
+    const exportedKey = await crypto.subtle.exportKey("raw", key);
+
+    // Return encrypted data, IV, and key as a Base64 string
+    return btoa(
+        JSON.stringify({
+            encrypted: Array.from(new Uint8Array(encrypted)),
+            iv: Array.from(iv),
+            key: Array.from(new Uint8Array(exportedKey)),
+        })
+    );
+}
