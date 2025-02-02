@@ -292,18 +292,22 @@ document.addEventListener("DOMContentLoaded", () => {
             guidelinesPopup.className = 'guidelines-popup';
 
             const guidelinesContent = `
-              <h2>User Guidelines</h2>
+              <h2>User Guidelines:</h2>
               <p>Your level in this application is determined by your engagement in knowledge-sharing and problem-solving. It is influenced by three key factors: Quizdom, Analytix, and Rebuff. Understanding these metrics will help you make the most of the platform and grow your expertise.</p>
-              <h3>Level Progression Criteria</h3>
+              <h3>Level Progression Criteria:</h3>
               <h4>Quizdom:</h4>
               <p>Your Quizdom score increases when you actively seek knowledge by asking insightful questions in Rocket Chat. The more you engage in meaningful discussions, the more your level improves.</p>
               <h4>Analytix:</h4>
               <p>Your Analytix score grows when you solve other users' questions by applying your problem-solving skills. This metric increases based on the number of likes your solutions receive from others, showcasing the value of your contributions.</p>
               <h4>Rebuff:</h4>
               <p>Your Rebuff score rises when the answers you provide are incorrect or unhelpful. A higher Rebuff score negatively impacts your overall level, as it increases when others dislike the solutions you provide. Strive for accuracy and clarity to maintain a low Rebuff score.</p>
-              <h3>4. Benefits of Increasing Your Level</h3>
-              <p>Achieving a higher level comes with valuable rewards. We will provide you with a certificate reflecting your current level, which you can showcase on professional platforms such as LinkedIn, Glassdoor, and other job portals. This certification serves as proof of your expertise and engagement, helping you enhance your career opportunities.</p>
-              <p>Stay active, contribute effectively, and keep leveling up!</p>
+              <h3>Benefits of Increasing Your Level:</h3>
+              <p>Progressing to higher levels unlocks valuable benefits, including:</p>
+              <h4>Certification:</h4>
+              <p>We will provide an official certificate reflecting your current level, which serves as a testament to your expertise and knowledge.</p>
+              <h4>Career Growth:</h4>
+              <p>Your certification can be showcased on professional platforms such as LinkedIn, Glassdoor, and other job-related networks to enhance your credibility and improve career opportunities.</p>
+              <h4>Stay active, contribute effectively, and keep leveling up!</h4>
             `;
 
             guidelinesPopup.innerHTML = guidelinesContent;

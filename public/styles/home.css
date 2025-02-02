@@ -260,6 +260,10 @@ header img {
   margin-top: 10px;
 }
 
+.guidelines-popup h4 {
+  margin: 0;
+}
+
 .guidelines-popup p {
   font-size: 16px;
   margin-bottom: 10px;
