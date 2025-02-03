@@ -14,7 +14,7 @@ exports.createRoom = async (data) => {
             room_type: data.roomType
         })
         await newRoom.save()
-        console.log('Room created', newRoom.dataValues)
+        // console.log('Room created', newRoom.dataValues)
         return newRoom.dataValues
     } catch (error) {
         console.log(error)

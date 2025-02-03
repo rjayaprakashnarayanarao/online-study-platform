@@ -65,9 +65,9 @@ function closeScreen() {
 async function join() {
     const heading = document.querySelector("#superpowers-icon").parentElement;
     const text = heading.textContent.trim(); // Extracts "guest009"
-    const code = document.getElementById("join-code").value.trim();
 
     if (!code) {
+        code = document.getElementById("join-code").value.trim();
         alert("Please enter the correct code to join the room");
         return;
     }
