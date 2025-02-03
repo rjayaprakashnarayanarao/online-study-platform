@@ -713,6 +713,21 @@ body.modal-open {
   gap: 1rem;
 }
 
+/* for record button */
+.record-button {
+  background-color: #ff4d4d;
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  padding: 0.5rem 1rem;
+  margin-left: 0.5rem;
+}
+
+.record-button:hover {
+  background-color: #e53e3e;
+}
+
 /* Add the circular bar styles here */
 .progress-container {
   display: flex;

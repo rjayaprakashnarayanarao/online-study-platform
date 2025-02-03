@@ -4,6 +4,51 @@ let roomCode = "";
 let username = "";
 const userButtons = {};
 
+// added audio recording functionality
+let isRecording = false;
+let mediaRecorder;
+let audioChunks = [];
+
+// function to work as on/off switch for recording
+function toggleRecording() {
+    if (isRecording) {
+        stopRecording();
+    } else {
+        startRecording();
+    }
+}
+
+// function to start recording
+function startRecording() {
+    navigator.mediaDevices.getUserMedia({ audio: true })
+        .then(stream => {
+            mediaRecorder = new MediaRecorder(stream);
+            mediaRecorder.start();
+            isRecording = true;
+            mediaRecorder.ondataavailable = event => {
+                audioChunks.push(event.data);
+            };
+            mediaRecorder.onstop = () => {
+                const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                audioChunks = [];
+                const audioUrl = URL.createObjectURL(audioBlob);
+                const audio = new Audio(audioUrl);
+                audio.controls = true;
+                document.getElementById('messages').appendChild(audio);
+                // You can send the audioBlob to the server here
+            };
+        })
+        .catch(error => {
+            console.error('Error accessing microphone:', error);
+        });
+}
+
+// function to stop recording
+function stopRecording() {
+    mediaRecorder.stop();
+    isRecording = false;
+}
+
 // Function to open the chat popup
 function openPopup(userId, type) {
     const popup = document.getElementById('popup');
@@ -46,7 +91,10 @@ function sendMessage(event) {
 
     const input = document.getElementById('message-input');
     const text = input.value.trim();
-    if (!text) return;
+    const userId = document.getElementById('popup').getAttribute('data-user-id');
+    const type = document.getElementById('popup').getAttribute('data-type');
+
+    if (!text && audioChunks.length === 0) return;
 
     // Get the selected message type (Q or A)
     const messageType = document.querySelector('input[name="message-type"]:checked');
@@ -54,10 +102,7 @@ function sendMessage(event) {
         alert('Please select a message type (Q or A)');
         return;
     }
-
-    const userId = document.getElementById('popup').getAttribute('data-user-id');
-    const type = document.getElementById('popup').getAttribute('data-type');
-
+    
     const message = {
         id: Date.now(),
         text: text,
@@ -67,8 +112,22 @@ function sendMessage(event) {
         likes: 0
     };
 
+    // Check if the message is text or audio
+    if (text) {
+        message.text = text;
+    } else if (audioChunks.length > 0) {
+        // Process voice message
+        const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+        audioChunks = [];
+
+        const audioUrl = URL.createObjectURL(audioBlob);
+        message.audioUrl = audioUrl;
+    } else {
+        return; // No valid message content
+    }
+
     // Emit the message to the server
-    socket.emit('sendMessage', { roomCode, userId, message });
+    // socket.emit('sendMessage', { roomCode, userId, message });
 
     if (!messages[userId]) {
         messages[userId] = {};
@@ -209,12 +268,7 @@ function showPopup() {
 
 // Example user data
 let users = [
-    // { id: 'user1', name: 'Jaya Prakash' },
-
-    // { id: 'user2', name: 'jay' },
-    // { id: 'user3', name: 'mukesh' },
-    // { id: 'user4', name: 'just checking the length' },
-    // { id: 'user5', name: 'jai sem-mate' }
+    // { id: 'user1', name: 'Jaya Prakash' }
 ];
 
 // Function to populate user details
