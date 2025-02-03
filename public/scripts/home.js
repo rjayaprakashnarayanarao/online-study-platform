@@ -1,7 +1,7 @@
 let roomType = null;
 
 // Check if user is signed in or not
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded",async () => {
     const profileName = document.querySelector(".profile-section h3");
     const authButton = document.querySelector(".profile-section .join-btn");
     const signOutButton = document.querySelector(".profile-section .sign-out-btn");
@@ -40,6 +40,35 @@ document.addEventListener("DOMContentLoaded", () => {
         // Redirect to the login page
         window.location.href = "index.html";
     });
+    try {
+        const response = await fetch("api/room/getPublicRooms");
+        const rooms = await response.json();
+        console.log("Rooms:", rooms);
+        
+        const roomsContainer = document.getElementById("roomsContainer");
+        roomsContainer.innerHTML = ""; // Clear any existing content
+
+        rooms.forEach(room => {
+            const roomDiv = document.createElement("div");
+            roomDiv.classList.add("rooms");
+
+            const roomTitle = document.createElement("h3");
+            roomTitle.textContent = room.room_name;
+
+            const joinButton = document.createElement("button");
+            joinButton.classList.add("go-btn");
+            joinButton.textContent = "Enter Room";
+            joinButton.onclick = () => join(room.room_id); // Pass room code as parameter
+
+            roomDiv.appendChild(roomTitle);
+            console.log("room code:",room.room_id);
+            
+            roomDiv.appendChild(joinButton);
+            roomsContainer.appendChild(roomDiv);
+        });
+    } catch (error) {
+        console.error("Error fetching public rooms:", error);
+    }
 });
 
 function generateUniqueId() {
@@ -352,13 +381,20 @@ async function generateKey() {
 
 // Function to encrypt data
 async function encryptData(data) {
-    const key = await generateKey(); // Generate encryption key
-    const iv = crypto.getRandomValues(new Uint8Array(12)); // Generate IV
+    const key = await crypto.subtle.generateKey(
+        {
+            name: "AES-GCM",
+            length: 256,
+        },
+        true,
+        ["encrypt", "decrypt"]
+    );
 
     const encoder = new TextEncoder();
-    const encodedData = encoder.encode(JSON.stringify(data)); // Convert object to Uint8Array
+    const encodedData = encoder.encode(JSON.stringify(data));
 
-    // Encrypt the data
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+
     const encrypted = await crypto.subtle.encrypt(
         {
             name: "AES-GCM",
@@ -368,12 +404,13 @@ async function encryptData(data) {
         encodedData
     );
 
-    // Export the key
     const exportedKey = await crypto.subtle.exportKey("raw", key);
 
-    return JSON.stringify({
-        encrypted: toBase64(encrypted), // Convert encrypted data to Base64
-        iv: toBase64(iv), // Convert IV to Base64
-        key: toBase64(exportedKey), // Convert key to Base64
-    });
+    return btoa(
+        JSON.stringify({
+            encrypted: Array.from(new Uint8Array(encrypted)),
+            iv: Array.from(iv),
+            key: Array.from(new Uint8Array(exportedKey)),
+        })
+    );
 }

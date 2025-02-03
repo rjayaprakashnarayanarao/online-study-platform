@@ -471,15 +471,15 @@ function fromBase64(data) {
 // Function to decrypt data
 async function decryptData(encryptedData) {
     try {
-        const parsedData = JSON.parse(encryptedData);
-        const { encrypted, iv, key } = parsedData;
+        const decodedData = atob(encryptedData);
+        const data = JSON.parse(decodedData);
 
-        // Convert Base64 back to Uint8Array
-        const encryptedArray = fromBase64(encrypted);
-        const ivArray = fromBase64(iv);
-        const keyArray = fromBase64(key);
+        const { encrypted, iv, key } = data;
 
-        // Import the encryption key
+        const encryptedArray = new Uint8Array(encrypted);
+        const ivArray = new Uint8Array(iv);
+        const keyArray = new Uint8Array(key);
+
         const cryptoKey = await crypto.subtle.importKey(
             "raw",
             keyArray,
@@ -488,7 +488,6 @@ async function decryptData(encryptedData) {
             ["decrypt"]
         );
 
-        // Decrypt the data
         const decrypted = await crypto.subtle.decrypt(
             {
                 name: "AES-GCM",
@@ -498,10 +497,8 @@ async function decryptData(encryptedData) {
             encryptedArray
         );
 
-        // Decode and parse the decrypted data
         const decoder = new TextDecoder();
-        return JSON.parse(decoder.decode(decrypted)); // Convert string back to object
-
+        return JSON.parse(decoder.decode(decrypted));
     } catch (error) {
         console.error("Decryption failed:", error.message);
         return null;

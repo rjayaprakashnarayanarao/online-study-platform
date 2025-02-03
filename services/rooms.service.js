@@ -35,3 +35,19 @@ exports.getRoom = async (data) => {
         throw new Error("error getting room: ", error);
     }
 }
+
+exports.getPublicRooms = async()=>{
+    try {
+        const room = await rooms.findAll({ 
+            where: {
+                room_type: ["public", "Public"] // This checks for both cases
+            } 
+        });
+        
+        return room;
+    } catch (error) {
+        console.log(error)
+        //throw error
+        throw new Error("error getting room: ", error);
+    }
+}

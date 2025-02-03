@@ -18,3 +18,12 @@ exports.getRoom = async (req, res) => {
         res.status(404).json({ message: error.message })
     }
 }
+
+exports.getPublicRooms = async(req,res)=>{
+    try {
+        const result = await rooms.getPublicRooms(req.params.id)
+        res.status(200).json(result)
+    } catch (error) {
+        res.status(404).json({ message: error.message })
+    }
+}
