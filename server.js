@@ -31,6 +31,9 @@ const messageHistory = {};
 // 🔹 Handle Socket.io Connections
 const activeUsers = new Map(); // Map to track active users in each room
 
+const userSocketMap = new Map(); // Maps socket ID to username
+
+
 io.on("connection", (socket) => {
     console.log("User connected:", socket.id);
     const id = socket.id
@@ -76,25 +79,22 @@ io.on("connection", (socket) => {
     // 🔹 User Joins Room
     socket.on("joinRoom", async ({ roomCode, username }) => {
         console.log("Join Room Event received. Room Code:", roomCode);
-
+    
         try {
             const room = await Rooms.findOne({ where: { room_id: roomCode } });
-
-            //update the socketid in room
-
+    
             if (!room) {
                 console.log(`Room ${roomCode} does not exist.`);
                 socket.emit("error", "Room does not exist.");
                 return;
             }
-            
-
+    
             socket.join(roomCode);
-            activeUsers.get(roomCode).add(username);
-
+            activeUsers.get(roomCode).add(username); // Store username in the room's user set
+            userSocketMap.set(socket.id, { roomCode, username }); // Store mapping
+    
             console.log(`${username} joined room ${roomCode}`);
-
-            // Send existing users & message history to the newly joined user
+    
             socket.emit("messageHistory", messageHistory[roomCode] || []);
             io.to(roomCode).emit("userJoined", { userName: username, user: socket.id });
             io.to(roomCode).emit("updateUsers", { users: Array.from(activeUsers.get(roomCode)) });
@@ -103,6 +103,7 @@ io.on("connection", (socket) => {
             socket.emit("error", "Failed to join room.");
         }
     });
+    
 
     // 🔹 User Sends Message
     socket.on("sendMessage", ({ roomCode, message }) => {
@@ -117,36 +118,49 @@ io.on("connection", (socket) => {
     // 🔸 User Disconnects
     socket.on("disconnect", async () => {
         try {
+            // Check if the disconnected user is an admin
             const room = await Rooms.findOne({ where: { socket_id: socket.id } });
-
+    
             if (room) {
                 const roomCode = room.room_id;
-
+    
                 console.log(`Admin ${socket.id} left. Closing room ${roomCode}.`);
-
+    
                 io.to(roomCode).emit("roomClosed", "The admin has left. Redirecting...");
-
+    
                 // Delete room from database
                 await Rooms.destroy({ where: { room_id: roomCode } });
-
+    
                 // Remove message history and active users
                 delete messageHistory[roomCode];
                 activeUsers.delete(roomCode);
             } else {
                 // Handle regular user disconnect
-                activeUsers.forEach((users, roomCode) => {
-                    if (users.has(socket.id)) {
-                        users.delete(socket.id);
-                        io.to(roomCode).emit("updateUsers", { users: Array.from(users) });
+                const userInfo = userSocketMap.get(socket.id);
+    
+                if (userInfo) {
+                    const { roomCode, username } = userInfo;
+    
+                    if (activeUsers.has(roomCode)) {
+                        activeUsers.get(roomCode).delete(username); // Remove the user by username
+    
+                        // Notify others in the room
+                        io.to(roomCode).emit("userLeft", socket.id);
+                        io.to(roomCode).emit("updateUsers", { users: Array.from(activeUsers.get(roomCode)) });
+    
+                        console.log(`User ${username} left room ${roomCode}`);
                     }
-                });
+    
+                    // Remove mapping
+                    userSocketMap.delete(socket.id);
+                }
             }
         } catch (error) {
             console.error("Error handling disconnect:", error);
         }
-
+    
         console.log("User disconnected:", socket.id);
-    });
+    });        
 });
 
 // 🔹 Start Server
