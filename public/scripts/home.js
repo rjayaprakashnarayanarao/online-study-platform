@@ -62,14 +62,13 @@ function closeScreen() {
     document.getElementById("home-screen").classList.remove('hide');
 }
 
-async function join() {
+async function join(passedCode) {
     const heading = document.querySelector("#superpowers-icon").parentElement;
     const text = heading.textContent.trim(); // Extracts "guest009"
 
+    let code = passedCode
     if (!code) {
         code = document.getElementById("join-code").value.trim();
-        alert("Please enter the correct code to join the room");
-        return;
     }
     const data = {code,creatorName:text}
 
@@ -334,8 +333,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 // Encryption function using Web Crypto API
-async function encryptData(data) {
-    const key = await crypto.subtle.generateKey(
+// Helper function to convert Uint8Array to Base64
+function toBase64(data) {
+    return btoa(String.fromCharCode(...new Uint8Array(data)));
+}
+
+// Function to generate an AES-GCM key
+async function generateKey() {
+    return await crypto.subtle.generateKey(
         {
             name: "AES-GCM",
             length: 256,
@@ -343,13 +348,15 @@ async function encryptData(data) {
         true,
         ["encrypt", "decrypt"]
     );
+}
 
-    // Convert data to a JSON string and then to a Uint8Array
+// Function to encrypt data
+async function encryptData(data) {
+    const key = await generateKey(); // Generate encryption key
+    const iv = crypto.getRandomValues(new Uint8Array(12)); // Generate IV
+
     const encoder = new TextEncoder();
-    const encodedData = encoder.encode(JSON.stringify(data));
-
-    // Generate a random initialization vector
-    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const encodedData = encoder.encode(JSON.stringify(data)); // Convert object to Uint8Array
 
     // Encrypt the data
     const encrypted = await crypto.subtle.encrypt(
@@ -361,15 +368,12 @@ async function encryptData(data) {
         encodedData
     );
 
-    // Export the key for transmission/storage
+    // Export the key
     const exportedKey = await crypto.subtle.exportKey("raw", key);
 
-    // Return encrypted data, IV, and key as a Base64 string
-    return btoa(
-        JSON.stringify({
-            encrypted: Array.from(new Uint8Array(encrypted)),
-            iv: Array.from(iv),
-            key: Array.from(new Uint8Array(exportedKey)),
-        })
-    );
+    return JSON.stringify({
+        encrypted: toBase64(encrypted), // Convert encrypted data to Base64
+        iv: toBase64(iv), // Convert IV to Base64
+        key: toBase64(exportedKey), // Convert key to Base64
+    });
 }

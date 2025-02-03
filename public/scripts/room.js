@@ -463,20 +463,21 @@ const getsQueryParam = (name) => {
 };
 
 // Decrypt the encrypted data using the Web Crypto API
+// Helper function to convert Base64 to Uint8Array
+function fromBase64(data) {
+    return new Uint8Array([...atob(data)].map(char => char.charCodeAt(0)));
+}
+
+// Function to decrypt data
 async function decryptData(encryptedData) {
     try {
-        // Ensure the input is valid Base64 before decoding
-        const decodedData = atob(encryptedData);
+        const parsedData = JSON.parse(encryptedData);
+        const { encrypted, iv, key } = parsedData;
 
-        // Parse the JSON structure
-        const data = JSON.parse(decodedData);
-
-        const { encrypted, iv, key } = data;
-
-        // Convert arrays back to Uint8Array
-        const encryptedArray = new Uint8Array(encrypted);
-        const ivArray = new Uint8Array(iv);
-        const keyArray = new Uint8Array(key);
+        // Convert Base64 back to Uint8Array
+        const encryptedArray = fromBase64(encrypted);
+        const ivArray = fromBase64(iv);
+        const keyArray = fromBase64(key);
 
         // Import the encryption key
         const cryptoKey = await crypto.subtle.importKey(
@@ -499,16 +500,14 @@ async function decryptData(encryptedData) {
 
         // Decode and parse the decrypted data
         const decoder = new TextDecoder();
-        const decryptedString = decoder.decode(decrypted);
-
-        // Parse the decrypted string into an object
-        return JSON.parse(decryptedString); // ✅ Convert to object before returning
+        return JSON.parse(decoder.decode(decrypted)); // Convert string back to object
 
     } catch (error) {
         console.error("Decryption failed:", error.message);
         return null;
     }
 }
+
 
 // Fetch, decrypt, and log the data
 (async () => {
