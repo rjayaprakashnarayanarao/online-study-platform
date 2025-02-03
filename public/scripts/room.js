@@ -11,6 +11,13 @@ let audioChunks = [];
 
 // function to work as on/off switch for recording
 function toggleRecording() {
+    // check if user has selected a message type
+    const messageType = document.querySelector('input[name="message-type"]:checked');
+    if (!messageType) {
+        alert('Please select a message type (Q or A)');
+        return;
+    }
+    // Toggle recording
     if (isRecording) {
         stopRecording();
     } else {
@@ -64,7 +71,7 @@ function openPopup(userId, type) {
     // Set popup title based on type
     switch (type) {
         case 'chat':
-            popupTitle.textContent = 'Chat';
+            popupTitle.textContent = 'Rocket Chat';
             chatContainer.style.display = 'flex';
             infoContainer.style.display = 'none';
             break;
@@ -118,10 +125,9 @@ function sendMessage(event) {
     } else if (audioChunks.length > 0) {
         // Process voice message
         const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
-        audioChunks = [];
-
         const audioUrl = URL.createObjectURL(audioBlob);
         message.audioUrl = audioUrl;
+        audioChunks = []; // Clear the audio chunks after processing
     } else {
         return; // No valid message content
     }
@@ -228,13 +234,16 @@ function renderMessages(userId, type) {
                     </div>
                     <span class="message-time">${message.timestamp}</span>
                 </div>
-                <div class="message-content">
-                    <p class="message-text">${message.text}</p>
+                 <div class="message-content">
+                    ${message.text ? `<p class="message-text">${message.text}</p>` : ''}
+                    ${message.audioUrl ? `<audio controls src="${message.audioUrl}"></audio>` : ''}
                     ${likeButton}
                     ${dislikeButton}
                 </div>
             `;
             messagesContainer.appendChild(messageDiv);
+            console.log('Messages:', messages);
+            console.log('Audio Chunks Cleared:', audioChunks);
         });
     }
 
