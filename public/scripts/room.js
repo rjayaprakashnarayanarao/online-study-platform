@@ -237,47 +237,55 @@ function populateUserDetails() {
 }
 
 // Show popup card on page load
-window.onload = function () {
-    const roomName = getQueryParam('roomName'); // Get room name from URL
-    const roomNumber = getQueryParam('roomNumber'); // Get room number from URL
+window.onload = async function () {
+    let data = getQueryParam("data"); // Fetch encrypted data from URL
 
-    // Update the room name and number in the popup if they exist
-    if (roomName) {
-        document.getElementById('room-name').textContent = roomName;
-    }
+    if (data) {
+        try {
+            const decryptedData = await decryptData(data);
+            if (decryptedData) {
+                console.log("Decrypted Data:", decryptedData);
 
-    if (roomNumber) {
-        document.getElementById('room-number').textContent = roomNumber;
-    }
+                let hasRoomName = false;
+                let hasRoomId = false;
 
-    // Check if both roomName and roomNumber are present in the URL
-    if (roomName && roomNumber) {
-        showPopup(); // Show the popup if both parameters are present
+                // Update only if values exist
+                if (decryptedData.room_name) {
+                    document.getElementById('room-name').textContent = decryptedData.room_name;
+                    hasRoomName = true;
+                }
+                if (decryptedData.room_id) {
+                    document.getElementById('room-number').textContent = decryptedData.room_id;
+                    hasRoomId = true;
+                }
+
+                // Show popup only if both values exist
+                if (hasRoomName && hasRoomId) {
+                    showPopup();
+                }
+
+            } else {
+                console.log("Decryption failed. Invalid data.");
+                closePopup();
+            }
+        } catch (error) {
+            console.error("Error decrypting data:", error);
+            closePopup();
+        }
     } else {
-        closePopup(); // Close the popup if parameters are missing
+        console.log("No encrypted data found in URL.");
+        closePopup();
     }
 
-    // Get the copy button and room number elements
-    const copyIcons = document.querySelectorAll('.fa-copy');
-
-    // Add an event listener to the copy button
-    copyIcons.forEach((icon) => {
+    // Copy Room Number Functionality
+    document.querySelectorAll('.fa-copy').forEach((icon) => {
         icon.addEventListener('click', () => {
-            // Create a temporary textarea element
             const textarea = document.createElement('textarea');
             textarea.value = document.getElementById('room-number').textContent;
             document.body.appendChild(textarea);
-
-            // Select the text in the textarea
             textarea.select();
-
-            // Copy the text to the clipboard
             document.execCommand('copy');
-
-            // Remove the textarea element
             document.body.removeChild(textarea);
-
-            // Show a success message (optional)
             console.log('Room number copied to clipboard!');
         });
     });
@@ -285,6 +293,7 @@ window.onload = function () {
     // Update sharing links dynamically
     updateShareLinks();
 };
+
 
 // Share options functionality
 document.addEventListener('DOMContentLoaded', () => {
@@ -522,7 +531,10 @@ async function decryptData(encryptedData) {
                     adminName: decryptedData.creatorName
                 });
 
-                socket.on("roomCreated", (data) => {
+                socket.on("roomCreated", ({ user, username }) => {
+                    let obj = { id: user, name: username };
+                    users.push(obj);
+                    populateUserDetails()
                     console.log("Room created successfully:", data);
                 });
 
@@ -531,7 +543,7 @@ async function decryptData(encryptedData) {
 
                 // User joins an existing room
                 socket.emit("joinRoom", {
-                    roomCode: decryptedData,
+                    roomCode: decryptedData.code,
                     username: decryptedData.creatorName || "guest009"
                 });
 
@@ -545,6 +557,7 @@ async function decryptData(encryptedData) {
 
             // Listen for new messages
             socket.on("newMessage", (message) => {
+                populateUserDetails()
                 console.log("New message:", message);
             });
 
@@ -567,27 +580,24 @@ async function decryptData(encryptedData) {
                 console.log("User joined:", user);
             });
 
-            socket.on("adminUserJoined", ({ user, userName }) => {
-                let obj = { id: user, name: userName };
-                users.push(obj);
-                populateUserDetails()
+            socket.on("adminUserJoined", ({ userId, username }) => {
 
-                console.log("Current Users: ", users);
-                console.log("User joined:", user);
+                console.log("Current Users: ", userId);
+                console.log("User joined:", username);
             });
-
+            // Fetch existing users when joining
             // Listen for updated user list
             socket.on("updateUsers", ({ users: updatedUsers }) => {
-                users = Object.entries(updatedUsers).map(([id, name]) => ({ id, name }));
+                users = updatedUsers.map((username, index) => ({ id: `user${index + 1}`, name: username }));
                 populateUserDetails();
                 console.log("Updated User List: ", users);
             });
 
-            // Fetch existing users when joining
-            socket.on("existingUsers", ({ users: existingUsers }) => {
-                users = Object.entries(existingUsers).map(([id, name]) => ({ id, name }));
+            // Listen for users joining
+            socket.on("userJoined", ({ userName }) => {
+                users.push({ id: `user${users.length + 1}`, name: userName });
                 populateUserDetails();
-                console.log("Fetched existing users:", users);
+                console.log("User joined:", userName);
             });
 
             // Listen for users leaving
@@ -596,7 +606,7 @@ async function decryptData(encryptedData) {
                 populateUserDetails();
                 console.log("User left:", userId);
             });
-            // Listen for users leaving
+
 
         } else {
             console.log("Decryption failed. Invalid data.");

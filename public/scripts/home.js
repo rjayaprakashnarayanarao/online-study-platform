@@ -63,16 +63,19 @@ function closeScreen() {
 }
 
 async function join() {
+    const heading = document.querySelector("#superpowers-icon").parentElement;
+    const text = heading.textContent.trim(); // Extracts "guest009"
     const code = document.getElementById("join-code").value.trim();
 
     if (!code) {
         alert("Please enter the correct code to join the room");
         return;
     }
+    const data = {code,creatorName:text}
 
     try {
         // Encrypt the room code before redirecting
-        const encryptedCode = await encryptData(code);
+        const encryptedCode = await encryptData(data);
         console.log("Encrypted Code:", encryptedCode);
 
         // Redirect to room.html with encrypted code as a query parameter

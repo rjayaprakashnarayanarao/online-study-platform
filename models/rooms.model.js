@@ -15,6 +15,10 @@ const Rooms = sequelize.define('Rooms', {
         type: DataTypes.STRING(50),
         allowNull: false
     },
+    socket_id:{
+        type: DataTypes.STRING(100),
+        allowNull: true
+    },
     room_name: {
         type: DataTypes.STRING(100),
         allowNull: false
