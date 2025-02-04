@@ -306,6 +306,106 @@ function populateUserDetails() {
     });
 }
 
+// Open the upload popup
+function openUploadPopup() {
+    document.getElementById("upload-popup").classList.remove("hidden");
+}
+
+// Close the upload popup
+function closeUploadPopup() {
+    document.getElementById("upload-popup").classList.add("hidden");
+}
+
+// Switch between tabs
+function switchUploadTab(tabName) {
+    const sections = ["materials", "study-plan", "resources"];
+    sections.forEach((section) => {
+        document.getElementById(`upload-${section}`).classList.add("hidden");
+        document.querySelector(`.upload-tab[onclick="switchUploadTab('${section}')"]`).classList.remove("active");
+    });
+    
+    document.getElementById(`upload-${tabName}`).classList.remove("hidden");
+    document.querySelector(`.upload-tab[onclick="switchUploadTab('${tabName}')"]`).classList.add("active");
+}
+
+// Handle file upload
+document.getElementById("upload-materials-input").addEventListener("change", function() {
+    document.getElementById("upload-materials-message").classList.remove("hidden");
+});
+
+// Add study plan entry
+function addStudyPlan() {
+    const unitName = document.getElementById("study-unit-name").value;
+    const studyTime = document.getElementById("study-time").value;
+
+    if (unitName && studyTime) {
+        const formattedTime = formatTime(studyTime); // Convert to 12-hour format
+        const studyPlanList = document.getElementById("study-plan-list");
+        const entry = document.createElement("p");
+        entry.textContent = `${unitName} - ${formattedTime}`;
+        studyPlanList.prepend(entry);
+
+        document.getElementById("study-unit-name").value = "";
+        document.getElementById("study-time").value = "";
+    }
+}
+
+// Convert 24-hour time to 12-hour format
+function formatTime(time) {
+    let [hour, minute] = time.split(":");
+    let period = hour >= 12 ? "PM" : "AM";
+    hour = hour % 12 || 12; // Convert 0 to 12 for AM
+    return `${hour}:${minute} ${period}`;
+}
+
+// Add resource entry
+function addResource() {
+    const link = document.getElementById("resource-link").value;
+    const description = document.getElementById("resource-description").value;
+
+    if (link && description) {
+        const resourceList = document.getElementById("resource-list");
+        const entry = document.createElement("p");
+        entry.innerHTML = `<a href="${link}" target="_blank">${description}</a>`;
+        resourceList.prepend(entry);
+
+        document.getElementById("resource-link").value = "";
+        document.getElementById("resource-description").value = "";
+    }
+}
+
+// Attach the popup open function to the Upload button
+document.querySelector(".upload-button").addEventListener("click", function(event) {
+    event.preventDefault(); // Prevent redirection
+    openUploadPopup();
+});
+
+// Handle file upload
+document.getElementById("upload-materials-input").addEventListener("change", function(event) {
+    const files = event.target.files;
+    const materialsList = document.getElementById("materials-list");
+    const message = document.getElementById("upload-materials-message");
+
+    if (files.length > 0) {
+        message.classList.remove("hidden");
+        materialsList.innerHTML = ""; // Clear previous list
+
+        // Loop through uploaded files and display them
+        Array.from(files).forEach(file => {
+            const listItem = document.createElement("p");
+            listItem.innerHTML = `<a href="#" onclick="alert('File: ${file.name}')">${file.name}</a>`;
+            materialsList.appendChild(listItem);
+        });
+
+        // Hide message after 3 seconds
+        setTimeout(() => {
+            message.classList.add("hidden");
+        }, 3000);
+    }
+});
+
+
+
 // Show popup card on page load
 window.onload = async function () {
     let data = getQueryParam("data"); // Fetch encrypted data from URL

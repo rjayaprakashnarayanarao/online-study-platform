@@ -18,12 +18,43 @@
             <span id="room-timer" class="room-timer">00:00:00</span>
             <button class="details-button">Details <i class="fa-solid fa-info-circle"></i></button>
             <button class="exit-button" onclick="exitRoom()">Exit <i class="fa-solid fa-door-open"></i></button>
-            <a href="upload.html">
-                <button class="upload-button">Upload <i class="fa-solid fa-upload"></i></button>
-            </a>
+            <button class="upload-button">Upload <i class="fa-solid fa-upload"></i></button>
         </div>
     </header>
     
+    <div id="upload-popup" class="upload-popup hidden">
+        <div class="upload-popup-content">
+            <div class="upload-popup-header">
+                <h2>Upload Options</h2>
+                <button class="close-upload-popup" onclick="closeUploadPopup()">✖</button>
+            </div>
+            <div class="upload-tabs">
+                <button class="upload-tab active" onclick="switchUploadTab('materials')">Materials</button>
+                <button class="upload-tab" onclick="switchUploadTab('study-plan')">Study Plan</button>
+                <button class="upload-tab" onclick="switchUploadTab('resources')">Resource Online</button>
+            </div>
+            <div class="upload-tab-content">
+                <div id="upload-materials" class="upload-section">
+                    <label for="upload-materials-input" class="file-upload-label">Choose Files to Upload</label>
+                    <input type="file" id="upload-materials-input" multiple />
+                    <p id="upload-materials-message" class="hidden">File uploaded successfully!</p>
+                    <div id="materials-list"></div> <!-- Display uploaded materials -->
+                </div>
+                <div id="upload-study-plan" class="upload-section hidden">
+                    <input type="text" id="study-unit-name" placeholder="Enter Unit Name" />
+                    <input type="time" id="study-time" />
+                    <button onclick="addStudyPlan()">Add</button>
+                    <div id="study-plan-list"></div>
+                </div>
+                <div id="upload-resources" class="upload-section hidden">
+                    <input type="text" id="resource-link" placeholder="Enter Resource Link" />
+                    <input type="text" id="resource-description" placeholder="Enter Description" />
+                    <button onclick="addResource()">Add</button>
+                    <div id="resource-list"></div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <div class="room-container">
         <div class="room-card">
