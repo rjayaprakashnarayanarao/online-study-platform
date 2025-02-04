@@ -586,7 +586,9 @@ async function decryptData(encryptedData) {
             console.log("Decrypted Data:", decryptedData);
             // roomCode = decryptedData.room_id
             setRoomCode(decryptedData.room_id);
-            const socket = io("http://localhost:3000");
+            const socket = io("http://localhost:3000",{
+                query: {userId: decryptedData.creatorName},
+            });
 
             // Check if the user is the admin (room creator)
             if ((decryptedData.admin_name === decryptedData.creatorName) && (decryptedData.creatorName)) {

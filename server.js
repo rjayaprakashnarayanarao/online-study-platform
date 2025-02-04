@@ -38,6 +38,14 @@ io.on("connection", (socket) => {
     console.log("User connected:", socket.id);
     const id = socket.id
 
+    try {
+        console.log(socket.handshake.query.userId);
+        
+    } catch (error) {
+        console.log("error:",error.message);
+        
+    }
+
     // 🔸 Admin Creates Room
     socket.on("createRoom", async ({ roomCode, adminName }) => {
         console.log("Create Room Event received. Room Code:", roomCode);
