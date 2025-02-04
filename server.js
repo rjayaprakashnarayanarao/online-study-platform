@@ -106,11 +106,13 @@ io.on("connection", (socket) => {
     
 
     // 🔹 User Sends Message
-    socket.on("sendMessage", ({ roomCode, message }) => {
+    socket.on("sendMessage", ({ code, message, userId }) => {
+        const roomCode = code
         if (!messageHistory[roomCode]) return;
 
-        const newMessage = { sender: socket.id, message };
-
+        const newMessage = { sender: socket.id, message ,userId};
+        console.log("New message sent: ",newMessage);
+        
         messageHistory[roomCode].push(newMessage);
         io.to(roomCode).emit("newMessage", newMessage);
     });

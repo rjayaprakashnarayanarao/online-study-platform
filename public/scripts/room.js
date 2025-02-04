@@ -1,8 +1,25 @@
 // Add the msg functions here
 let messages = [];
-let roomCode = "";
-let username = "";
+var roomCode;
+var username;
 const userButtons = {};
+const socket = io("http://localhost:3000"); // Replace with your backend URL
+
+function setUserName(name){
+    username = name;
+}
+
+function getUserName(){
+    return username;
+}
+
+function setRoomCode(code){
+    roomCode = code;
+}
+
+function getRoomCode(){
+    return roomCode;
+}
 
 // added audio recording functionality
 let isRecording = false;
@@ -113,7 +130,7 @@ function sendMessage(event) {
     const message = {
         id: Date.now(),
         text: text,
-        sender: 'You',
+        sender: getUserName(),
         timestamp: new Date().toLocaleTimeString(),
         messageType: messageType.value,
         likes: 0
@@ -132,24 +149,12 @@ function sendMessage(event) {
         return; // No valid message content
     }
 
+    const code = getRoomCode()
     // Emit the message to the server
-    // socket.emit('sendMessage', { roomCode, userId, message });
-
-    if (!messages[userId]) {
-        messages[userId] = {};
-    }
-
-    if (!messages[userId][type]) {
-        messages[userId][type] = [];
-    }
-
-    messages[userId][type].push(message);
-    renderMessages(userId, type);
-    input.value = '';
-
-    // Reset the message type
-    messageType.checked = false;
+    socket.emit('sendMessage', { code, userId, message });
+    
 }
+
 
 // Function to like a message
 function likeMessage(messageId, userId, type) {
@@ -196,6 +201,8 @@ function dislikeMessage(messageId, userId, type) {
 
 // Function to render messages for a specific user and option
 function renderMessages(userId, type) {
+    console.log("renderMessage: ",userId,type);
+    
     const messagesContainer = document.getElementById('messages');
     const userMessages = messages[userId] && messages[userId][type] ? messages[userId][type] : [];
 
@@ -577,13 +584,15 @@ async function decryptData(encryptedData) {
         const decryptedData = await decryptData(data);
         if (decryptedData) {
             console.log("Decrypted Data:", decryptedData);
-
+            // roomCode = decryptedData.room_id
+            setRoomCode(decryptedData.room_id);
             const socket = io("http://localhost:3000");
 
             // Check if the user is the admin (room creator)
             if ((decryptedData.admin_name === decryptedData.creatorName) && (decryptedData.creatorName)) {
                 console.log("Admin detected. Creating room...");
 
+                setUserName(decryptedData.creatorName)
                 // Admin creates the room
                 socket.emit("createRoom", {
                     roomCode: decryptedData.room_id,
@@ -600,6 +609,8 @@ async function decryptData(encryptedData) {
             } else {
                 console.log("Participant detected. Joining room...");
 
+                setRoomCode(decryptedData.code)
+                setUserName(decryptedData.creatorName)
                 // User joins an existing room
                 socket.emit("joinRoom", {
                     roomCode: decryptedData.code,
@@ -615,9 +626,43 @@ async function decryptData(encryptedData) {
             populateUserDetails()
 
             // Listen for new messages
-            socket.on("newMessage", (message) => {
-                populateUserDetails()
-                console.log("New message:", message);
+            socket.on("newMessage", (newMessage) => {
+                // Extract userId and message from the newMessage object
+                const userId = newMessage.userId; // The user ID of the sender
+                const message = newMessage.message; // The message content
+            
+                // Ensure the messages structure exists for the user and type
+                if (!messages[userId]) {
+                    messages[userId] = {};
+                }
+            
+                // Determine the type of message (e.g., "chat" or "info")
+                // Assuming the message object has a `type` property
+                const type = message.type || "chat"; // Default to "chat" if type is not provided
+            
+                if (!messages[userId][type]) {
+                    messages[userId][type] = [];
+                }
+            
+                // Add the new message to the appropriate user and type
+                messages[userId][type].push(message);
+            
+                // Render the messages for the user and type
+                renderMessages(userId, type);
+            
+                // Clear the input field (if applicable)
+                const input = document.getElementById('message-input');
+                if (input) {
+                    input.value = '';
+                }
+            
+                // Reset the message type selection (if applicable)
+                const messageType = document.querySelector('input[name="message-type"]:checked');
+                if (messageType) {
+                    messageType.checked = false;
+                }
+            
+                console.log("New message received:", newMessage);
             });
 
             socket.on("error", (error) => {
