@@ -278,7 +278,7 @@ function closePopup() {
 
 // Function to show the popup card
 function showPopup() {
-    document.getElementById('popup-card').style.display = 'block';
+    document.getElementById('popup-card').style.display = 'flex';
     document.body.classList.add('modal-open');
 }
 
@@ -473,16 +473,12 @@ document.addEventListener('DOMContentLoaded', () => {
     shareIcon?.addEventListener('click', (event) => {
         event.stopPropagation(); // Prevent click event from propagating
         // Toggle the display of the share options menu
-        if (shareOptions.style.display === 'block') {
-            shareOptions.style.display = 'none';
-        } else {
-            shareOptions.style.display = 'block';
-        }
+        shareOptions.classList.toggle('show');
     });
 
     // Close the share options menu when clicking outside
     document.addEventListener('click', (event) => {
-        if (!shareIcon?.contains(event.target) && !shareOptions?.contains(event.target)) {
+        if (!shareOptions.contains(event.target) && !shareIcon.contains(event.target)) {
             shareOptions.style.display = 'none';
         }
     });

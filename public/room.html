@@ -147,44 +147,46 @@
     </div>
 
     <div id="popup-card" class="popup-card">
-        <div class="popup-header">
-            <button class="close-popup" onclick="closePopup()">✖</button>
-            <h1 id="room-details-label">Room Details</h1>
-            <h2 id="popup-title">
-                <span id="room-name-label">Room Name:</span>
-                <span id="room-name"></span>
-                <br><br>
-                <span id="room-number-label">Room Number:</span>
-                <span id="room-number"></span>
-            </h2>
-        </div>
-        <div class="room-number-container">
-            <div class="icon-container">
-                <i class="fa-solid fa-copy copy-icon" id="copy-icon"></i>
-                <span class="copy-tooltip">Copy to clipboard</span>
+        <div class="popup-content">
+            <div class="popup-header">
+                <button class="close-popup" onclick="closePopup()">✖</button>
+                <h1 id="room-details-label">Room Details</h1>
+                <h2 id="popup-title">
+                    <span id="room-name-label">Room Name:</span>
+                    <span id="room-name"></span>
+                    <br><br>
+                    <span id="room-number-label">Room Number:</span>
+                    <span id="room-number"></span>
+                </h2>
             </div>
-            <div class="icon-container">
-                <i class="fa-solid fa-share-nodes share-icon" id="share-icon"></i>
-                <span class="share-tooltip">Share</span>
-            </div>
-            <div class="share-options" id="share-options">
-                <div class="wrapper">
-                    <a href="mailto:?subject=Room%20Details&body=Room%20Name:%20%24{roomName}%0ARoom%20Number:%20%24{roomNumber}" target="_blank" class="icon gmail" id="gmail-share-link">
-                        <div class="tooltip">Gmail</div>
-                        <span><img src="https://img.icons8.com/ios/50/000000/gmail.png" alt="Gmail Logo" style="width: 20px; height: 20px;"> </span>
-                    </a>                    
-                    <a href="#" target="_blank" class="icon linkedin" id="linkedin-share-link">
-                        <div class="tooltip">LinkedIn</div>
-                        <span><i class="fab fa-linkedin"></i></span>
-                    </a>
-                    <a href="#" target="_blank" class="icon whatsapp" id="whatsapp-share-link">
-                        <div class="tooltip">WhatsApp</div>
-                        <span><i class="fab fa-whatsapp"></i></span>
-                    </a>
+            <div class="room-number-container">
+                <div class="icon-container">
+                    <i class="fa-solid fa-copy copy-icon" id="copy-icon"></i>
+                    <span class="copy-tooltip">Copy Room Code</span>
                 </div>
-            </div>            
+                <div class="icon-container">
+                    <i class="fa-solid fa-share-nodes share-icon" id="share-icon"></i>
+                    <span class="share-tooltip">Share</span>
+                </div>
+                <div class="share-options" id="share-options">
+                    <div class="wrapper">
+                        <a href="mailto:?subject=Room%20Details&body=Room%20Name:%20%24{roomName}%0ARoom%20Number:%20%24{roomNumber}" target="_blank" class="icon gmail" id="gmail-share-link">
+                            <div class="tooltip">Gmail</div>
+                            <span><img src="https://img.icons8.com/ios/50/000000/gmail.png" alt="Gmail Logo" style="width: 20px; height: 20px;"> </span>
+                        </a>                    
+                        <a href="https://www.linkedin.com/shareArticle?mini=true&url=%24{pageUrl}&title=Room%20Details" target="_blank" class="icon linkedin" id="linkedin-share-link">
+                            <div class="tooltip">LinkedIn</div>
+                            <span><i class="fab fa-linkedin"></i></span>
+                        </a>
+                        <a href="https://web.whatsapp.com/send?text=Room%20Name:%20%24{roomName}%0ARoom%20Number:%20%24{roomNumber}%0APage%20URL:%20%24{pageUrl}" target="_blank" class="icon whatsapp" id="whatsapp-share-link">
+                            <div class="tooltip">WhatsApp</div>
+                            <span><i class="fab fa-whatsapp"></i></span>
+                        </a>
+                    </div>
+                </div>            
+            </div>
         </div>
-    </div>   
+    </div>  
 
     <script src="./scripts/room.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
