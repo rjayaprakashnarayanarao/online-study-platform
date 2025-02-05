@@ -777,11 +777,30 @@ async function decryptData(encryptedData) {
             });
 
             // Listen for users joining
-            socket.on("userJoined", ({ user, userName }) => {
+            socket.on("userJoined", ({ user, userName ,roomName,roomId}) => {
                 let obj = { id: user, name: userName };
                 users.push(obj);
-                populateUserDetails()
+                console.log("Room id:::::", roomId);
 
+                let hasRoomId;
+                let hasRoomName;
+
+                if (roomName) {
+                    document.getElementById('room-name').textContent = roomName;
+                    hasRoomName = true;
+                }
+                if (roomId) {
+                    document.getElementById('room-number').textContent = roomId;
+                    hasRoomId = true;
+                }
+
+                // Show popup only if both values exist
+                if (hasRoomName && hasRoomId) {
+                    showPopup();
+                }
+
+                populateUserDetails()
+            
                 console.log("Current Users: ", users);
                 console.log("User joined:", user);
             });

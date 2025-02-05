@@ -100,11 +100,12 @@ io.on("connection", (socket) => {
             socket.join(roomCode);
             activeUsers.get(roomCode).add(username); // Store username in the room's user set
             userSocketMap.set(socket.id, { roomCode, username }); // Store mapping
-    
+            console.log("roomid: ", room.dataValues.room_id);
+            
             console.log(`${username} joined room ${roomCode}`);
     
             socket.emit("messageHistory", messageHistory[roomCode] || []);
-            io.to(roomCode).emit("userJoined", { userName: username, user: socket.id });
+            io.to(roomCode).emit("userJoined", { userName: username, user: socket.id ,roomName: room.dataValues.room_name, roomId: room.dataValues.room_id});
             io.to(roomCode).emit("updateUsers", { users: Array.from(activeUsers.get(roomCode)) });
         } catch (error) {
             console.error("Error joining room:", error);
