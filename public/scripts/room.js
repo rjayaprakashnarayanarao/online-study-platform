@@ -302,8 +302,19 @@ function populateUserDetails() {
                 <button class="chat-box" onclick="openPopup('${user.id}', 'chat')"><i class="fa-brands fa-rocketchat"></i></button>
             </div>
         `;
+        // Attach click event listener
+        userDiv.addEventListener('click', function () {
+            handleUserSelection(userDiv, user.name);
+        });
+
         userDetailsContainer.appendChild(userDiv);
     });
+
+    // Show the default message if no user is selected
+    document.getElementById('default-message').style.display = 'block';
+    document.querySelector('.materials-content').style.display = 'none';
+    document.querySelector('.study-plan-content').style.display = 'none';
+    document.querySelector('.resources-content').style.display = 'none';
 }
 
 // Open the upload popup
@@ -404,7 +415,14 @@ document.getElementById("upload-materials-input").addEventListener("change", fun
     }
 });
 
-
+// Function to change the tooltip text to "Copied!"
+function showCopiedTooltip(icon) {
+    const tooltip = icon.nextElementSibling;
+    tooltip.textContent = "Copied!";
+    setTimeout(() => {
+        tooltip.textContent = "Copy Room Code";
+    }, 2000); // Reset the tooltip text after 2 seconds
+}
 
 // Show popup card on page load
 window.onload = async function () {
@@ -450,6 +468,7 @@ window.onload = async function () {
     // Copy Room Number Functionality
     document.querySelectorAll('.fa-copy').forEach((icon) => {
         icon.addEventListener('click', () => {
+            event.stopPropagation();
             const textarea = document.createElement('textarea');
             textarea.value = document.getElementById('room-number').textContent;
             document.body.appendChild(textarea);
@@ -457,6 +476,7 @@ window.onload = async function () {
             document.execCommand('copy');
             document.body.removeChild(textarea);
             console.log('Room number copied to clipboard!');
+            showCopiedTooltip(icon); // Call the function to change the tooltip text
         });
     });
 
@@ -467,6 +487,13 @@ window.onload = async function () {
 
 // Share options functionality
 document.addEventListener('DOMContentLoaded', () => {
+
+    // Add event listeners to all single-user divs
+    document.querySelectorAll('.single-user').forEach(user => {
+        user.addEventListener('click', handleUserSelection);
+    });
+
+    //share options functionality
     const shareIcon = document.getElementById('share-icon');
     const shareOptions = document.getElementById('share-options');
 
@@ -479,7 +506,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Close the share options menu when clicking outside
     document.addEventListener('click', (event) => {
         if (!shareOptions.contains(event.target) && !shareIcon.contains(event.target)) {
-            shareOptions.style.display = 'none';
+            shareOptions.classList.remove('show');
         }
     });
 
@@ -500,35 +527,68 @@ document.addEventListener('DOMContentLoaded', () => {
     startRoomTimer();
 });
 
+// Function to handle user selection
+function handleUserSelection(selectedUser, username) {
+    // Remove 'selected' class from all users
+    document.querySelectorAll('.single-user').forEach(user => {
+        user.classList.remove('selected');
+    });
+
+    // Add 'selected' class to clicked user
+    selectedUser.classList.add('selected');
+
+    // Hide the default message
+    document.getElementById('default-message').style.display = 'none';
+
+    // Update the materials-content with the selected user
+    document.querySelector('.materials-content').innerHTML = `<h3>Materials Content</h3><p>Selected User: ${username}</p>`;
+    document.querySelector('.study-plan-content').innerHTML = `<h3>Study Plan Content</h3><p>Selected User: ${username}</p>`;
+    document.querySelector('.resources-content').innerHTML = `<h3>Resources Content</h3><p>Selected User: ${username}</p>`;
+
+    // Ensure only the Materials section is visible by default
+    document.querySelector('.materials-content').style.display = 'block';
+    document.querySelector('.study-plan-content').style.display = 'none';
+    document.querySelector('.resources-content').style.display = 'none';
+    toggleHiddenGrid('materials'); // Calls function to highlight materials by default
+}
 
 // Toggle hidden grid content
 function toggleHiddenGrid(section) {
-    const hiddenGrid = document.querySelector('.hidden-grid');
-    const materialsContent = document.querySelector('.materials-content');
-    const studyPlanContent = document.querySelector('.study-plan-content');
-    const resourcesContent = document.querySelector('.resources-content');
+    const selectedUser = document.querySelector('.single-user.selected');
 
-    // Hide all content
-    materialsContent?.classList.add('hidden');
-    studyPlanContent?.classList.add('hidden');
-    resourcesContent?.classList.add('hidden');
+    if (!selectedUser) {
+        // No user selected, show warning message
+        document.getElementById('default-message').innerHTML = `<h3>You must select a user in order to access ${section.replace('-', ' ')}</h3>`;
+        document.getElementById('default-message').style.display = 'block';
 
-    // Show the selected content and ensure hidden grid is visible
-    switch (section) {
-        case 'materials':
-            materialsContent?.classList.remove('hidden');
-            break;
-        case 'study-plan':
-            studyPlanContent?.classList.remove('hidden');
-            break;
-        case 'resources':
-            resourcesContent?.classList.remove('hidden');
-            break;
-        default:
-            console.error('Invalid section');
+        // Hide all section contents
+        document.querySelector('.materials-content').style.display = 'none';
+        document.querySelector('.study-plan-content').style.display = 'none';
+        document.querySelector('.resources-content').style.display = 'none';
+
+        // Remove highlights from sections
+        document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+
+        return;
     }
 
-    hiddenGrid?.classList.remove('hidden');
+    // If a user is selected, hide the default message and show the selected section
+    document.getElementById('default-message').style.display = 'none';
+
+    const sections = ['materials', 'study-plan', 'resources'];
+    sections.forEach(sec => {
+        const content = document.querySelector(`.${sec}-content`);
+        const sectionElement = document.querySelector(`.${sec}`);
+        if (sec === section) {
+            content.style.display = 'block'; // Show selected section
+            sectionElement.classList.add('active'); // Highlight selected section
+        } else {
+            content.style.display = 'none'; // Hide others
+            sectionElement.classList.remove('active'); // Remove highlight
+        }
+    });
+
+    hiddenGrid.classList.toggle('hidden');
 }
 
 // Room timer functionality
@@ -581,9 +641,10 @@ function exitRoom() {
 // Clear the timer when the user leaves the page
 window.addEventListener('beforeunload', stopRoomTimer);
 
-// Start the room timer when the page loads
+// Start the room timer when the page loads and populate user details
 document.addEventListener('DOMContentLoaded', () => {
     startRoomTimer();
+    populateUserDetails();
 });
 
 // Function to update sharing links dynamically

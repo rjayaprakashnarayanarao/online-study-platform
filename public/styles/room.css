@@ -377,12 +377,12 @@ body.modal-open {
 }
 
 .room-card {
-  width: 90%;
+  width: 96%;
   height: 100%;
   background-color: #f8f8f8; /* Light grey background for the card */
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Light shadow for the card */
-  padding: 20px;
+  padding: 10px;
   box-sizing: border-box;
   display: flex;
   justify-content: space-between;
@@ -394,72 +394,145 @@ body.modal-open {
   grid-template-rows: 1fr; /* 1 row */
   gap: 20px;
   width: 100%;
-  height: 100%;
+  /* height: 100%; */
 }
 
+/* Left Grid Styles */
 .left-grid {
+  background: linear-gradient(145deg, #f8f9fa, #e9ecef);
+  border-radius: 16px;
+  padding: 0;
+  box-shadow: 
+    8px 8px 16px rgba(0, 0, 0, 0.1),
+    -8px -8px 16px rgba(255, 255, 255, 0.7);
+  height: calc(100vh - 120px);
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #FCA311 #f0f0f0;
+}
+
+.left-grid::-webkit-scrollbar {
+  width: 6px;
+}
+
+.left-grid::-webkit-scrollbar-track {
+  background: #f0f0f0;
+  border-radius: 3px;
+}
+
+.left-grid::-webkit-scrollbar-thumb {
+  background: #FCA311;
+  border-radius: 3px;
+}
+
+.person-details {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #14213D;
+  background: linear-gradient(145deg, #ffffff, #f8f9fa);
+  border-radius: 12px;
+  padding: 1rem;
+  padding-left: 0;
+  padding-right: 0;
+  margin: 0;
+  margin-top: 18px;
+  width: 98%;
+  box-shadow: 
+    4px 4px 8px rgba(0, 0, 0, 0.05),
+    -4px -4px 8px rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(252, 163, 17, 0.1);
+  text-align: center;
+}
+
+.person-details-grid {
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 0.5rem;
+  margin-top: 0;
+}
+
+.single-user {
+  background: linear-gradient(145deg, #ffffff, #f8f9fa);
+  border: 1px solid rgba(20, 33, 61, 0.1);
+  border-radius: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.25rem;
+  height: auto;
+  transition: all 0.3s ease;
+  box-shadow: 
+    4px 4px 8px rgba(0, 0, 0, 0.05),
+    -4px -4px 8px rgba(255, 255, 255, 0.8);
+}
+
+.single-user:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    6px 6px 12px rgba(0, 0, 0, 0.08),
+    -6px -6px 12px rgba(255, 255, 255, 0.9);
+  border-color: rgba(252, 163, 17, 0.3);
+}
+
+.single-user p {
+  font-size: 18px;
+  font-weight: bold;
+  color: #14213D;
   margin: 0;
   padding: 0;
 }
 
-.person-details {
-  font-size: 35px; /* Larger font size for better readability */
-  font-weight: bold;
-  background-color: #D3D3D3; /* Grey color for the grid items */
-  border-radius: 10px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Light shadow for the grid items */
-  padding: 20px;
-  box-sizing: border-box;
-  margin: 0 !important;
+.single-user.selected {
+  background: linear-gradient(145deg, #FCA311, #e69310);
+  border-color: #FCA311;
+  transform: translateY(-2px);
 }
 
-.person-details-grid {
-  margin-top: -3%;
-  background-color: #D3D3D3;
-  display: grid;
-  grid-template-columns:1fr;
-  gap: 20px;
-  padding: 20px;
-  box-sizing: border-box;
-  border-radius: 10px;
-}
-
-.single-user {
-  border: 2px solid black;
-  border-radius: 10px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 20px;
-  font-weight: bold;
-  background-color: #D3D3D3;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  height: 50px;
-  width: 100%;
-}
-
-.single-user:hover {
-  background-color: #f8f8f8;
-}
-
-.single-user p {
-  margin: 0;
-  margin-left: 5px;
-  font-weight: bold;
+.single-user.selected p {
+  color: #ffffff;
 }
 
 .user-options {
+  display: flex;
+  gap: 0.75rem;
   margin: 0;
-  margin-right: 5px;
 }
 
 .user-options button {
-  background-color: #14213D;
+  background: linear-gradient(145deg, #14213D, #1a2b4d);
   color: #FCA311;
   border: none;
-  border-radius: 40%;
-  padding: 5px 10px;
+  border-radius: 8px;
+  padding: 0.5rem;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 
+    2px 2px 4px rgba(0, 0, 0, 0.2),
+    -2px -2px 4px rgba(255, 255, 255, 0.1);
+}
+
+.user-options button:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    4px 4px 8px rgba(0, 0, 0, 0.3),
+    -4px -4px 8px rgba(255, 255, 255, 0.2);
+}
+
+.single-user.selected .user-options button {
+  background: #ffffff;
+  color: #14213D;
+}
+
+.single-user.selected .user-options button:hover {
+  background: #f8f9fa;
+  transform: translateY(-2px);
 }
 
 /* Add the new pop box styles here */
@@ -1036,45 +1109,97 @@ body.modal-open {
 
 .right-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr; /* Divide into three equal columns */
-  gap: 20px;
-  padding: 20px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0;
+  padding-right: 0.5rem;
+  padding-left: 0.5rem;
   box-sizing: border-box;
-  width: 100%;
-  height: 100%;
-  position: relative; /* Required for absolute positioning of hidden-grid */
-}
-
-.materials, .study-plan, .resources {
-  background-color: #D3D3D3; /* Grey color for the grid items */
-  border-radius: 10px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Light shadow for the grid items */
-  padding: 20px;
-  box-sizing: border-box;
-  height: 16%; /* Same height as .person-details */
-  font-size: 20px; /* Same font size as .person-details */
-  display: flex; /* Make the container a flexbox */
-  justify-content: center; /* Center the text horizontally */
-  align-items: center; /* Center the text vertically */
-  margin-top: -20px; /* Center the text vertically */
-}
-
-.materials, .study-plan, .resources {
-  background-color: grey;
-  padding: 10px;
-  border-radius: 5px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  height: 90px;
   position: relative;
-  z-index: 1;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(8px);
+  border-radius: 1rem;
+}
+
+.materials, .study-plan, .resources {
+  background: linear-gradient(145deg, #ffffff, #f0f0f0);
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+  border-radius: 10px !important;
+  box-shadow: 
+    5px 5px 10px rgba(0, 0, 0, 0.1),
+    -5px -5px 10px rgba(255, 255, 255, 0.8);
+  padding: 1rem;
+  height: 60px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.materials:hover, .study-plan:hover, .resources:hover {
+  transform: translateY(-5px);
+  box-shadow: 
+    8px 8px 15px rgba(0, 0, 0, 0.15),
+    -8px -8px 15px rgba(255, 255, 255, 0.9);
+}
+
+.materials h2, .study-plan h2, .resources h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #2d3748;
+  text-align: center;
+}
+
+.materials-content,
+.study-plan-content,
+.resources-content {
+    display: none; /* Hidden by default */
+    padding: 1.5rem;
+  background: #ffffff;
+  border-radius: 0.75rem;
+  box-shadow: 
+    inset 0 2px 4px rgba(0, 0, 0, 0.05),
+    0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.materials-content h3,
+.study-plan-content h3,
+.resources-content h3 {
+  color: #2d3748;
+  font-size: 1.25rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #fca311;
+}
+
+.materials-content p,
+.study-plan-content p,
+.resources-content p {
+  color: #4a5568;
+  line-height: 1.6;
+  margin: 0.5rem 0;
+}
+
+#default-message {
+  text-align: center;
+  padding: 2rem;
+  color: #4a5568;
+  font-size: 1.2rem;
+  background: #f7fafc;
+  border-radius: 0.75rem;
+  border: 1px dashed #cbd5e0;
+  margin: 1rem 0;
 }
 
 /* Optionally, you can add styles to make these sections visible */
 .show {
   display: block;
-}
-
-.right-grid {
-  position: relative; /* Allows absolute positioning for hidden-grid */
 }
 
 .section {
@@ -1085,23 +1210,67 @@ body.modal-open {
   margin-bottom: 10px; /* Adds spacing between sections */
   position: relative;
   z-index: 2; /* Ensures sections stay on top */
-  min-height: 100px; /* Ensures a minimum height to avoid collapsing */
   cursor: pointer; /* Changes cursor to pointer on hover */
   user-select: none; /* Prevents text selection */
 }
 
+.section.active {
+  background: linear-gradient(145deg, #fca311, #e69310);
+  color: white;
+  box-shadow: 
+    inset 3px 3px 6px rgba(0, 0, 0, 0.2),
+    inset -3px -3px 6px rgba(255, 255, 255, 0.1);
+}
+
+.section.active h2 {
+  color: white;
+}
+
 .hidden-grid {
-  background-color: #D3D3D3; /* Light grey color for the grid items */
-  border-radius: 10px; /* Rounded corners */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Light shadow for the grid items */
-  padding: 20px;
-  box-sizing: border-box;
-  height: 220%; /* Height as specified */
-  margin-top: -250px; /* Moves the grid towards the top */
-  display: flex; /* Makes the grid a flexbox */
-  flex-direction: column; /* Arranges items vertically */
-  align-items: center; /* Centers items horizontally */
-  width: 316%; /* Width three times that of the container */
+  position: absolute;
+  top: calc(100% + 1rem);
+  left: 0;
+  right: 0;
+  background: white;
+  border-radius: 1rem;
+  box-shadow: 
+    0 10px 25px rgba(0, 0, 0, 0.1),
+    0 5px 10px rgba(0, 0, 0, 0.05);
+  padding: 1rem;
+  padding-top: 0;
+  min-height: 300px;
+  max-height: 500px;
+  width: 96%;
+  overflow-y: auto;
+  z-index: 10;
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: all 0.3s ease;
+  scrollbar-width: thin;
+  scrollbar-color: #fca311 #f0f0f0;
+}
+
+.hidden-grid:not(.hidden) {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.hidden-grid::-webkit-scrollbar {
+  width: 8px;
+}
+
+.hidden-grid::-webkit-scrollbar-track {
+  background: #f0f0f0;
+  border-radius: 4px;
+}
+
+.hidden-grid::-webkit-scrollbar-thumb {
+  background: #fca311;
+  border-radius: 4px;
+}
+
+.hidden-grid::-webkit-scrollbar-thumb:hover {
+  background: #e69310;
 }
 
 /* Add CSS to hide the content by default */
