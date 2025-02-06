@@ -66,10 +66,41 @@ document.addEventListener("DOMContentLoaded",async () => {
             roomDiv.appendChild(joinButton);
             roomsContainer.appendChild(roomDiv);
         });
+
+        // Store rooms data globally for filtering
+        window.roomsData = rooms;
     } catch (error) {
         console.error("Error fetching public rooms:", error);
     }
 });
+
+// Function to filter rooms based on the search input
+function filterRooms() {
+    const searchTerm = document.getElementById("search-bar").value.toLowerCase();
+    const roomsContainer = document.getElementById("roomsContainer");
+    roomsContainer.innerHTML = ""; // Clear any existing content
+
+    const filteredRooms = window.roomsData.filter(room => 
+        room.room_name.toLowerCase().includes(searchTerm)
+    );
+
+    filteredRooms.forEach(room => {
+        const roomDiv = document.createElement("div");
+        roomDiv.classList.add("rooms");
+
+        const roomTitle = document.createElement("h3");
+        roomTitle.textContent = room.room_name;
+
+        const joinButton = document.createElement("button");
+        joinButton.classList.add("go-btn");
+        joinButton.textContent = "Enter Room";
+        joinButton.onclick = () => join(room.room_id); // Pass room code as parameter
+
+        roomDiv.appendChild(roomTitle);
+        roomDiv.appendChild(joinButton);
+        roomsContainer.appendChild(roomDiv);
+    });
+}
 
 function generateUniqueId() {
     return 'guest-' + Math.random().toString(36).substr(2, 9);
