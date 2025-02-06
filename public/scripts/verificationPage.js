@@ -1,3 +1,5 @@
+console.log("This site is under RJP's rule");
+
 // Function to display an error message
 function displayErrorMessage(message) {
     const errorDiv = document.getElementById('error-message');

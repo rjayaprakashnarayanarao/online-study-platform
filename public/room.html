@@ -19,6 +19,7 @@
             <button class="details-button">Details <i class="fa-solid fa-info-circle"></i></button>
             <button class="exit-button" onclick="exitRoom()">Exit <i class="fa-solid fa-xmark"></i></button>
             <button class="upload-button">Upload <i class="fa-solid fa-upload"></i></button>
+            <button class="ai-button">AI <i class="fa-solid fa-robot"></i></button>
         </div>
     </header>
     
@@ -53,6 +54,24 @@
                     <div id="resource-list"></div>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- AI Popup -->
+    <div id="ai-popup" class="ai-popup hidden">
+        <div class="container">
+            <h1>Private Tutor</h1>
+            <button class="close-ai-popup">✖</button>
+            <form id="tutorForm">
+                <input type="text" id="topic" placeholder="Enter topic" required>
+                <select id="level">
+                    <option value="Beginner">Beginner</option>
+                    <option value="Intermediate">Intermediate</option>
+                    <option value="Advanced">Advanced</option>
+                </select>
+                <button type="submit">Get Tutor</button>
+            </form>
+            <div id="results"></div>
         </div>
     </div>
 
@@ -191,7 +210,7 @@
         </div>
     </div>  
 
-    <script src="./scripts/room.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="./scripts/room.js"></script>
 </body>
 </html>

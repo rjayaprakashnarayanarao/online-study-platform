@@ -1,3 +1,5 @@
+console.log("This site is under RJP's rule");
+
 document.querySelector("form").addEventListener("submit", async (event) => {
     event.preventDefault(); // Prevent default form submission
 

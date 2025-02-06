@@ -4,6 +4,7 @@ var roomCode;
 var username;
 const userButtons = {};
 const socket = io("http://localhost:3000"); // Replace with your backend URL
+console.log("This site is under RJP's rule");
 
 function setUserName(name){
     username = name;
@@ -423,6 +424,99 @@ function showCopiedTooltip(icon) {
         tooltip.textContent = "Copy Room Code";
     }, 2000); // Reset the tooltip text after 2 seconds
 }
+
+// ai functionality
+document.addEventListener('DOMContentLoaded', () => {
+    // Add an event listener to the AI button
+    let closeAiPopup = document.querySelector('.close-ai-popup');
+    let aiButton = document.querySelector('.ai-button');
+    const aiPopup = document.getElementById('ai-popup');
+    console.log("aiButton: ", aiButton);
+
+    // If .ai-button does NOT exist, create and append it
+    if (!aiButton) {
+        console.warn("ai-button not found! Creating one dynamically...");
+
+        // Create new button element
+        aiButton = document.createElement('button');
+        aiButton.className = 'ai-button';
+        aiButton.innerHTML = 'AI <i class="fa-solid fa-robot"></i>';
+
+        // Append it to the header or body
+        const header = document.querySelector('header');
+        if (header) {
+            header.appendChild(aiButton);
+        } else {
+            document.body.appendChild(aiButton);
+        }
+    }
+
+    // Now add the event listener safely
+    aiButton.addEventListener('click', function (event) {
+        event.preventDefault();
+        if (aiPopup) {
+            aiPopup.classList.remove('hidden');
+        }
+    });
+
+    // If .close-ai-popup does NOT exist, create and append it
+    if (!closeAiPopup) {
+        console.warn(".close-ai-popup not found! Creating one...");
+        closeAiPopup = document.createElement('button');
+        closeAiPopup.className = 'close-ai-popup';
+        closeAiPopup.innerHTML = '✖';
+        
+        // Append it inside #ai-popup
+        const aiPopup = document.getElementById('ai-popup');
+        if (aiPopup) {
+            aiPopup.appendChild(closeAiPopup);
+        }
+    }
+
+    // Add an event listener to the AI popup close button
+    document.querySelector('.close-ai-popup').addEventListener('click', function(event) {
+        event.preventDefault();
+        document.getElementById('ai-popup').classList.add('hidden');
+    });
+
+    // Handle AI Tutor Form submission
+    document.getElementById("tutorForm").addEventListener("submit", async function(event) {
+        event.preventDefault();
+
+        const topic = document.getElementById("topic").value;
+        const level = document.getElementById("level").value;
+
+        document.getElementById("results").innerHTML = "Loading...";
+
+        try {
+            const response = await fetch("http://localhost:3000/tutor", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ topic, level }),
+            });
+
+            const data = await response.json();
+            
+            document.getElementById("results").innerHTML = `
+                <h2>Topic: ${data.topic}</h2>
+                <h3>Level: ${data.level}</h3>
+                <h4>Tutor Response:</h4>
+                <p>${data.tutorResponse}</p>
+                <h4>Relevant Search Results:</h4>
+                <ul>
+                    ${Array.isArray(data.searchResults) && data.searchResults.length > 0
+                        ? data.searchResults.map(item => `<li>${item}</li>`).join("")
+                        : "<li>No search results available.</li>"
+                    }
+                </ul>
+            `;
+            console.log("Response from server:", data);
+        } catch (error) {
+            console.error("Error:", error);
+            document.getElementById("results").innerHTML = "An error occurred.";
+        }
+    });
+});
 
 // Show popup card on page load
 window.onload = async function () {

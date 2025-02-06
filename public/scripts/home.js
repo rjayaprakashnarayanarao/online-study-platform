@@ -1,5 +1,5 @@
 let roomType = null;
-
+console.log("This site is under RJP's rule");
 // Check if user is signed in or not
 document.addEventListener("DOMContentLoaded",async () => {
     const profileName = document.querySelector(".profile-section h3");

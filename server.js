@@ -6,6 +6,8 @@ const cors = require('cors');
 const http = require('http');
 const { Server } = require("socket.io");
 const Rooms = require('./models/rooms.model'); // Import Rooms model
+const { searchWikipedia } = require("./wikiSearch");
+const { getGeminiTutorResponse } = require("./geminiTutor");
 
 const app = express();
 const server = http.createServer(app);
@@ -172,6 +174,24 @@ io.on("connection", (socket) => {
     
         console.log("User disconnected:", socket.id);
     });        
+});
+
+// 🔹 Handle AI Tutor Requests
+app.post("/tutor", async (req, res) => {
+    const { topic, level } = req.body;
+    try {
+        const wikiSummary = await searchWikipedia(topic);
+        const tutorResponse = await getGeminiTutorResponse(topic, level);
+        res.json({
+            topic,
+            level,
+            wikipediaSummary: wikiSummary,
+            tutorResponse,
+            searchResults: []  // 🔹 Ensure searchResults always exists
+        });
+    } catch (error) {
+        res.status(500).json({ error: "Something went wrong", searchResults: [] });
+    }
 });
 
 // 🔹 Start Server

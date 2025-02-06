@@ -1,3 +1,5 @@
+console.log("This site is under RJP's rule");
+
 document.getElementById('resetPasswordBtn').addEventListener('click', function () {
     const email = document.getElementById('identifier').value;
 
