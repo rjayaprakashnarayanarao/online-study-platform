@@ -2,23 +2,24 @@
 let messages = [];
 var roomCode;
 var username;
+let uploadedFiles = {};
 const userButtons = {};
 const socket = io("http://localhost:3000");
 console.log("This site is under RJP's rule");
 
-function setUserName(name){
+function setUserName(name) {
     username = name;
 }
 
-function getUserName(){
+function getUserName() {
     return username;
 }
 
-function setRoomCode(code){
+function setRoomCode(code) {
     roomCode = code;
 }
 
-function getRoomCode(){
+function getRoomCode() {
     return roomCode;
 }
 
@@ -127,7 +128,7 @@ function sendMessage(event) {
         alert('Please select a message type (Q or A)');
         return;
     }
-    
+
     const message = {
         id: Date.now(),
         text: text,
@@ -153,7 +154,7 @@ function sendMessage(event) {
     const code = getRoomCode()
     // Emit the message to the server
     socket.emit('sendMessage', { code, userId, message });
-    
+
 }
 
 
@@ -202,8 +203,8 @@ function dislikeMessage(messageId, userId, type) {
 
 // Function to render messages for a specific user and option
 function renderMessages(userId, type) {
-    console.log("renderMessage: ",userId,type);
-    
+    console.log("renderMessage: ", userId, type);
+
     const messagesContainer = document.getElementById('messages');
     const userMessages = messages[userId] && messages[userId][type] ? messages[userId][type] : [];
 
@@ -259,6 +260,26 @@ function renderMessages(userId, type) {
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
 }
 
+function renderFileUpload(fileData) {
+    const materialsContent = document.querySelector('.materials-content');
+    const fileMessage = document.createElement('div');
+    fileMessage.className = 'file-message';
+
+    fileMessage.innerHTML = `
+        <div class="file-header">
+            <span class="file-sender">${fileData.uploader}</span>
+            <span class="file-time">${fileData.timestamp}</span>
+        </div>
+        <div class="file-content">
+            <p class="file-name">${fileData.name}</p>
+            <a href="${fileData.fileUrl}" download="${fileData.name}" class="download-link">Download</a>
+        </div>
+    `;
+
+    materialsContent.appendChild(fileMessage);
+    materialsContent.scrollTop = materialsContent.scrollHeight; // Scroll to the bottom
+}
+
 // Initialize Lucide icons
 document.addEventListener('DOMContentLoaded', () => {
     lucide.createIcons();
@@ -293,9 +314,10 @@ function populateUserDetails() {
     const userDetailsContainer = document.getElementById('user-details-container');
     userDetailsContainer.innerHTML = ''; // Clear existing user details
 
-    users.forEach(user => {
+    users.forEach((user, index) => {
         const userDiv = document.createElement('div');
         userDiv.className = 'single-user';
+        userDiv.id = `user${index + 1}`; // Set unique ID for each user
         userDiv.innerHTML = `
             <p>${user.name}</p>
             <div class="user-options">
@@ -335,13 +357,13 @@ function switchUploadTab(tabName) {
         document.getElementById(`upload-${section}`).classList.add("hidden");
         document.querySelector(`.upload-tab[onclick="switchUploadTab('${section}')"]`).classList.remove("active");
     });
-    
+
     document.getElementById(`upload-${tabName}`).classList.remove("hidden");
     document.querySelector(`.upload-tab[onclick="switchUploadTab('${tabName}')"]`).classList.add("active");
 }
 
 // Handle file upload
-document.getElementById("upload-materials-input").addEventListener("change", function() {
+document.getElementById("upload-materials-input").addEventListener("change", function () {
     document.getElementById("upload-materials-message").classList.remove("hidden");
 });
 
@@ -387,7 +409,7 @@ function addResource() {
 }
 
 // Attach the popup open function to the Upload button
-document.querySelector(".upload-button").addEventListener("click", function(event) {
+document.querySelector(".upload-button").addEventListener("click", function (event) {
     event.preventDefault(); // Prevent redirection
     openUploadPopup();
 });
@@ -441,7 +463,7 @@ document.addEventListener('DOMContentLoaded', () => {
         closeAiPopup = document.createElement('button');
         closeAiPopup.className = 'close-ai-popup';
         closeAiPopup.innerHTML = '✖';
-        
+
         // Append it inside #ai-popup
         const aiPopup = document.getElementById('ai-popup');
         if (aiPopup) {
@@ -450,13 +472,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Add an event listener to the AI popup close button
-    document.querySelector('.close-ai-popup').addEventListener('click', function(event) {
+    document.querySelector('.close-ai-popup').addEventListener('click', function (event) {
         event.preventDefault();
         document.getElementById('ai-popup').classList.add('hidden');
     });
 
     // Handle AI Tutor Form submission
-    document.getElementById("tutorForm").addEventListener("submit", async function(event) {
+    document.getElementById("tutorForm").addEventListener("submit", async function (event) {
         event.preventDefault();
 
         const topic = document.getElementById("topic").value;
@@ -472,7 +494,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             const data = await response.json();
-            
+
             document.getElementById("results").innerHTML = `
                 <h2>Topic: ${data.topic}</h2>
                 <h3>Level: ${data.level}</h3>
@@ -481,9 +503,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 <h4>Relevant Search Results:</h4>
                 <ul>
                     ${Array.isArray(data.searchResults) && data.searchResults.length > 0
-                        ? data.searchResults.map(item => `<li>${item}</li>`).join("")
-                        : "<li>No search results available.</li>"
-                    }
+                    ? data.searchResults.map(item => `<li>${item}</li>`).join("")
+                    : "<li>No search results available.</li>"
+                }
                 </ul>
             `;
             console.log("Response from server:", data);
@@ -611,7 +633,24 @@ function handleUserSelection(selectedUser, username) {
     document.getElementById('default-message').style.display = 'none';
 
     // Update the materials-content with the selected user
-    document.querySelector('.materials-content').innerHTML = `<h3>Materials Content</h3><p>Selected User: ${username}</p>`;
+    const materialsContent = document.querySelector('.materials-content');
+    materialsContent.innerHTML = `<h3>Materials Content</h3><p>Selected User: ${username}</p>`;
+
+    // Load uploaded files for the selected user
+    const userId = selectedUser.id;
+    console.log("UserId: ",userId);
+    
+    if (uploadedFiles[userId]) {
+        const materialsList = document.createElement('div');
+        materialsList.id = 'materials-list';
+        uploadedFiles[userId].forEach(file => {
+            const listItem = document.createElement('p');
+            listItem.innerHTML = `<a href="#" onclick="alert('File: ${file.name}')">${file.name}</a>`;
+            materialsList.appendChild(listItem);
+        });
+        materialsContent.appendChild(materialsList);
+    }
+
     document.querySelector('.study-plan-content').innerHTML = `<h3>Study Plan Content</h3><p>Selected User: ${username}</p>`;
     document.querySelector('.resources-content').innerHTML = `<h3>Resources Content</h3><p>Selected User: ${username}</p>`;
 
@@ -621,7 +660,6 @@ function handleUserSelection(selectedUser, username) {
     document.querySelector('.resources-content').style.display = 'none';
     toggleHiddenGrid('materials'); // Calls function to highlight materials by default
 }
-
 // Toggle hidden grid content
 function toggleHiddenGrid(section) {
     const selectedUser = document.querySelector('.single-user.selected');
@@ -813,8 +851,8 @@ async function decryptData(encryptedData) {
             console.log("Decrypted Data:", decryptedData);
             // roomCode = decryptedData.room_id
             setRoomCode(decryptedData.room_id);
-            const socket = io("http://localhost:3000",{
-                query: {userId: decryptedData.creatorName},
+            const socket = io("http://localhost:3000", {
+                query: { userId: decryptedData.creatorName },
             });
 
             // Check if the user is the admin (room creator)
@@ -863,21 +901,24 @@ async function decryptData(encryptedData) {
                     message.classList.remove("hidden");
                     materialsList.innerHTML = ""; // Clear previous list
             
-                    let uploadedFiles = [];
-            
                     Array.from(files).forEach(file => {
-                        uploadedFiles.push({ name: file.name });
+                        const fileData = {
+                            name: file.name,
+                            size: file.size,
+                            type: file.type,
+                            uploader: getUserName(),
+                            timestamp: new Date().toLocaleTimeString(),
+                            fileUrl: URL.createObjectURL(file) // Create a URL for the file
+                        };
             
-                        const listItem = document.createElement("p");
-                        listItem.innerHTML = `<a href="#" onclick="alert('File: ${file.name}')">${file.name}</a>`;
-                        materialsList.appendChild(listItem);
-                    });
+                        // Emit the file upload event to the server
+                        socket.emit("fileUploaded", {
+                            roomCode: getRoomCode(),
+                            fileData: fileData
+                        });
             
-                    // Emit file upload event to notify others in the room
-                    socket.emit("fileUploaded", {
-                        roomCode, // Assuming `roomCode` is already set
-                        uploadedFiles,
-                        uploader: getUserName() // Assuming `userName` is set for the current user
+                        // Render the file upload locally
+                        renderFileUpload(fileData);
                     });
             
                     // Hide message after 3 seconds
@@ -886,45 +927,45 @@ async function decryptData(encryptedData) {
                     }, 3000);
                 }
             });
-            
+
 
             // Listen for new messages
             socket.on("newMessage", (newMessage) => {
                 // Extract userId and message from the newMessage object
                 const userId = newMessage.userId; // The user ID of the sender
                 const message = newMessage.message; // The message content
-            
+
                 // Ensure the messages structure exists for the user and type
                 if (!messages[userId]) {
                     messages[userId] = {};
                 }
-            
+
                 // Determine the type of message (e.g., "chat" or "info")
                 // Assuming the message object has a `type` property
                 const type = message.type || "chat"; // Default to "chat" if type is not provided
-            
+
                 if (!messages[userId][type]) {
                     messages[userId][type] = [];
                 }
-            
+
                 // Add the new message to the appropriate user and type
                 messages[userId][type].push(message);
-            
+
                 // Render the messages for the user and type
                 renderMessages(userId, type);
-            
+
                 // Clear the input field (if applicable)
                 const input = document.getElementById('message-input');
                 if (input) {
                     input.value = '';
                 }
-            
+
                 // Reset the message type selection (if applicable)
                 const messageType = document.querySelector('input[name="message-type"]:checked');
                 if (messageType) {
                     messageType.checked = false;
                 }
-            
+
                 console.log("New message received:", newMessage);
             });
 
@@ -938,7 +979,7 @@ async function decryptData(encryptedData) {
             });
 
             // Listen for users joining
-            socket.on("userJoined", ({ user, userName ,roomName,roomId}) => {
+            socket.on("userJoined", ({ user, userName, roomName, roomId }) => {
                 let obj = { id: user, name: userName };
                 users.push(obj);
                 console.log("Room id:::::", roomId);
@@ -961,34 +1002,17 @@ async function decryptData(encryptedData) {
                 }
 
                 populateUserDetails()
-            
+
                 console.log("Current Users: ", users);
                 console.log("User joined:", user);
             });
 
-            socket.on("fileUploaded", ({ uploadedFiles, uploader }) => {
-                const uName = getUserName();
-                
-                if (uploader !== uName) { // Prevent duplicate updates for the uploader
-                    const materialsContent = document.querySelector(".materials-content"); // Get the materials content section
-                    const message = document.getElementById("default-message"); // Default message
-            
-                    if (materialsContent) {
-                        // Remove default message if files are uploaded
-                        if (message) {
-                            message.style.display = "none";
-                        }
-            
-                        uploadedFiles.forEach(file => {
-                            const listItem = document.createElement("p");
-                            listItem.innerHTML = `<a href="#" onclick="alert('File: ${file.name}')">${file.name}</a>`;
-                            materialsContent.appendChild(listItem);
-                        });
-            
-                        console.log(`Files uploaded by ${uploader}:`, uploadedFiles);
-                    }
-                }
+            // Assuming this is your socket listener in frontend
+
+            socket.on("newFileUpload", (fileData) => {
+                renderFileUpload(fileData);
             });
+
 
             socket.on("adminUserJoined", ({ userId, username }) => {
 

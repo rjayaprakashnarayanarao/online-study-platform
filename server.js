@@ -116,9 +116,9 @@ io.on("connection", (socket) => {
     });
 
     // 🔹 User Uploads File (Real-time Sharing)
-    socket.on("fileUploaded", ({ roomCode, uploadedFiles, uploader }) => {
-        console.log(`Files uploaded in room ${roomCode} by ${uploader}:`, uploadedFiles);
-        io.to(roomCode).emit("fileUploaded", { uploadedFiles, uploader });
+    socket.on("fileUploaded", (data) => {
+        const { roomCode, fileData } = data;
+        socket.to(roomCode).emit("newFileUpload", fileData);
     });
 
     // 🔹 User Sends Message
