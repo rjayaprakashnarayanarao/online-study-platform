@@ -186,18 +186,33 @@ app.post("/tutor", async (req, res) => {
     const { topic, level } = req.body;
     try {
         const wikiSummary = await searchWikipedia(topic);
+        
+        console.log("📝 Raw Wikipedia Summary:", wikiSummary);
+
+        // Clean the summary for better rendering
+        const cleanSummary = wikiSummary
+        .replace(/\n/g, ' ')  // Replace actual newline characters with spaces
+        .replace(/{.*?}/g, '')  // Remove LaTeX curly brace expressions
+        .replace(/\s{2,}/g, ' ')  // Remove extra spaces
+        .trim();  // Trim leading/trailing whitespace
+        
+        console.log("📝 Cleaned Wikipedia Summary:", cleanSummary);
+
         const tutorResponse = await getGeminiTutorResponse(topic, level);
+
         res.json({
             topic,
             level,
-            wikipediaSummary: wikiSummary,
+            wikipediaSummary: cleanSummary,
             tutorResponse,
-            searchResults: []  // 🔹 Ensure searchResults always exists
+            searchResults: cleanSummary ? [cleanSummary] : []
         });
     } catch (error) {
+        console.error("Error in AI Tutor route:", error);
         res.status(500).json({ error: "Something went wrong", searchResults: [] });
     }
 });
+
 
 // 🔹 Start Server
 syncDatabase().then(() => {

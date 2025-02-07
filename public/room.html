@@ -60,18 +60,23 @@
     <!-- AI Popup -->
     <div id="ai-popup" class="ai-popup hidden">
         <div class="container">
-            <h1>Private Tutor</h1>
+            <h1>AI Helper</h1>
             <button class="close-ai-popup">✖</button>
             <form id="tutorForm">
                 <input type="text" id="topic" placeholder="Enter topic" required>
-                <select id="level">
-                    <option value="Beginner">Beginner</option>
-                    <option value="Intermediate">Intermediate</option>
-                    <option value="Advanced">Advanced</option>
-                </select>
-                <button type="submit">Get Tutor</button>
+                <div class="form-row">
+                    <select id="level">
+                        <option value="Beginner">Beginner</option>
+                        <option value="Intermediate">Intermediate</option>
+                        <option value="Advanced">Advanced</option>
+                    </select>
+                    <button type="submit">Get Tutor</button>
+                </div>
             </form>
-            <div id="results"></div>
+            <div id="results">
+                <img src="./Images/gif-intro.gif" alt="robo" style="display: block; margin: 0 auto 1rem; width: 150px; margin-bottom: 0;">
+                I’m here to help you explore any topic you want to learn more about. Just tell me what you're interested in, and let me know whether you’d like beginner, intermediate, or advanced material. I’ll provide a tailored explanation along with related Wikipedia search results to guide you further on your learning journey!
+            </div>
         </div>
     </div>
 
@@ -213,5 +218,7 @@
 
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="./scripts/room.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
 </body>
 </html>

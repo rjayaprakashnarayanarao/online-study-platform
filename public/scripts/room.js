@@ -484,7 +484,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const topic = document.getElementById("topic").value;
         const level = document.getElementById("level").value;
 
-        document.getElementById("results").innerHTML = "Loading...";
+        document.getElementById("results").innerHTML = `
+            <img src="./Images/gif-thinking.gif" alt="robo" style="display: block; margin: 0 auto 1rem; width: 150px; margin-bottom: 0;">
+            Thinking...
+            `;
 
         try {
             console.log("topic level: ",topic,level);
@@ -500,20 +503,25 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById("results").innerHTML = `
                 <h2>Topic: ${data.topic}</h2>
                 <h3>Level: ${data.level}</h3>
-                <h4>Tutor Response:</h4>
-                <p>${data.tutorResponse}</p>
+                <h4>Helper Response:</h4>
+                <div class="tutor-response">${marked.parse(data.tutorResponse)}</div>
                 <h4>Relevant Search Results:</h4>
                 <ul>
                     ${Array.isArray(data.searchResults) && data.searchResults.length > 0
-                    ? data.searchResults.map(item => `<li>${item}</li>`).join("")
-                    : "<li>No search results available.</li>"
-                }
+                        ? data.searchResults.map(item => `<li>${item.replace(/\n/g, '<br>')}</li>`).join("")
+                        : "<li>No search results available.</li>"
+                    }
                 </ul>
+                <img src="./Images/gif-done.gif" alt="robo" style="display: block; margin: 0 auto; width: 150px;">
             `;
+
             console.log("Response from server:", data);
         } catch (error) {
             console.error("Error:", error);
-            document.getElementById("results").innerHTML = "An error occurred.";
+            document.getElementById("results").innerHTML = `
+                <img src="./Images/gif-fail.gif" alt="robo" style="display: block; margin: 0 auto; width: 150px;">
+                An error occurred.
+            `;
         }
     });
 });

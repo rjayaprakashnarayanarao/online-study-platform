@@ -524,14 +524,33 @@ body.modal-open {
 .ai-popup .container {
   background: linear-gradient(145deg, #ffffff, #f8f9fa);
   border-radius: 20px;
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 8px;
   box-shadow: 
     0 25px 50px -12px rgba(0, 0, 0, 0.25),
     0 8px 24px -12px rgba(0, 0, 0, 0.15);
   padding: 2rem;
   width: 100%;
-  max-width: 600px;
+  max-width: 900px;
+  min-height: 455px;
+  max-height: 550px;
+  overflow-y: auto;
   position: relative;
-  overflow: hidden;
+  /* overflow: hidden; */
+}
+
+.ai-popup .container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.ai-popup .container::-webkit-scrollbar-track {
+  background: #f8f9fa;
+  border-radius: 3px;
+}
+
+.ai-popup .container::-webkit-scrollbar-thumb {
+  background: #FCA311;
+  border-radius: 3px;
 }
 
 .ai-popup h1 {
@@ -573,6 +592,16 @@ body.modal-open {
   margin-bottom: 2rem;
 }
 
+.ai-popup .form-row {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.ai-popup input[type="text"] {
+  width: 96% !important;
+}
+
 .ai-popup input[type="text"],
 .ai-popup select {
   width: 100%;
@@ -592,6 +621,7 @@ body.modal-open {
 }
 
 .ai-popup select {
+  flex: 1;
   cursor: pointer;
   appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2314213D'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
@@ -602,6 +632,7 @@ body.modal-open {
 }
 
 .ai-popup button[type="submit"] {
+  flex: 0 0 auto;
   background: linear-gradient(145deg, #14213D, #1a2b4d);
   color: white;
   border: none;
@@ -625,6 +656,7 @@ body.modal-open {
 }
 
 .ai-popup #results {
+  min-height: 205.2px;
   background: #f8fafc;
   border-radius: 12px;
   padding: 1.5rem;
@@ -681,6 +713,51 @@ body.modal-open {
   
   .ai-popup h1 {
     font-size: 1.75rem;
+  }
+}
+
+/* General Tutor Response Styling */
+.tutor-response {
+  max-width: 100%;          /* Prevent content from exceeding the container */
+  word-wrap: break-word;    /* Ensure long words break to the next line */
+  overflow-x: auto;         /* Allow horizontal scrolling for code blocks */
+  line-height: 1.6;         /* Improve line spacing for better readability */
+  padding: 10px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Code Block Styling */
+.tutor-response pre {
+  background-color: #14213D;   /* Dark background for code blocks */
+  color: #f8f8f2;              /* Light text color */
+  padding: 15px;
+  border-radius: 5px;
+  overflow-x: auto;            /* Enable horizontal scrolling for long code lines */
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.9rem;
+}
+
+/* Inline Code Styling */
+.tutor-response code {
+  background-color: rgb(47, 47, 47);  /* Light gray background for inline code */
+  color: #FCA311;
+  padding: 2px 4px;
+  border-radius: 4px;
+  font-family: 'Courier New', Courier, monospace;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .tutor-response {
+      font-size: 0.9rem;       /* Reduce text size on smaller screens */
+      padding: 8px;
+  }
+
+  .tutor-response pre {
+      font-size: 0.85rem;      /* Smaller font size for code on mobile */
+      padding: 10px;
   }
 }
 
