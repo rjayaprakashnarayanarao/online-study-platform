@@ -487,6 +487,8 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById("results").innerHTML = "Loading...";
 
         try {
+            console.log("topic level: ",topic,level);
+            
             const response = await fetch("http://localhost:3000/tutor", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
