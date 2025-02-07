@@ -261,7 +261,7 @@ function renderMessages(userId, type) {
 }
 
 function renderFileUpload(fileData) {
-    const materialsContent = document.querySelector('.materials-content');
+    const materialsList = document.getElementById('materials-list');
     const fileMessage = document.createElement('div');
     fileMessage.className = 'file-message';
 
@@ -276,8 +276,8 @@ function renderFileUpload(fileData) {
         </div>
     `;
 
-    materialsContent.appendChild(fileMessage);
-    materialsContent.scrollTop = materialsContent.scrollHeight; // Scroll to the bottom
+    materialsList.appendChild(fileMessage);
+    materialsList.scrollTop = materialsList.scrollHeight; // Scroll to the bottom
 }
 
 // Initialize Lucide icons

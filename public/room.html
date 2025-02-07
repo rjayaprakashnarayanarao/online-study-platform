@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,7 +8,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" />
     <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
 </head>
-
 <body>
     <header>
         <div class="logo-container">
@@ -24,49 +22,7 @@
             <button class="ai-button">AI <i class="fa-solid fa-robot"></i></button>
         </div>
     </header>
-    <style>
-        .file-message {
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            padding: 10px;
-            margin-bottom: 10px;
-            background-color: #f9f9f9;
-        }
-
-        .file-header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 5px;
-        }
-
-        .file-sender {
-            font-weight: bold;
-        }
-
-        .file-time {
-            color: #666;
-            font-size: 0.9em;
-        }
-
-        .file-content {
-            display: flex;
-            align-items: center;
-        }
-
-        .file-name {
-            margin-right: 10px;
-        }
-
-        .download-link {
-            color: #007bff;
-            text-decoration: none;
-        }
-
-        .download-link:hover {
-            text-decoration: underline;
-        }
-    </style>
-
+    
     <div id="upload-popup" class="upload-popup hidden">
         <div class="upload-popup-content">
             <div class="upload-popup-header">
@@ -192,8 +148,12 @@
                             </label>
                         </div>
                         <div class="input-container">
-                            <input type="text" id="message-input" placeholder="Type your message..."
-                                class="message-input">
+                            <input 
+                                type="text" 
+                                id="message-input" 
+                                placeholder="Type your message..."
+                                class="message-input"
+                            >
                             <button type="button" class="record-button" onclick="toggleRecording()">🎤</button>
                             <button type="submit" class="send-button">Send</button>
                         </div>
@@ -233,30 +193,25 @@
                 </div>
                 <div class="share-options" id="share-options">
                     <div class="wrapper">
-                        <a href="mailto:?subject=Room%20Details&body=Room%20Name:%20%24{roomName}%0ARoom%20Number:%20%24{roomNumber}"
-                            target="_blank" class="icon gmail" id="gmail-share-link">
+                        <a href="mailto:?subject=Room%20Details&body=Room%20Name:%20%24{roomName}%0ARoom%20Number:%20%24{roomNumber}" target="_blank" class="icon gmail" id="gmail-share-link">
                             <div class="tooltip">Gmail</div>
-                            <span><img src="https://img.icons8.com/ios/50/000000/gmail.png" alt="Gmail Logo"
-                                    style="width: 20px; height: 20px;"> </span>
-                        </a>
-                        <a href="https://www.linkedin.com/shareArticle?mini=true&url=%24{pageUrl}&title=Room%20Details"
-                            target="_blank" class="icon linkedin" id="linkedin-share-link">
+                            <span><img src="https://img.icons8.com/ios/50/000000/gmail.png" alt="Gmail Logo" style="width: 20px; height: 20px;"> </span>
+                        </a>                    
+                        <a href="https://www.linkedin.com/shareArticle?mini=true&url=%24{pageUrl}&title=Room%20Details" target="_blank" class="icon linkedin" id="linkedin-share-link">
                             <div class="tooltip">LinkedIn</div>
                             <span><i class="fab fa-linkedin"></i></span>
                         </a>
-                        <a href="https://web.whatsapp.com/send?text=Room%20Name:%20%24{roomName}%0ARoom%20Number:%20%24{roomNumber}%0APage%20URL:%20%24{pageUrl}"
-                            target="_blank" class="icon whatsapp" id="whatsapp-share-link">
+                        <a href="https://web.whatsapp.com/send?text=Room%20Name:%20%24{roomName}%0ARoom%20Number:%20%24{roomNumber}%0APage%20URL:%20%24{pageUrl}" target="_blank" class="icon whatsapp" id="whatsapp-share-link">
                             <div class="tooltip">WhatsApp</div>
                             <span><i class="fab fa-whatsapp"></i></span>
                         </a>
                     </div>
-                </div>
+                </div>            
             </div>
         </div>
-    </div>
+    </div>  
 
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="./scripts/room.js"></script>
 </body>
-
 </html>
