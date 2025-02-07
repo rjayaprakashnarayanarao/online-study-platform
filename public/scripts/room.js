@@ -3,7 +3,7 @@ let messages = [];
 var roomCode;
 var username;
 const userButtons = {};
-const socket = io("http://localhost:3000"); // Replace with your backend URL
+const socket = io("http://localhost:3000");
 console.log("This site is under RJP's rule");
 
 function setUserName(name){
@@ -390,30 +390,6 @@ function addResource() {
 document.querySelector(".upload-button").addEventListener("click", function(event) {
     event.preventDefault(); // Prevent redirection
     openUploadPopup();
-});
-
-// Handle file upload
-document.getElementById("upload-materials-input").addEventListener("change", function(event) {
-    const files = event.target.files;
-    const materialsList = document.getElementById("materials-list");
-    const message = document.getElementById("upload-materials-message");
-
-    if (files.length > 0) {
-        message.classList.remove("hidden");
-        materialsList.innerHTML = ""; // Clear previous list
-
-        // Loop through uploaded files and display them
-        Array.from(files).forEach(file => {
-            const listItem = document.createElement("p");
-            listItem.innerHTML = `<a href="#" onclick="alert('File: ${file.name}')">${file.name}</a>`;
-            materialsList.appendChild(listItem);
-        });
-
-        // Hide message after 3 seconds
-        setTimeout(() => {
-            message.classList.add("hidden");
-        }, 3000);
-    }
 });
 
 // Function to change the tooltip text to "Copied!"
@@ -878,6 +854,40 @@ async function decryptData(encryptedData) {
 
             populateUserDetails()
 
+            document.getElementById("upload-materials-input").addEventListener("change", function (event) {
+                const files = event.target.files;
+                const materialsList = document.getElementById("materials-list");
+                const message = document.getElementById("upload-materials-message");
+            
+                if (files.length > 0) {
+                    message.classList.remove("hidden");
+                    materialsList.innerHTML = ""; // Clear previous list
+            
+                    let uploadedFiles = [];
+            
+                    Array.from(files).forEach(file => {
+                        uploadedFiles.push({ name: file.name });
+            
+                        const listItem = document.createElement("p");
+                        listItem.innerHTML = `<a href="#" onclick="alert('File: ${file.name}')">${file.name}</a>`;
+                        materialsList.appendChild(listItem);
+                    });
+            
+                    // Emit file upload event to notify others in the room
+                    socket.emit("fileUploaded", {
+                        roomCode, // Assuming `roomCode` is already set
+                        uploadedFiles,
+                        uploader: getUserName() // Assuming `userName` is set for the current user
+                    });
+            
+                    // Hide message after 3 seconds
+                    setTimeout(() => {
+                        message.classList.add("hidden");
+                    }, 3000);
+                }
+            });
+            
+
             // Listen for new messages
             socket.on("newMessage", (newMessage) => {
                 // Extract userId and message from the newMessage object
@@ -954,6 +964,30 @@ async function decryptData(encryptedData) {
             
                 console.log("Current Users: ", users);
                 console.log("User joined:", user);
+            });
+
+            socket.on("fileUploaded", ({ uploadedFiles, uploader }) => {
+                const uName = getUserName();
+                
+                if (uploader !== uName) { // Prevent duplicate updates for the uploader
+                    const materialsContent = document.querySelector(".materials-content"); // Get the materials content section
+                    const message = document.getElementById("default-message"); // Default message
+            
+                    if (materialsContent) {
+                        // Remove default message if files are uploaded
+                        if (message) {
+                            message.style.display = "none";
+                        }
+            
+                        uploadedFiles.forEach(file => {
+                            const listItem = document.createElement("p");
+                            listItem.innerHTML = `<a href="#" onclick="alert('File: ${file.name}')">${file.name}</a>`;
+                            materialsContent.appendChild(listItem);
+                        });
+            
+                        console.log(`Files uploaded by ${uploader}:`, uploadedFiles);
+                    }
+                }
             });
 
             socket.on("adminUserJoined", ({ userId, username }) => {

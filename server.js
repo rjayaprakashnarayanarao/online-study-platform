@@ -42,10 +42,10 @@ io.on("connection", (socket) => {
 
     try {
         console.log(socket.handshake.query.userId);
-        
+
     } catch (error) {
-        console.log("error:",error.message);
-        
+        console.log("error:", error.message);
+
     }
 
     // 🔸 Admin Creates Room
@@ -89,41 +89,46 @@ io.on("connection", (socket) => {
     // 🔹 User Joins Room
     socket.on("joinRoom", async ({ roomCode, username }) => {
         console.log("Join Room Event received. Room Code:", roomCode);
-    
+
         try {
             const room = await Rooms.findOne({ where: { room_id: roomCode } });
-    
+
             if (!room) {
                 console.log(`Room ${roomCode} does not exist.`);
                 socket.emit("error", "Room does not exist.");
                 return;
             }
-    
+
             socket.join(roomCode);
             activeUsers.get(roomCode).add(username); // Store username in the room's user set
             userSocketMap.set(socket.id, { roomCode, username }); // Store mapping
             console.log("roomid: ", room.dataValues.room_id);
-            
+
             console.log(`${username} joined room ${roomCode}`);
-    
+
             socket.emit("messageHistory", messageHistory[roomCode] || []);
-            io.to(roomCode).emit("userJoined", { userName: username, user: socket.id ,roomName: room.dataValues.room_name, roomId: room.dataValues.room_id});
+            io.to(roomCode).emit("userJoined", { userName: username, user: socket.id, roomName: room.dataValues.room_name, roomId: room.dataValues.room_id });
             io.to(roomCode).emit("updateUsers", { users: Array.from(activeUsers.get(roomCode)) });
         } catch (error) {
             console.error("Error joining room:", error);
             socket.emit("error", "Failed to join room.");
         }
     });
-    
+
+    // 🔹 User Uploads File (Real-time Sharing)
+    socket.on("fileUploaded", ({ roomCode, uploadedFiles, uploader }) => {
+        console.log(`Files uploaded in room ${roomCode} by ${uploader}:`, uploadedFiles);
+        io.to(roomCode).emit("fileUploaded", { uploadedFiles, uploader });
+    });
 
     // 🔹 User Sends Message
     socket.on("sendMessage", ({ code, message, userId }) => {
         const roomCode = code
         if (!messageHistory[roomCode]) return;
 
-        const newMessage = { sender: socket.id, message ,userId};
-        console.log("New message sent: ",newMessage);
-        
+        const newMessage = { sender: socket.id, message, userId };
+        console.log("New message sent: ", newMessage);
+
         messageHistory[roomCode].push(newMessage);
         io.to(roomCode).emit("newMessage", newMessage);
     });
@@ -133,37 +138,37 @@ io.on("connection", (socket) => {
         try {
             // Check if the disconnected user is an admin
             const room = await Rooms.findOne({ where: { socket_id: socket.id } });
-    
+
             if (room) {
                 const roomCode = room.room_id;
-    
+
                 console.log(`Admin ${socket.id} left. Closing room ${roomCode}.`);
-    
+
                 io.to(roomCode).emit("roomClosed", "The admin has left. Redirecting...");
-    
+
                 // Delete room from database
                 await Rooms.destroy({ where: { room_id: roomCode } });
-    
+
                 // Remove message history and active users
                 delete messageHistory[roomCode];
                 activeUsers.delete(roomCode);
             } else {
                 // Handle regular user disconnect
                 const userInfo = userSocketMap.get(socket.id);
-    
+
                 if (userInfo) {
                     const { roomCode, username } = userInfo;
-    
+
                     if (activeUsers.has(roomCode)) {
                         activeUsers.get(roomCode).delete(username); // Remove the user by username
-    
+
                         // Notify others in the room
                         io.to(roomCode).emit("userLeft", socket.id);
                         io.to(roomCode).emit("updateUsers", { users: Array.from(activeUsers.get(roomCode)) });
-    
+
                         console.log(`User ${username} left room ${roomCode}`);
                     }
-    
+
                     // Remove mapping
                     userSocketMap.delete(socket.id);
                 }
@@ -171,9 +176,9 @@ io.on("connection", (socket) => {
         } catch (error) {
             console.error("Error handling disconnect:", error);
         }
-    
+
         console.log("User disconnected:", socket.id);
-    });        
+    });
 });
 
 // 🔹 Handle AI Tutor Requests
