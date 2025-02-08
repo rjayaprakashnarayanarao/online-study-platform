@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="./styles/room.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" />
     <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <script src="https://www.google.com/books/jsapi.js"></script>
 </head>
 <body>
     <header>
@@ -19,6 +20,7 @@
             <button class="details-button">Details <i class="fa-solid fa-info-circle"></i></button>
             <button class="upload-button">Upload <i class="fa-solid fa-upload"></i></button>
             <button class="ai-button">AI <i class="fa-solid fa-robot"></i></button>
+            <button class="library-button">Library <i class="fa-solid fa-book"></i></button>
             <button class="exit-button" onclick="exitRoom()">Exit <i class="fa-solid fa-xmark"></i></button>
         </div>
     </header>
@@ -54,6 +56,21 @@
                     <div id="resource-list"></div>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Library Popup -->
+    <div id="lib-popup" class="lib-popup hidden">
+        <div class="lib-popup-content">
+            <div class="lib-popup-header">
+                <h2>Search Books</h2>
+                <button class="close-lib-popup">✖</button>
+            </div>
+            <div class="search-container">
+                <input type="text" id="book-search" placeholder="Search for books..." />
+                <button id="search-button">Search</button>
+            </div>
+            <div id="search-results"></div>
         </div>
     </div>
 
@@ -219,6 +236,5 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="./scripts/room.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-
 </body>
 </html>

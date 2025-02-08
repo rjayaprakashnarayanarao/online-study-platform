@@ -213,6 +213,41 @@ app.post("/tutor", async (req, res) => {
     }
 });
 
+const axios = require('axios');
+// Google Books API Endpoint
+app.get('/api/books', async (req, res) => {
+    const query = req.query.q;
+    if (!query) {
+        return res.status(400).json({ error: 'Query parameter is required' });
+    }
+
+    const apiKey = process.env.GOOGLE_BOOKS_API_KEY;
+    const apiUrl = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}&key=${apiKey}`;
+
+    try {
+        const response = await axios.get(apiUrl);
+        res.json(response.data);  // Send API response to frontend
+    } catch (error) {
+        console.error('Error fetching books from Google Books API:', error);
+        res.status(500).json({ error: 'Failed to fetch books' });
+    }
+});
+
+// Route to fetch detailed information for a specific book by ID
+app.get('/api/books/:id', async (req, res) => {
+    const bookId = req.params.id;
+    const apiKey = process.env.GOOGLE_BOOKS_API_KEY;
+
+    const apiUrl = `https://www.googleapis.com/books/v1/volumes/${bookId}?key=${apiKey}`;
+
+    try {
+        const response = await axios.get(apiUrl);
+        res.json(response.data);  // Send book details back to the frontend
+    } catch (error) {
+        console.error(`Error fetching book details for ID ${bookId}:`, error);
+        res.status(500).json({ error: 'Failed to fetch book details' });
+    }
+});
 
 // 🔹 Start Server
 syncDatabase().then(() => {

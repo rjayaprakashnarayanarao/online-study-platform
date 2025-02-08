@@ -423,13 +423,154 @@ function showCopiedTooltip(icon) {
     }, 2000); // Reset the tooltip text after 2 seconds
 }
 
+document.addEventListener('DOMContentLoaded', function () {
+    google.books.load();  // Load the Google Books API after DOM is ready
+});
+
+// Open Library Popup when clicking the Library button
+document.querySelector(".library-button").addEventListener("click", function () {
+    document.getElementById("lib-popup").classList.remove("hidden");
+});
+
+// Close Library Popup when clicking the close button
+document.querySelector(".close-lib-popup").addEventListener("click", function () {
+    document.getElementById("lib-popup").classList.add("hidden");
+});
+
+let displayedResults = 10; // Number of results to show initially
+
+// Book Search using Backend API (Google Books)
+document.getElementById("search-button").addEventListener("click", function () {
+    const query = document.getElementById("book-search").value.trim();
+    if (!query) return;
+
+    const resultsContainer = document.getElementById("search-results");
+    resultsContainer.innerHTML = "<p>Loading...</p>"; // Display loading text
+
+    // Fetch book data from the backend server
+    fetch(`/api/books?q=${query}`)
+        .then(response => response.json())
+        .then(data => {
+            const resultsContainer = document.getElementById("search-results");
+            resultsContainer.innerHTML = "";
+
+            if (!data.items || data.items.length === 0) {
+                resultsContainer.innerHTML = "<p>No results found.</p>";
+                return;
+            }
+
+            // Display initial results
+            displayResults(data);
+
+    })
+    .catch(error => console.error("Error fetching books:", error));
+});
+
+// Function to display book search results
+function displayResults(data) {
+    const resultsContainer = document.getElementById("search-results");
+    resultsContainer.innerHTML = ""; // Clear previous results
+
+    data.items.slice(0, displayedResults).forEach(item => {
+        const book = item.volumeInfo;
+        const title = book.title || "Unknown Title";
+        const author = book.authors ? book.authors.join(", ") : "Unknown Author";
+        const thumbnail = book.imageLinks?.thumbnail || "https://via.placeholder.com/128x195";
+
+        const bookItem = document.createElement("div");
+        bookItem.classList.add("book-item");
+        bookItem.innerHTML = `
+            <img src="${thumbnail}" alt="Book Cover">
+            <h3>${title}</h3>
+            <p>by ${author}</p>
+        `;
+        
+        bookItem.addEventListener("click", () => fetchBookDetails(item.id));
+        resultsContainer.appendChild(bookItem);
+    });
+
+    // Add "Load More" button if more results are available
+    if (displayedResults < data.items.length) {
+        const loadMoreButton = document.createElement("button");
+        loadMoreButton.textContent = "Load More";
+        loadMoreButton.onclick = () => {
+            displayedResults += 10; // Increase the displayed results count
+            displayResults(data); // Refresh the list with more results
+        };
+        resultsContainer.appendChild(loadMoreButton);
+    }
+}
+
+// Function to display book preview using Google Books Embedded Viewer
+function displayBookPreview(bookId) {
+    if (typeof google.books === 'undefined' || typeof google.books.load !== 'function') {
+        console.error("Google Books API is not loaded.");
+        return;
+    }
+
+    google.books.load(() => {
+        const resultsContainer = document.getElementById("search-results");
+        resultsContainer.innerHTML = '<div id="book-preview" style="width: 100%; height: 600px;"></div>';
+
+        const viewer = new google.books.DefaultViewer(document.getElementById('book-preview'));
+        viewer.load(`ISBN:${bookId}`);  // Load the book using its ISBN
+
+        // Add Back button
+        const backButton = document.createElement('button');
+        backButton.textContent = "Back to Book Details";
+        backButton.addEventListener('click', () => fetchBookDetails(bookId));
+        resultsContainer.appendChild(backButton);
+    });
+}
+
+// Fetch and Display Book Details
+function fetchBookDetails(bookId) {
+    fetch(`/api/books/${bookId}`)
+        .then(response => response.json())
+        .then(item => {
+            const book = item.volumeInfo;
+            const title = book.title || "Unknown Title";
+            const description = book.description || "No description available.";
+            const authors = book.authors ? book.authors.join(", ") : "Unknown Author";
+            const pageCount = book.pageCount || "N/A";
+            const publishedDate = book.publishedDate || "Unknown";
+            
+            const industryIdentifiers = book.industryIdentifiers;
+            const isbn = industryIdentifiers ? industryIdentifiers.find(id => id.type === "ISBN_13")?.identifier : null;
+
+            const resultsContainer = document.getElementById("search-results");
+
+            resultsContainer.innerHTML = `
+                <h2>${title}</h2>
+                <p><strong>Authors:</strong> ${authors}</p>
+                <p><strong>Pages:</strong> ${pageCount}</p>
+                <p><strong>Published:</strong> ${publishedDate}</p>
+                <p>${description}</p>
+                ${isbn ? `<button id="preview-button" onclick="displayBookPreview('${isbn}')">Preview Book</button>` 
+                : `<p>No preview available for this book.</p>`}
+                <button onclick="clearSearchResults()">Back to Search</button>
+            `;
+        })
+        .catch(error => {
+            console.error("Error fetching book details:", error);
+            document.getElementById("search-results").innerHTML = "<p>Unable to load book details.</p>";
+        });
+}
+
+// Clear Search Results and Reset Input
+function clearSearchResults() {
+    const resultsContainer = document.getElementById('search-results');
+    const searchInput = document.getElementById('book-search');
+    resultsContainer.innerHTML = '';
+    searchInput.value = '';
+}
+
 // ai functionality
 document.addEventListener('DOMContentLoaded', () => {
     // Add an event listener to the AI button
     let closeAiPopup = document.querySelector('.close-ai-popup');
     let aiButton = document.querySelector('.ai-button');
     const aiPopup = document.getElementById('ai-popup');
-    console.log("aiButton: ", aiButton);
 
     // If .ai-button does NOT exist, create and append it
     if (!aiButton) {
