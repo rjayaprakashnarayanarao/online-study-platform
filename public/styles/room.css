@@ -701,8 +701,8 @@ body.modal-open {
 }
 
 /* Book Details View */
-#read-button,
-#download-button {
+#preview-button,
+button[onclick="clearSearchResults()"] {
   background: #14213D;
   color: white;
   border: none;
@@ -714,13 +714,13 @@ body.modal-open {
   margin: 1rem 0.5rem;
 }
 
-#read-button:hover,
-#download-button:hover {
+#preview-button:hover,
+button[onclick="clearSearchResults()"]:hover {
   background: #FCA311;
 }
 
-#read-button:disabled,
-#download-button:disabled {
+#preview-button:disabled,
+button[onclick="clearSearchResults()"]:disabled {
   background: #e2e8f0;
   cursor: not-allowed;
 }
@@ -738,6 +738,14 @@ body.modal-open {
   .lib-popup-header h2 {
     font-size: 1.5rem;
   }
+
+  .search-container {
+    flex-direction: column;
+  }
+  
+  #search-button {
+    width: 100%;
+  }
   
   #search-results {
     grid-template-columns: 1fr;
@@ -745,6 +753,102 @@ body.modal-open {
   
   .book-item img {
     height: 150px;
+  }
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+#viewerCanvas {
+  display: none;
+  position: absolute; /* Position it absolutely */
+  top: 10%;
+  left: 0;
+  right: 0;
+  background: linear-gradient(145deg, #ffffff, #f8f9fa);
+  border-radius: 16px;
+  padding: 1.5rem;
+  margin-top: 2rem;
+  width: 100%;
+  height: 600px;
+  box-shadow: 
+    0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease-in-out;
+  z-index: 1000; /* Ensure it is on top */
+}
+
+#viewerCanvas:hover {
+  box-shadow: 
+    0 25px 30px -5px rgba(0, 0, 0, 0.15),
+    0 15px 15px -5px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
+}
+
+#viewerCanvas iframe {
+  border-radius: 12px;
+  background: white;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);
+}
+
+#viewerCanvas .close-viewer {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1.2rem;
+  z-index: 1001; /* Ensure it is on top of the viewerCanvas */
+}
+
+#viewerCanvas .close-viewer:hover {
+  background: #dc2626;
+}
+
+/* Custom scrollbar for the viewer */
+#viewerCanvas::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+#viewerCanvas::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+#viewerCanvas::-webkit-scrollbar-thumb {
+  background: #FCA311;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+}
+
+#viewerCanvas::-webkit-scrollbar-thumb:hover {
+  background: #e69310;
+}
+
+/* Ensure the viewer is responsive */
+@media (max-width: 768px) {
+  #viewerCanvas {
+    padding: 1rem;
+    margin-top: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  #viewerCanvas {
+    padding: 0.75rem;
+    margin-top: 1rem;
+    border-radius: 12px;
   }
 }
 

@@ -71,7 +71,10 @@
                 <button id="search-button">Search</button>
             </div>
             <div id="search-results"></div>
-            <div id="viewerCanvas" style="width: 100%; height: 600px;"></div> <!-- Added for Google Books Viewer -->
+            <div class="viewercanvas-container">
+                <button class="close-viewer" onclick="closeViewerCanvas()">✖</button>
+                <div id="viewerCanvas"></div> <!-- Added for Google Books Viewer -->
+            </div>
         </div>
     </div>
 

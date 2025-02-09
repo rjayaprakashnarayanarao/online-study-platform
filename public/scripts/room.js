@@ -445,6 +445,7 @@ document.querySelector(".library-button").addEventListener("click", function () 
 // Close Library Popup when clicking the close button
 document.querySelector(".close-lib-popup").addEventListener("click", function () {
     document.getElementById("lib-popup").classList.add("hidden");
+    closeViewerCanvas();
 });
 
 let displayedResults = 10; // Number of results to show initially
@@ -522,9 +523,16 @@ function displayBookPreview(bookIsbn) {
         const viewer = new google.books.DefaultViewer(document.getElementById('viewerCanvas'));
         viewer.load('ISBN:' + bookIsbn);
         console.log(`Loading book preview for ISBN: ${bookIsbn}`);
+
+        // Show the viewerCanvas when the preview button is clicked
+        document.getElementById('viewerCanvas').style.display = 'block';
     } catch (error) {
         console.error("Error loading book preview:", error);
     }
+}
+
+function closeViewerCanvas() {
+    document.getElementById('viewerCanvas').style.display = 'none';
 }
 
 // Fetch and Display Book Details
@@ -567,6 +575,7 @@ function clearSearchResults() {
     const searchInput = document.getElementById('book-search');
     resultsContainer.innerHTML = '';
     searchInput.value = '';
+    closeViewerCanvas();
 }
 
 // ai functionality
