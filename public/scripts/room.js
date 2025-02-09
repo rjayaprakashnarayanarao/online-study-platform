@@ -424,8 +424,18 @@ function showCopiedTooltip(icon) {
 }
 
 document.addEventListener('DOMContentLoaded', function () {
-    google.books.load();  // Load the Google Books API after DOM is ready
+    if (typeof google !== 'undefined' && google.books) {
+        google.books.load(); // Load the Books API
+        google.books.setOnLoadCallback(initGoogleBooks);
+    } else {
+        console.error("Google Books API is not loaded.");
+    }
 });
+
+function initGoogleBooks() {
+    console.log("Google Books API loaded successfully.");
+    // Any Google Books related code should go here
+}
 
 // Open Library Popup when clicking the Library button
 document.querySelector(".library-button").addEventListener("click", function () {
@@ -502,25 +512,19 @@ function displayResults(data) {
 }
 
 // Function to display book preview using Google Books Embedded Viewer
-function displayBookPreview(bookId) {
-    if (typeof google.books === 'undefined' || typeof google.books.load !== 'function') {
+function displayBookPreview(bookIsbn) {
+    if (typeof google === 'undefined' || typeof google.books === 'undefined') {
         console.error("Google Books API is not loaded.");
         return;
     }
 
-    google.books.load(() => {
-        const resultsContainer = document.getElementById("search-results");
-        resultsContainer.innerHTML = '<div id="book-preview" style="width: 100%; height: 600px;"></div>';
-
-        const viewer = new google.books.DefaultViewer(document.getElementById('book-preview'));
-        viewer.load(`ISBN:${bookId}`);  // Load the book using its ISBN
-
-        // Add Back button
-        const backButton = document.createElement('button');
-        backButton.textContent = "Back to Book Details";
-        backButton.addEventListener('click', () => fetchBookDetails(bookId));
-        resultsContainer.appendChild(backButton);
-    });
+    try {
+        const viewer = new google.books.DefaultViewer(document.getElementById('viewerCanvas'));
+        viewer.load('ISBN:' + bookIsbn);
+        console.log(`Loading book preview for ISBN: ${bookIsbn}`);
+    } catch (error) {
+        console.error("Error loading book preview:", error);
+    }
 }
 
 // Fetch and Display Book Details
