@@ -440,15 +440,19 @@ function initGoogleBooks() {
 // Open Library Popup when clicking the Library button
 document.querySelector(".library-button").addEventListener("click", function () {
     document.getElementById("lib-popup").classList.remove("hidden");
+    document.getElementById("close-viewer").style.display = 'none';
 });
 
 // Close Library Popup when clicking the close button
 document.querySelector(".close-lib-popup").addEventListener("click", function () {
     document.getElementById("lib-popup").classList.add("hidden");
     closeViewerCanvas();
+    clearSearchResults();
 });
 
-let displayedResults = 10; // Number of results to show initially
+let displayedResults = 12; // Number of results to show initially
+let currentBookData = []; // Store search results globally
+let previousSearchResults = ""; // Store the previous search results before selecting a book
 
 // Book Search using Backend API (Google Books)
 document.getElementById("search-button").addEventListener("click", function () {
@@ -459,7 +463,7 @@ document.getElementById("search-button").addEventListener("click", function () {
     resultsContainer.innerHTML = "<p>Loading...</p>"; // Display loading text
 
     // Fetch book data from the backend server
-    fetch(`/api/books?q=${query}`)
+    fetch(`https://www.googleapis.com/books/v1/volumes?q=${query}&maxResults=40`)
         .then(response => response.json())
         .then(data => {
             const resultsContainer = document.getElementById("search-results");
@@ -478,35 +482,57 @@ document.getElementById("search-button").addEventListener("click", function () {
 });
 
 // Function to display book search results
-function displayResults(data) {
+function displayResults(data, isAppending = false) {
     const resultsContainer = document.getElementById("search-results");
+
+    // Store the entire dataset once
+    if (!isAppending) {
+        currentBookData = data.items || []; // Save all books
+        displayedResults = 12; // Reset displayed results
+        resultsContainer.innerHTML = ""; // Clear only if not appending
+    }
+
+    // Show only the first `displayedResults` number of books
+    const booksToShow = currentBookData.slice(0, displayedResults);
+
+    previousSearchResults = resultsContainer.innerHTML; // Store the previous search results
     resultsContainer.innerHTML = ""; // Clear previous results
 
-    data.items.slice(0, displayedResults).forEach(item => {
+    booksToShow.forEach((item, index) => {
         const book = item.volumeInfo;
         const title = book.title || "Unknown Title";
         const author = book.authors ? book.authors.join(", ") : "Unknown Author";
-        const thumbnail = book.imageLinks?.thumbnail || "https://via.placeholder.com/128x195";
+        const thumbnail = book.imageLinks?.thumbnail || "https://dummyimage.com/128x195/ccc/fff.png&text=No+Image";
+
+        // Prevent duplicates when appending
+        if (document.getElementById(`book-${index}`)) return;
 
         const bookItem = document.createElement("div");
         bookItem.classList.add("book-item");
+        bookItem.id = `book-${index}`; // Unique ID to avoid duplicates
         bookItem.innerHTML = `
             <img src="${thumbnail}" alt="Book Cover">
             <h3>${title}</h3>
             <p>by ${author}</p>
         `;
-        
+
         bookItem.addEventListener("click", () => fetchBookDetails(item.id));
         resultsContainer.appendChild(bookItem);
     });
 
-    // Add "Load More" button if more results are available
-    if (displayedResults < data.items.length) {
+    // Remove existing button if already added
+    const existingButton = document.getElementById("load-more-button");
+    if (existingButton) existingButton.remove();
+
+    // Add "Load More" button if there are still more books to load
+    if (displayedResults < currentBookData.length) {
         const loadMoreButton = document.createElement("button");
+        loadMoreButton.id = "load-more-button";
         loadMoreButton.textContent = "Load More";
+        loadMoreButton.style.marginTop = "1rem";
         loadMoreButton.onclick = () => {
-            displayedResults += 10; // Increase the displayed results count
-            displayResults(data); // Refresh the list with more results
+            displayedResults += 12; // Show 12 more books
+            displayResults(currentBookData, true); // Append results
         };
         resultsContainer.appendChild(loadMoreButton);
     }
@@ -526,6 +552,8 @@ function displayBookPreview(bookIsbn) {
 
         // Show the viewerCanvas when the preview button is clicked
         document.getElementById('viewerCanvas').style.display = 'block';
+        document.getElementById('close-viewer').style.display = 'block';
+        document.querySelector('.close-lib-popup').style.display = 'none';
     } catch (error) {
         console.error("Error loading book preview:", error);
     }
@@ -533,6 +561,8 @@ function displayBookPreview(bookIsbn) {
 
 function closeViewerCanvas() {
     document.getElementById('viewerCanvas').style.display = 'none';
+    document.getElementById('close-viewer').style.display = 'none';
+    document.querySelector('.close-lib-popup').style.display = 'block';
 }
 
 // Fetch and Display Book Details
@@ -551,16 +581,24 @@ function fetchBookDetails(bookId) {
             const isbn = industryIdentifiers ? industryIdentifiers.find(id => id.type === "ISBN_13")?.identifier : null;
 
             const resultsContainer = document.getElementById("search-results");
+            // Save current search results before replacing them
+            previousSearchResults = resultsContainer.innerHTML; 
+            resultsContainer.classList.add("selected");
 
             resultsContainer.innerHTML = `
-                <h2>${title}</h2>
-                <p><strong>Authors:</strong> ${authors}</p>
-                <p><strong>Pages:</strong> ${pageCount}</p>
-                <p><strong>Published:</strong> ${publishedDate}</p>
-                <p>${description}</p>
-                ${isbn ? `<button id="preview-button" onclick="displayBookPreview('${isbn}')">Preview Book</button>` 
-                : `<p>No preview available for this book.</p>`}
-                <button onclick="clearSearchResults()">Back to Search</button>
+                <img src="${book.imageLinks?.thumbnail || 'https://via.placeholder.com/128x195'}" 
+                     alt="Book Cover" 
+                     style="width: 150px; border-radius: 10px;">
+                <div id="book-details">
+                    <h2>${title}</h2>
+                    <p><strong>Authors:</strong> ${authors}</p>
+                    <p><strong>Pages:</strong> ${pageCount}</p>
+                    <p><strong>Published:</strong> ${publishedDate}</p>
+                    <p>${description}</p>
+                    ${isbn ? `<button id="preview-button" onclick="displayBookPreview('${isbn}')">Preview Book</button>` 
+                    : `<p>No preview available for this book.</p>`}
+                    <button onclick="returnToSearch()">Back to Search</button>
+                </div>
             `;
         })
         .catch(error => {
@@ -574,8 +612,18 @@ function clearSearchResults() {
     const resultsContainer = document.getElementById('search-results');
     const searchInput = document.getElementById('book-search');
     resultsContainer.innerHTML = '';
+    resultsContainer.classList.remove("selected");
     searchInput.value = '';
     closeViewerCanvas();
+}
+
+function returnToSearch() {
+    const resultsContainer = document.getElementById('search-results');
+    
+    if (previousSearchResults) {
+        resultsContainer.innerHTML = previousSearchResults; // Restore old search results
+        resultsContainer.classList.remove("selected"); // Reset to grid layout
+    }
 }
 
 // ai functionality
@@ -659,7 +707,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <h3>Level: ${data.level}</h3>
                 <h4>Helper Response:</h4>
                 <div class="tutor-response">${marked.parse(data.tutorResponse)}</div>
-                <h4>Relevant Search Results:</h4>
+                <h4>Wikipedia Result:</h4>
                 <ul>
                     ${Array.isArray(data.searchResults) && data.searchResults.length > 0
                         ? data.searchResults.map(item => `<li>${item.replace(/\n/g, '<br>')}</li>`).join("")
