@@ -4,7 +4,7 @@ var roomCode;
 var username;
 let uploadedFiles = {};
 const userButtons = {};
-const socket = io("http://localhost:3000");
+const socket = io()
 console.log("This site is under RJP's rule");
 
 function setUserName(name) {
@@ -147,9 +147,12 @@ function sendMessage(event) {
         const audioUrl = URL.createObjectURL(audioBlob);
         message.audioUrl = audioUrl;
         audioChunks = []; // Clear the audio chunks after processing
+        socket.emit('sendFile', { code, userId, message })
+        console.log("audio message: ", message.audio);
     } else {
         return; // No valid message content
     }
+    console.log("audio message: ", message);
 
     const code = getRoomCode()
     // Emit the message to the server
@@ -261,23 +264,20 @@ function renderMessages(userId, type) {
 }
 
 function renderFileUpload(fileData) {
-    const materialsList = document.getElementById('materials-list');
-    const fileMessage = document.createElement('div');
-    fileMessage.className = 'file-message';
+    const materialsList = document.getElementById("materials-list");
+    const fileElement = document.createElement("div");
+    fileElement.classList.add("uploaded-file");
 
-    fileMessage.innerHTML = `
-        <div class="file-header">
-            <span class="file-sender">${fileData.uploader}</span>
-            <span class="file-time">${fileData.timestamp}</span>
-        </div>
-        <div class="file-content">
-            <p class="file-name">${fileData.name}</p>
-            <a href="${fileData.fileUrl}" download="${fileData.name}" class="download-link">Download</a>
-        </div>
+    fileElement.innerHTML = `
+        <p><strong>${fileData.name}</strong> (${fileData.size})</p>
+        <p>Type: ${fileData.type}</p>
+        <p>Uploaded by: ${fileData.uploader}</p>
+        <p>Time: ${fileData.timestamp}</p>
+        <a href="${fileData.fileUrl}" target="_blank" download>Download</a>
+        <hr>
     `;
 
-    materialsList.appendChild(fileMessage);
-    materialsList.scrollTop = materialsList.scrollHeight; // Scroll to the bottom
+    materialsList.appendChild(fileElement);
 }
 
 // Initialize Lucide icons
@@ -353,32 +353,42 @@ function closeUploadPopup() {
 // Switch between tabs
 function switchUploadTab(tabName) {
     const sections = ["materials", "study-plan", "resources"];
+
     sections.forEach((section) => {
         document.getElementById(`upload-${section}`).classList.add("hidden");
-        document.querySelector(`.upload-tab[onclick="switchUploadTab('${section}')"]`).classList.remove("active");
     });
 
     document.getElementById(`upload-${tabName}`).classList.remove("hidden");
-    document.querySelector(`.upload-tab[onclick="switchUploadTab('${tabName}')"]`).classList.add("active");
+
+    document.querySelectorAll(".upload-tab").forEach((tab) => {
+        tab.classList.remove("active");
+    });
+
+    document.querySelector(`[data-tab="${tabName}"]`).classList.add("active");
 }
 
 // Handle file upload
 document.getElementById("upload-materials-input").addEventListener("change", function () {
     document.getElementById("upload-materials-message").classList.remove("hidden");
 });
-
 // Add study plan entry
 function addStudyPlan() {
     const unitName = document.getElementById("study-unit-name").value;
     const studyTime = document.getElementById("study-time").value;
 
     if (unitName && studyTime) {
-        const formattedTime = formatTime(studyTime); // Convert to 12-hour format
+        const formattedTime = formatTime(studyTime);
+
+        // Send data to backend via WebSocket
+        socket.emit("addStudyPlan", { roomCode, unitName, studyTime: formattedTime });
+
+        // Update UI
         const studyPlanList = document.getElementById("study-plan-list");
         const entry = document.createElement("p");
         entry.textContent = `${unitName} - ${formattedTime}`;
         studyPlanList.prepend(entry);
 
+        // Clear input fields
         document.getElementById("study-unit-name").value = "";
         document.getElementById("study-time").value = "";
     }
@@ -388,7 +398,7 @@ function addStudyPlan() {
 function formatTime(time) {
     let [hour, minute] = time.split(":");
     let period = hour >= 12 ? "PM" : "AM";
-    hour = hour % 12 || 12; // Convert 0 to 12 for AM
+    hour = hour % 12 || 12;
     return `${hour}:${minute} ${period}`;
 }
 
@@ -398,11 +408,16 @@ function addResource() {
     const description = document.getElementById("resource-description").value;
 
     if (link && description) {
+        // Send data to backend via WebSocket
+        socket.emit("addResource", { roomCode, link, description });
+
+        // Update UI
         const resourceList = document.getElementById("resource-list");
         const entry = document.createElement("p");
         entry.innerHTML = `<a href="${link}" target="_blank">${description}</a>`;
         resourceList.prepend(entry);
 
+        // Clear input fields
         document.getElementById("resource-link").value = "";
         document.getElementById("resource-description").value = "";
     }
@@ -477,8 +492,8 @@ document.getElementById("search-button").addEventListener("click", function () {
             // Display initial results
             displayResults(data);
 
-    })
-    .catch(error => console.error("Error fetching books:", error));
+        })
+        .catch(error => console.error("Error fetching books:", error));
 });
 
 // Function to display book search results
@@ -576,13 +591,13 @@ function fetchBookDetails(bookId) {
             const authors = book.authors ? book.authors.join(", ") : "Unknown Author";
             const pageCount = book.pageCount || "N/A";
             const publishedDate = book.publishedDate || "Unknown";
-            
+
             const industryIdentifiers = book.industryIdentifiers;
             const isbn = industryIdentifiers ? industryIdentifiers.find(id => id.type === "ISBN_13")?.identifier : null;
 
             const resultsContainer = document.getElementById("search-results");
             // Save current search results before replacing them
-            previousSearchResults = resultsContainer.innerHTML; 
+            previousSearchResults = resultsContainer.innerHTML;
             resultsContainer.classList.add("selected");
 
             resultsContainer.innerHTML = `
@@ -595,7 +610,7 @@ function fetchBookDetails(bookId) {
                     <p><strong>Pages:</strong> ${pageCount}</p>
                     <p><strong>Published:</strong> ${publishedDate}</p>
                     <p>${description}</p>
-                    ${isbn ? `<button id="preview-button" onclick="displayBookPreview('${isbn}')">Preview Book</button>` 
+                    ${isbn ? `<button id="preview-button" onclick="displayBookPreview('${isbn}')">Preview Book</button>`
                     : `<p>No preview available for this book.</p>`}
                     <button onclick="returnToSearch()">Back to Search</button>
                 </div>
@@ -619,7 +634,7 @@ function clearSearchResults() {
 
 function returnToSearch() {
     const resultsContainer = document.getElementById('search-results');
-    
+
     if (previousSearchResults) {
         resultsContainer.innerHTML = previousSearchResults; // Restore old search results
         resultsContainer.classList.remove("selected"); // Reset to grid layout
@@ -692,8 +707,8 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
 
         try {
-            console.log("topic level: ",topic,level);
-            
+            console.log("topic level: ", topic, level);
+
             const response = await fetch("http://localhost:3000/tutor", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -710,9 +725,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 <h4>Wikipedia Result:</h4>
                 <ul>
                     ${Array.isArray(data.searchResults) && data.searchResults.length > 0
-                        ? data.searchResults.map(item => `<li>${item.replace(/\n/g, '<br>')}</li>`).join("")
-                        : "<li>No search results available.</li>"
-                    }
+                    ? data.searchResults.map(item => `<li>${item.replace(/\n/g, '<br>')}</li>`).join("")
+                    : "<li>No search results available.</li>"
+                }
                 </ul>
                 <img src="./Images/gif-done.gif" alt="robo" style="display: block; margin: 0 auto; width: 150px;">
             `;
@@ -850,8 +865,8 @@ function handleUserSelection(selectedUser, username) {
 
     // Load uploaded files for the selected user
     const userId = selectedUser.id;
-    console.log("UserId: ",userId);
-    
+    console.log("UserId: ", userId);
+
     if (uploadedFiles[userId]) {
         const materialsList = document.createElement('div');
         materialsList.id = 'materials-list';
@@ -1108,11 +1123,11 @@ async function decryptData(encryptedData) {
                 const files = event.target.files;
                 const materialsList = document.getElementById("materials-list");
                 const message = document.getElementById("upload-materials-message");
-            
+
                 if (files.length > 0) {
                     message.classList.remove("hidden");
                     materialsList.innerHTML = ""; // Clear previous list
-            
+
                     Array.from(files).forEach(file => {
                         const fileData = {
                             name: file.name,
@@ -1122,17 +1137,17 @@ async function decryptData(encryptedData) {
                             timestamp: new Date().toLocaleTimeString(),
                             fileUrl: URL.createObjectURL(file) // Create a URL for the file
                         };
-            
+
                         // Emit the file upload event to the server
                         socket.emit("fileUploaded", {
                             roomCode: getRoomCode(),
                             fileData: fileData
                         });
-            
+
                         // Render the file upload locally
                         renderFileUpload(fileData);
                     });
-            
+
                     // Hide message after 3 seconds
                     setTimeout(() => {
                         message.classList.add("hidden");
@@ -1191,7 +1206,8 @@ async function decryptData(encryptedData) {
             });
 
             // Listen for users joining
-            socket.on("userJoined", ({ user, userName, roomName, roomId }) => {
+            socket.on("userJoined", async ({ user, userName, roomName, roomId, newMessage }) => {
+
                 let obj = { id: user, name: userName };
                 users.push(obj);
                 console.log("Room id:::::", roomId);
@@ -1214,6 +1230,51 @@ async function decryptData(encryptedData) {
                 }
 
                 populateUserDetails()
+
+
+                async function lambda(newMessage) {
+                    console.log("messagessss::: ", newMessage);
+
+                    // Extract userId and message from the newMessage object
+                    const userId = newMessage.userId; // The user ID of the sender
+                    const message = newMessage.message; // The message content
+
+                    // Ensure the messages structure exists for the user and type
+                    if (!messages[userId]) {
+                        messages[userId] = {};
+                    }
+
+                    // Determine the type of message (e.g., "chat" or "info")
+                    // Assuming the message object has a `type` property
+                    const type = message.type || "chat"; // Default to "chat" if type is not provided
+
+                    if (!messages[userId][type]) {
+                        messages[userId][type] = [];
+                    }
+
+                    // Add the new message to the appropriate user and type
+                    messages[userId][type].push(message);
+
+                    // Render the messages for the user and type
+                    renderMessages(userId, type);
+
+                    // Clear the input field (if applicable)
+                    const input = document.getElementById('message-input');
+                    if (input) {
+                        input.value = '';
+                    }
+
+                    // Reset the message type selection (if applicable)
+                    const messageType = document.querySelector('input[name="message-type"]:checked');
+                    if (messageType) {
+                        messageType.checked = false;
+                    }
+
+                    console.log("old message received:", newMessage);
+                };
+
+                await lambda(newMessage)
+
 
                 console.log("Current Users: ", users);
                 console.log("User joined:", user);
@@ -1245,6 +1306,15 @@ async function decryptData(encryptedData) {
                 populateUserDetails();
                 console.log("User joined:", userName);
             });
+
+            socket.on("getStudyPlan", (studyPlanList) => {
+                console.log("study data: ", studyPlanList);
+            })
+
+
+            socket.on("getResource", (Data) => {
+                console.log("Resource data: ", Data);
+            })
 
             // Listen for users leaving
             socket.on("userLeft", (userId) => {

@@ -30,6 +30,13 @@ app.use('/api', route);
 // 🔹 Store message history in-memory (can be optimized later)
 const messageHistory = {};
 
+const filesHistory = {};
+
+// Store study plans and resources
+const studyPlanList = {};
+
+const resourceList = {};
+
 // 🔹 Handle Socket.io Connections
 const activeUsers = new Map(); // Map to track active users in each room
 
@@ -69,6 +76,7 @@ io.on("connection", (socket) => {
             console.log(id);
 
             messageHistory[roomCode] = []; // Initialize message history
+            filesHistory[roomCode] = []; // Inititialize files history
             activeUsers.set(roomCode, new Set()); // Initialize active users set
 
             console.log(`Room ${roomCode} created by ${adminName}`);
@@ -106,8 +114,9 @@ io.on("connection", (socket) => {
 
             console.log(`${username} joined room ${roomCode}`);
 
-            socket.emit("messageHistory", messageHistory[roomCode] || []);
-            io.to(roomCode).emit("userJoined", { userName: username, user: socket.id, roomName: room.dataValues.room_name, roomId: room.dataValues.room_id });
+            // socket.emit("messageHistory", messageHistory[roomCode] || []);
+            io.to(roomCode).emit("userJoined", { userName: username, user: socket.id, roomName: room.dataValues.room_name, roomId: room.dataValues.room_id, newMessage: messageHistory[roomCode] || [] });
+            io.to(roomCode).emit("messageHistory", messageHistory[roomCode] || [])
             io.to(roomCode).emit("updateUsers", { users: Array.from(activeUsers.get(roomCode)) });
         } catch (error) {
             console.error("Error joining room:", error);
@@ -116,9 +125,69 @@ io.on("connection", (socket) => {
     });
 
     // 🔹 User Uploads File (Real-time Sharing)
+    // 🔹 User Uploads File (Real-time Sharing)
     socket.on("fileUploaded", (data) => {
         const { roomCode, fileData } = data;
-        socket.to(roomCode).emit("newFileUpload", fileData);
+
+        // Initialize filesHistory[roomCode] as an array if it doesn't exist
+        if (!filesHistory[roomCode]) {
+            filesHistory[roomCode] = [];
+        }
+
+        // Push the new file data into the array
+        filesHistory[roomCode].push(fileData);
+        console.log("File history: ", filesHistory);
+
+        // Emit the new file upload to the room
+        socket.to(roomCode).emit("newFileUpload", filesHistory);
+    });
+
+    // 🔹 User Sends File
+    socket.on("sendFile", ({ code, file, userId }) => {
+        const roomCode = code;
+
+        // Initialize filesHistory[roomCode] as an array if it doesn't exist
+        if (!filesHistory[roomCode]) {
+            filesHistory[roomCode] = [];
+        }
+
+        // Create a new message object for the file
+        const newMessage = { sender: socket.id, file, userId };
+        console.log("New file sent: ", newMessage);
+
+        // Push the new file into the filesHistory
+        filesHistory[roomCode].push(newMessage.file);
+        console.log("File history: ", filesHistory);
+
+        // Emit the new message to the room
+        io.to(roomCode).emit("newMessage", newMessage);
+    });
+
+    // Handle study plan addition
+    socket.on("addStudyPlan", (data) => {
+        
+        roomCode = data.roomCode
+        // Initialize filesHistory[roomCode] as an array if it doesn't exist
+        if (!studyPlanList[roomCode]) {
+            studyPlanList[roomCode] = [];
+        }
+
+        studyPlanList[roomCode].push(data)
+        console.log("Study Plan Added:", studyPlanList[roomCode]);
+        io.to(roomCode).emit("getStudyPlan",studyPlanList[roomCode])
+    });
+
+    // Handle resource addition
+
+    socket.on("addResource", (data) => {
+        roomCode = data.roomCode
+        // Initialize resourceList[roomCode] as an array if it doesn't exist
+        if (!resourceList[roomCode]) {
+            resourceList[roomCode] = [];
+        }
+        resourceList[roomCode].push(data)
+        console.log("Resource Added:", resourceList[roomCode]);
+        socket.to(roomCode).emit("getResource",resourceList[roomCode])
     });
 
     // 🔹 User Sends Message
@@ -132,6 +201,7 @@ io.on("connection", (socket) => {
         messageHistory[roomCode].push(newMessage);
         io.to(roomCode).emit("newMessage", newMessage);
     });
+
 
     // 🔸 User Disconnects
     socket.on("disconnect", async () => {
@@ -186,16 +256,16 @@ app.post("/tutor", async (req, res) => {
     const { topic, level } = req.body;
     try {
         const wikiSummary = await searchWikipedia(topic);
-        
+
         console.log("📝 Raw Wikipedia Summary:", wikiSummary);
 
         // Clean the summary for better rendering
         const cleanSummary = wikiSummary
-        .replace(/\n/g, ' ')  // Replace actual newline characters with spaces
-        .replace(/{.*?}/g, '')  // Remove LaTeX curly brace expressions
-        .replace(/\s{2,}/g, ' ')  // Remove extra spaces
-        .trim();  // Trim leading/trailing whitespace
-        
+            .replace(/\n/g, ' ')  // Replace actual newline characters with spaces
+            .replace(/{.*?}/g, '')  // Remove LaTeX curly brace expressions
+            .replace(/\s{2,}/g, ' ')  // Remove extra spaces
+            .trim();  // Trim leading/trailing whitespace
+
         console.log("📝 Cleaned Wikipedia Summary:", cleanSummary);
 
         const tutorResponse = await getGeminiTutorResponse(topic, level);
