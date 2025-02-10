@@ -139,7 +139,7 @@ io.on("connection", (socket) => {
         console.log("File history: ", filesHistory);
 
         // Emit the new file upload to the room
-        socket.to(roomCode).emit("newFileUpload", filesHistory);
+        socket.to(roomCode).emit("newFileUpload", fileData);
     });
 
     // 🔹 User Sends File

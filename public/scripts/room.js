@@ -1155,7 +1155,6 @@ async function decryptData(encryptedData) {
                 }
             });
 
-
             // Listen for new messages
             socket.on("newMessage", (newMessage) => {
                 // Extract userId and message from the newMessage object
