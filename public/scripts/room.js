@@ -5,6 +5,7 @@ var username;
 let uploadedFiles = {};
 let resource = {};
 let studyPlan = {};
+let selectedUser = null;
 const userButtons = {};
 const socket = io()
 console.log("This site is under RJP's rule");
@@ -283,19 +284,75 @@ function renderMessages(userId, type) {
 
 function renderFileUpload(fileData) {
     const materialsList = document.getElementById("materials-list");
+    const materialsContent = document.querySelector(".materials-content");
     const fileElement = document.createElement("div");
     fileElement.classList.add("uploaded-file");
 
     fileElement.innerHTML = `
-        <p><strong>${fileData.name}</strong> (${fileData.size})</p>
-        <p>Type: ${fileData.type}</p>
-        <p>Uploaded by: ${fileData.uploader}</p>
-        <p>Time: ${fileData.timestamp}</p>
-        <a href="${fileData.fileUrl}" target="_blank" download>Download</a>
+        <p><strong>${fileData.name || 'Unnamed File'}</strong> (${fileData.size || 'Unknown Size'})</p>
+        <p>Type: ${fileData.type || 'Unknown Type'}</p>
+        <p>Uploaded by: ${fileData.uploader || 'Anonymous'}</p>
+        <p>Time: ${fileData.timestamp || new Date().toLocaleString()}</p>
+        <a href="${fileData.fileUrl || '#'}" target="_blank" download>Download</a>
         <hr>
     `;
 
     materialsList.appendChild(fileElement);
+    // Always append to the uploader's materials content
+    if (fileData.uploader === getUserName()) {
+        materialsContent.appendChild(fileElement.cloneNode(true));
+        materialsContent.classList.remove("hidden");
+    }
+}
+
+// Function to render study plan inside study-plan-content
+function renderStudyPlan(studyData) {
+    const studyPlanList = document.getElementById("study-plan-list");
+    const studyPlanContent = document.querySelector(".study-plan-content");
+
+    const studyElement = document.createElement("div");
+    studyElement.classList.add("study-plan-entry");
+
+    studyElement.innerHTML = `
+        <p><strong>Unit:</strong> ${studyData.unitName}</p>
+        <p><strong>Study Time:</strong> ${studyData.studyTime}</p>
+        <p><strong>Added by:</strong> ${studyData.uploader}</p>
+        <hr>
+    `;
+
+    // Append to study plan list
+    studyPlanList.appendChild(studyElement);
+
+    // Append to study plan content and ensure visibility only for uploader
+    if (studyData.uploader === getUserName()) {
+        studyPlanContent.appendChild(studyElement.cloneNode(true));
+        studyPlanContent.classList.remove("hidden");
+    }
+}
+
+// Function to render resource inside resources-content
+function renderResource(resourceData) {
+    const resourceList = document.getElementById("resource-list");
+    const resourcesContent = document.querySelector(".resources-content");
+
+    const resourceElement = document.createElement("div");
+    resourceElement.classList.add("resource-entry");
+
+    resourceElement.innerHTML = `
+        <p><strong>Resource Link:</strong> <a href="${resourceData.link}" target="_blank">${resourceData.link}</a></p>
+        <p><strong>Description:</strong> ${resourceData.description}</p>
+        <p><strong>Added by:</strong> ${resourceData.uploader}</p>
+        <hr>
+    `;
+
+    // Append to resource list
+    resourceList.appendChild(resourceElement);
+
+    // Append to resources content and ensure visibility only for uploader
+    if (resourceData.uploader === getUserName()) {
+        resourcesContent.appendChild(resourceElement.cloneNode(true));
+        resourcesContent.classList.remove("hidden");
+    }
 }
 
 // Initialize Lucide icons
@@ -902,6 +959,7 @@ function handleUserSelection(selectedUser, username) {
 // Toggle hidden grid content
 function toggleHiddenGrid(section) {
     const selectedUser = document.querySelector('.single-user.selected');
+    const hiddenGrid = document.querySelector('.hidden-grid');  // Select the hidden grid element
 
     if (!selectedUser) {
         // No user selected, show warning message
@@ -935,7 +993,7 @@ function toggleHiddenGrid(section) {
         }
     });
 
-    hiddenGrid.classList.toggle('hidden');
+    // hiddenGrid.classList.toggle('hidden');
 }
 
 // Room timer functionality
@@ -1142,13 +1200,15 @@ async function decryptData(encryptedData) {
 
                     Array.from(files).forEach(file => {
                         const fileData = {
-                            name: file.name,
-                            size: file.size,
-                            type: file.type,
-                            uploader: getUserName(),
-                            timestamp: new Date().toLocaleTimeString(),
-                            fileUrl: URL.createObjectURL(file) // Create a URL for the file
+                            name: file.name || 'Unnamed File',
+                            size: file.size || 'Unknown Size',
+                            type: file.type || 'Unknown Type',
+                            uploader: selectedUser || getUserName(),
+                            timestamp: new Date().toLocaleString(),
+                            fileUrl: file ? URL.createObjectURL(file) : '#'
                         };
+
+                        renderFileUpload(fileData);
 
                         // Emit the file upload event to the server
                         socket.emit("fileUploaded", {
