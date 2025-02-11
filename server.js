@@ -174,7 +174,7 @@ io.on("connection", (socket) => {
 
         studyPlanList[roomCode].push(data)
         console.log("Study Plan Added:", studyPlanList[roomCode]);
-        io.to(roomCode).emit("getStudyPlan",studyPlanList[roomCode])
+        io.to(roomCode).emit("getStudyPlan",{studyPlanList,roomCode})
     });
 
     // Handle resource addition
@@ -187,7 +187,7 @@ io.on("connection", (socket) => {
         }
         resourceList[roomCode].push(data)
         console.log("Resource Added:", resourceList[roomCode]);
-        socket.to(roomCode).emit("getResource",resourceList[roomCode])
+        socket.to(roomCode).emit("getResource",{resourceList,roomCode})
     });
 
     // 🔹 User Sends Message

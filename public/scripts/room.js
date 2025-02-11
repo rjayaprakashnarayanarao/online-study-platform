@@ -3,9 +3,18 @@ let messages = [];
 var roomCode;
 var username;
 let uploadedFiles = {};
+let resource = {}
 const userButtons = {};
 const socket = io()
 console.log("This site is under RJP's rule");
+
+function setResource(roomCode, Data) {
+    resource[roomCode] = Data
+}
+
+function getResource(roomCode) {
+    return resource[roomCode]
+}
 
 function setUserName(name) {
     username = name;
@@ -410,12 +419,6 @@ function addResource() {
     if (link && description) {
         // Send data to backend via WebSocket
         socket.emit("addResource", { roomCode, link, description });
-
-        // Update UI
-        const resourceList = document.getElementById("resource-list");
-        const entry = document.createElement("p");
-        entry.innerHTML = `<a href="${link}" target="_blank">${description}</a>`;
-        resourceList.prepend(entry);
 
         // Clear input fields
         document.getElementById("resource-link").value = "";
@@ -1306,14 +1309,60 @@ async function decryptData(encryptedData) {
                 console.log("User joined:", userName);
             });
 
-            socket.on("getStudyPlan", (studyPlanList) => {
-                console.log("study data: ", studyPlanList);
-            })
+            socket.on("getStudyPlan", (Data) => {
+                console.log("Study data: ", Data);
+            
+                let roomCode = Data.roomCode;
+                let studyPlanList = Data.studyPlanList[roomCode];
+            
+                let studyPlanDisplay = document.getElementById("study-plan-list");
+            
+                // Clear the previous list before adding new data
+                studyPlanDisplay.innerHTML = "";
+            
+                // Check if study plans exist and have elements
+                if (studyPlanList && studyPlanList.length > 0) {
+                    // Loop through each study plan and add it to the list
+                    studyPlanList.forEach(({ studyTime, unitName }) => {
+                        const formattedTime = formatTime(studyTime);
+            
+                        console.log("Study Time:", formattedTime);
+                        console.log("Unit Name:", unitName);
+            
+                        const entry = document.createElement("p");
+                        entry.textContent = `${unitName} - ${formattedTime}`;
+                        studyPlanDisplay.appendChild(entry); // Use appendChild to maintain order
+                    });
+                }
+            });            
 
 
             socket.on("getResource", (Data) => {
+                setResource(Data.roomCode, Data.resourceList);
                 console.log("Resource data: ", Data);
-            })
+            
+                let roomCode = Data.roomCode;
+                let resources = Data.resourceList[roomCode];
+            
+                let resourceList = document.getElementById("resource-list");
+            
+                // Clear the previous list before adding new data
+                resourceList.innerHTML = "";
+            
+                // Check if resources exist and have elements
+                if (resources && resources.length > 0) {
+                    // Loop through each resource and add it to the list
+                    resources.forEach(({ description, link }) => {
+                        console.log("Description:", description);
+                        console.log("Link:", link);
+            
+                        let entry = document.createElement("p");
+                        entry.innerHTML = `<a href="${link}" target="_blank">${description}</a>`;
+                        resourceList.appendChild(entry); // Append (instead of prepend)
+                    });
+                }
+            });
+            
 
             // Listen for users leaving
             socket.on("userLeft", (userId) => {
