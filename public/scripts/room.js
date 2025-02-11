@@ -3,7 +3,8 @@ let messages = [];
 var roomCode;
 var username;
 let uploadedFiles = {};
-let resource = {}
+let resource = {};
+let studyPlan = {};
 const userButtons = {};
 const socket = io()
 console.log("This site is under RJP's rule");
@@ -14,6 +15,14 @@ function setResource(roomCode, Data) {
 
 function getResource(roomCode) {
     return resource[roomCode]
+}
+
+function setStudyPlan(roomCode,Data){
+    studyPlan[roomCode]=Data
+}
+
+function getStudyPlan(roomCode){
+    return studyPlan[roomCode]
 }
 
 function setUserName(name) {
@@ -1310,6 +1319,8 @@ async function decryptData(encryptedData) {
             });
 
             socket.on("getStudyPlan", (Data) => {
+
+                setStudyPlan(Data.roomCode, Data.studyPlanList);
                 console.log("Study data: ", Data);
             
                 let roomCode = Data.roomCode;
