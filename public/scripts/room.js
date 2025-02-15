@@ -909,8 +909,6 @@ document.addEventListener('DOMContentLoaded', () => {
         showPopup();
     });
 
-    // Populate user details
-    populateUserDetails();
 
     // Start the room timer
     startRoomTimer();
@@ -1191,11 +1189,6 @@ async function decryptData(encryptedData) {
                     alert("The admin didn't allow you.");
                     window.location.href = "index.html"; // Redirect back
                 });
-
-                // Handle the final room entry for approved users
-                socket.on("finalJoinRoom", ({ roomCode, username }) => {
-                    console.log(`${username} joined the room successfully.`);
-                });
                 // User joins an existing room
 
                 // socket.on("roomJoined", (data) => {
@@ -1322,9 +1315,6 @@ async function decryptData(encryptedData) {
                 if (hasRoomName && hasRoomId) {
                     showPopup();
                 }
-
-                populateUserDetails()
-
 
                 async function lambda(newMessage) {
                     console.log("messagessss::: ", newMessage);
