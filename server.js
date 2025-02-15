@@ -96,7 +96,7 @@ io.on("connection", (socket) => {
 
     // 🔹 User Joins Room
     socket.on("joinRoom", async ({ roomCode, username }) => {
-        console.log("Join Room Event received. Room Code:", roomCode);
+        console.log(`${username} is requesting to join room ${roomCode}`);
 
         try {
             const room = await Rooms.findOne({ where: { room_id: roomCode } });
@@ -107,24 +107,68 @@ io.on("connection", (socket) => {
                 return;
             }
 
-            socket.join(roomCode);
-            activeUsers.get(roomCode).add(username); // Store username in the room's user set
-            userSocketMap.set(socket.id, { roomCode, username }); // Store mapping
-            console.log("roomid: ", room.dataValues.room_id);
+             // Get the admin socket ID from the database
+            const adminSocketId = room.socket_id;
 
-            console.log(`${username} joined room ${roomCode}`);
+            // Check if the requesting user is the admin (skip approval if they are)
+            if (socket.id === adminSocketId) {
+                socket.join(roomCode);
+                if (!activeUsers.has(roomCode)) activeUsers.set(roomCode, new Set());
+                activeUsers.get(roomCode).add(username);
+                socket.emit("joinApproved", { roomCode });
+                return;
+            }
 
-            // socket.emit("messageHistory", messageHistory[roomCode] || []);
-            io.to(roomCode).emit("userJoined", { userName: username, user: socket.id, roomName: room.dataValues.room_name, roomId: room.dataValues.room_id, newMessage: messageHistory[roomCode] || [] });
-            io.to(roomCode).emit("messageHistory", messageHistory[roomCode] || [])
-            io.to(roomCode).emit("updateUsers", { users: Array.from(activeUsers.get(roomCode)) });
+            // Notify the admin that a user wants to join
+            io.to(adminSocketId).emit("userJoinRequest", { username, socketId: socket.id, roomCode });
+
+            // socket.join(roomCode);
+            // activeUsers.get(roomCode).add(username); // Store username in the room's user set
+            // userSocketMap.set(socket.id, { roomCode, username }); // Store mapping
+            // console.log("roomid: ", room.dataValues.room_id);
+
+            // console.log(`${username} joined room ${roomCode}`);
+
+            // // socket.emit("messageHistory", messageHistory[roomCode] || []);
+            // io.to(roomCode).emit("userJoined", { userName: username, user: socket.id, roomName: room.dataValues.room_name, roomId: room.dataValues.room_id, newMessage: messageHistory[roomCode] || [] });
+            // io.to(roomCode).emit("messageHistory", messageHistory[roomCode] || [])
+            // io.to(roomCode).emit("updateUsers", { users: Array.from(activeUsers.get(roomCode)) });
         } catch (error) {
             console.error("Error joining room:", error);
             socket.emit("error", "Failed to join room.");
         }
     });
 
-    // 🔹 User Uploads File (Real-time Sharing)
+    // Handle Admin's Decision
+    socket.on("approveUser", ({ socketId, roomCode, username, approved }) => {
+        if (approved) {
+            io.to(socketId).emit("joinApproved", { roomCode });
+            console.log(`${username} was approved to join room ${roomCode}`);
+            
+            // Add the user to the active list
+            if (!activeUsers.has(roomCode)) activeUsers.set(roomCode, new Set());
+            activeUsers.get(roomCode).add(username);
+
+            // Notify the room that a new user has joined
+            io.to(roomCode).emit("userJoined", { username });
+
+        } else {
+            io.to(socketId).emit("joinDenied");
+            console.log(`${username} was denied entry to room ${roomCode}`);
+        }
+    });
+
+    socket.on("finalJoinRoom", ({ roomCode, username }) => {
+        socket.join(roomCode);
+        if (!activeUsers.has(roomCode)) activeUsers.set(roomCode, new Set());
+        activeUsers.get(roomCode).add(username);
+    
+        console.log(`${username} has officially joined room ${roomCode}`);
+    
+        io.to(roomCode).emit("updateUsers", { users: Array.from(activeUsers.get(roomCode)) });
+    });
+    
+
     // 🔹 User Uploads File (Real-time Sharing)
     socket.on("fileUploaded", (data) => {
         const { roomCode, fileData } = data;

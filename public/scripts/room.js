@@ -10,6 +10,27 @@ const userButtons = {};
 const socket = io()
 console.log("This site is under RJP's rule");
 
+// admin's decision
+socket.on("userJoinRequest", ({ username, socketId, roomCode }) => {
+    const confirmation = confirm(`${username} wants to join the room. Allow entry?`);
+    socket.emit("approveUser", { socketId, roomCode, username, approved: confirmation });
+});
+
+socket.on("joinApproved", ({ roomCode }) => {
+    console.log("Admin approved your request. Entering the room...");
+    socket.emit("joinRoom", { roomCode, username: getUserName() }); // Re-attempt joining
+});
+
+socket.on("joinDenied", () => {
+    alert("The admin didn't allow you.");
+    window.location.href = "index.html"; // Redirect back
+});
+
+// Handle the final room entry for approved users
+socket.on("finalJoinRoom", ({ roomCode, username }) => {
+    console.log(`${username} joined the room successfully.`);
+});
+
 function setResource(roomCode, Data) {
     resource[roomCode] = Data
 }
