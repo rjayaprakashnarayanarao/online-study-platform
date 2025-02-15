@@ -10,26 +10,6 @@ const userButtons = {};
 const socket = io()
 console.log("This site is under RJP's rule");
 
-// admin's decision
-socket.on("userJoinRequest", ({ username, socketId, roomCode }) => {
-    const confirmation = confirm(`${username} wants to join the room. Allow entry?`);
-    socket.emit("approveUser", { socketId, roomCode, username, approved: confirmation });
-});
-
-socket.on("joinApproved", ({ roomCode }) => {
-    console.log("Admin approved your request. Entering the room...");
-    socket.emit("joinRoom", { roomCode, username: getUserName() }); // Re-attempt joining
-});
-
-socket.on("joinDenied", () => {
-    alert("The admin didn't allow you.");
-    window.location.href = "index.html"; // Redirect back
-});
-
-// Handle the final room entry for approved users
-socket.on("finalJoinRoom", ({ roomCode, username }) => {
-    console.log(`${username} joined the room successfully.`);
-});
 
 function setResource(roomCode, Data) {
     resource[roomCode] = Data
@@ -39,11 +19,11 @@ function getResource(roomCode) {
     return resource[roomCode]
 }
 
-function setStudyPlan(roomCode,Data){
-    studyPlan[roomCode]=Data
+function setStudyPlan(roomCode, Data) {
+    studyPlan[roomCode] = Data
 }
 
-function getStudyPlan(roomCode){
+function getStudyPlan(roomCode) {
     return studyPlan[roomCode]
 }
 
@@ -1193,19 +1173,35 @@ async function decryptData(encryptedData) {
 
             } else {
                 console.log("Participant detected. Joining room...");
-
                 setRoomCode(decryptedData.code)
                 setUserName(decryptedData.creatorName)
-                // User joins an existing room
+
                 socket.emit("joinRoom", {
+
                     roomCode: decryptedData.code,
                     username: decryptedData.creatorName || "guest009"
                 });
-
-                socket.on("roomJoined", (data) => {
-                    populateUserDetails()
-                    console.log("Joined room successfully:", data);
+                socket.on("joinApproved", ({ roomCode }) => {
+                    console.log("Admin approved your request. Entering the room...");
+                    // Emit 'finalJoinRoom' instead of 'joinRoom'
+                    socket.emit("finalJoinRoom", { roomCode, username: getUserName() });
                 });
+
+                socket.on("joinDenied", () => {
+                    alert("The admin didn't allow you.");
+                    window.location.href = "index.html"; // Redirect back
+                });
+
+                // Handle the final room entry for approved users
+                socket.on("finalJoinRoom", ({ roomCode, username }) => {
+                    console.log(`${username} joined the room successfully.`);
+                });
+                // User joins an existing room
+
+                // socket.on("roomJoined", (data) => {
+                //     populateUserDetails()
+                //     console.log("Joined room successfully:", data);
+                // });
             }
 
             populateUserDetails()
@@ -1292,6 +1288,12 @@ async function decryptData(encryptedData) {
                 console.log("error:", error);
             })
 
+
+            // admin's decision
+            socket.on("userJoinRequest", async ({ username, socketId, roomCode }) => {
+                const confirmation = await confirm(`${username} wants to join the room. Allow entry?`);
+                socket.emit("approveUser", { socketId, roomCode, username, approved: confirmation });
+            });
             socket.on("roomClosed", (message) => {
                 alert(message); // Show an alert
                 window.location.href = "index.html"; // Redirect to index.html
@@ -1379,12 +1381,6 @@ async function decryptData(encryptedData) {
             });
 
 
-            socket.on("adminUserJoined", ({ userId, username }) => {
-
-                console.log("Current Users: ", userId);
-                console.log("User joined:", username);
-            });
-            // Fetch existing users when joining
             // Listen for updated user list
             socket.on("updateUsers", ({ users: updatedUsers }) => {
                 users = updatedUsers.map((username, index) => ({ id: `user${index + 1}`, name: username }));
@@ -1393,68 +1389,68 @@ async function decryptData(encryptedData) {
             });
 
             // Listen for users joining
-            socket.on("userJoined", ({ userName }) => {
-                users.push({ id: `user${users.length + 1}`, name: userName });
-                populateUserDetails();
-                console.log("User joined:", userName);
-            });
+            // socket.on("userJoined", ({ userName }) => {
+            //     users.push({ id: `user${users.length + 1}`, name: userName });
+            //     populateUserDetails();
+            //     console.log("User joined:", userName);
+            // });
 
             socket.on("getStudyPlan", (Data) => {
 
                 setStudyPlan(Data.roomCode, Data.studyPlanList);
                 console.log("Study data: ", Data);
-            
+
                 let roomCode = Data.roomCode;
                 let studyPlanList = Data.studyPlanList[roomCode];
-            
+
                 let studyPlanDisplay = document.getElementById("study-plan-list");
-            
+
                 // Clear the previous list before adding new data
                 studyPlanDisplay.innerHTML = "";
-            
+
                 // Check if study plans exist and have elements
                 if (studyPlanList && studyPlanList.length > 0) {
                     // Loop through each study plan and add it to the list
                     studyPlanList.forEach(({ studyTime, unitName }) => {
                         const formattedTime = formatTime(studyTime);
-            
+
                         console.log("Study Time:", formattedTime);
                         console.log("Unit Name:", unitName);
-            
+
                         const entry = document.createElement("p");
                         entry.textContent = `${unitName} - ${formattedTime}`;
                         studyPlanDisplay.appendChild(entry); // Use appendChild to maintain order
                     });
                 }
-            });            
+            });
 
 
             socket.on("getResource", (Data) => {
                 setResource(Data.roomCode, Data.resourceList);
                 console.log("Resource data: ", Data);
-            
+
                 let roomCode = Data.roomCode;
                 let resources = Data.resourceList[roomCode];
-            
+
                 let resourceList = document.getElementById("resource-list");
-            
+
                 // Clear the previous list before adding new data
                 resourceList.innerHTML = "";
-            
+
                 // Check if resources exist and have elements
                 if (resources && resources.length > 0) {
                     // Loop through each resource and add it to the list
                     resources.forEach(({ description, link }) => {
                         console.log("Description:", description);
                         console.log("Link:", link);
-            
+
                         let entry = document.createElement("p");
                         entry.innerHTML = `<a href="${link}" target="_blank">${description}</a>`;
                         resourceList.appendChild(entry); // Append (instead of prepend)
                     });
                 }
             });
-            
+
 
             // Listen for users leaving
             socket.on("userLeft", (userId) => {

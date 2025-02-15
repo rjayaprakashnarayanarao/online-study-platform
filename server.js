@@ -140,17 +140,19 @@ io.on("connection", (socket) => {
     });
 
     // Handle Admin's Decision
-    socket.on("approveUser", ({ socketId, roomCode, username, approved }) => {
+    socket.on("approveUser", async({ socketId, roomCode, username, approved }) => {
         if (approved) {
             io.to(socketId).emit("joinApproved", { roomCode });
             console.log(`${username} was approved to join room ${roomCode}`);
+            const room = await Rooms.findOne({ where: { room_id: roomCode } });
             
             // Add the user to the active list
             if (!activeUsers.has(roomCode)) activeUsers.set(roomCode, new Set());
             activeUsers.get(roomCode).add(username);
 
             // Notify the room that a new user has joined
-            io.to(roomCode).emit("userJoined", { username });
+            // io.to(roomCode).emit("userJoined", { username });
+            io.to(roomCode).emit("userJoined", { userName: username, user: socket.id, roomName: room.dataValues.room_name, roomId: room.dataValues.room_id, newMessage: messageHistory[roomCode] || [] });
 
         } else {
             io.to(socketId).emit("joinDenied");
@@ -159,12 +161,26 @@ io.on("connection", (socket) => {
     });
 
     socket.on("finalJoinRoom", ({ roomCode, username }) => {
+        // Join the user's socket to the room
         socket.join(roomCode);
-        if (!activeUsers.has(roomCode)) activeUsers.set(roomCode, new Set());
+        
+        // Add username to active users
+        if (!activeUsers.has(roomCode)) {
+            activeUsers.set(roomCode, new Set());
+        }
         activeUsers.get(roomCode).add(username);
-    
-        console.log(`${username} has officially joined room ${roomCode}`);
-    
+        
+        // Update userSocketMap
+        userSocketMap.set(socket.id, { roomCode, username });
+        
+        console.log(`${username} joined room ${roomCode}`);
+        
+        // Notify all clients in the room about the new user and updated list
+        io.to(roomCode).emit("userJoined", { 
+            userName: username, 
+            user: socket.id, 
+            newMessage: messageHistory[roomCode] || [] 
+        });
         io.to(roomCode).emit("updateUsers", { users: Array.from(activeUsers.get(roomCode)) });
     });
     
