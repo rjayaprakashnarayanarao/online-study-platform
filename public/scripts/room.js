@@ -1179,8 +1179,14 @@ async function decryptData(encryptedData) {
                     roomCode: decryptedData.code,
                     username: decryptedData.creatorName || "guest009"
                 });
+                // Show the "Please Wait" popup
+                document.getElementById("pleasewait-popup").style.display = "flex"; 
                 socket.on("joinApproved", ({ roomCode }) => {
                     console.log("Admin approved your request. Entering the room...");
+                    // Wait 2 seconds before hiding the popup
+                    setTimeout(() => {
+                        document.getElementById("pleasewait-popup").style.display = "none";
+                    }, 2000);
                     // Emit 'finalJoinRoom' instead of 'joinRoom'
                     socket.emit("finalJoinRoom", { roomCode, username: getUserName() });
                 });
