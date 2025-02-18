@@ -65,28 +65,40 @@ function toggleRecording() {
 }
 
 // function to start recording
+// Start recording audio
 function startRecording() {
     navigator.mediaDevices.getUserMedia({ audio: true })
         .then(stream => {
             mediaRecorder = new MediaRecorder(stream);
             mediaRecorder.start();
             isRecording = true;
+            audioChunks = [];
+
             mediaRecorder.ondataavailable = event => {
                 audioChunks.push(event.data);
             };
+
             mediaRecorder.onstop = () => {
-                const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                sendAudioMessage(audioBlob);
                 audioChunks = [];
-                const audioUrl = URL.createObjectURL(audioBlob);
-                const audio = new Audio(audioUrl);
-                audio.controls = true;
-                document.getElementById('messages').appendChild(audio);
-                // You can send the audioBlob to the server here
             };
         })
         .catch(error => {
             console.error('Error accessing microphone:', error);
         });
+}
+
+// Send audio message to server
+function sendAudioMessage(audioBlob) {
+    const reader = new FileReader();
+    reader.readAsDataURL(audioBlob);
+    reader.onloadend = () => {
+        const audioData = reader.result;
+        const userId = document.getElementById('popup').getAttribute('data-user-id');
+        const roomCode = getRoomCode();
+        socket.emit('sendAudioMessage', { roomCode, userId, audioData });
+    };
 }
 
 // function to stop recording
@@ -132,13 +144,14 @@ function closePopupBox() {
 }
 
 // Function to send a message
+// Function to send a message
 function sendMessage(event) {
     event.preventDefault();
 
     const input = document.getElementById('message-input');
     const text = input.value.trim();
     const userId = document.getElementById('popup').getAttribute('data-user-id');
-    const type = document.getElementById('popup').getAttribute('data-type');
+    const code = getRoomCode();
 
     if (!text && audioChunks.length === 0) return;
 
@@ -151,33 +164,18 @@ function sendMessage(event) {
 
     const message = {
         id: Date.now(),
-        text: text,
         sender: getUserName(),
         timestamp: new Date().toLocaleTimeString(),
         messageType: messageType.value,
         likes: 0
     };
 
-    // Check if the message is text or audio
     if (text) {
         message.text = text;
-    } else if (audioChunks.length > 0) {
-        // Process voice message
-        const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
-        const audioUrl = URL.createObjectURL(audioBlob);
-        message.audioUrl = audioUrl;
-        audioChunks = []; // Clear the audio chunks after processing
-        socket.emit('sendFile', { code, userId, message })
-        console.log("audio message: ", message.audio);
-    } else {
-        return; // No valid message content
+        socket.emit('sendMessage', { code, userId, message });
     }
-    console.log("audio message: ", message);
 
-    const code = getRoomCode()
-    // Emit the message to the server
-    socket.emit('sendMessage', { code, userId, message });
-
+    input.value = ""; // Clear text input
 }
 
 
@@ -283,28 +281,35 @@ function renderMessages(userId, type) {
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
 }
 
-function renderFileUpload(fileData) {
+function renderFileUpload(fileDataArray) {
+    uploadedFiles = fileDataArray
+    console.log("upload files:", uploadedFiles);
+
     const materialsList = document.getElementById("materials-list");
     const materialsContent = document.querySelector(".materials-content");
-    const fileElement = document.createElement("div");
-    fileElement.classList.add("uploaded-file");
+    materialsList.innerHTML = ''; // Clear previous messages
+    fileDataArray.forEach(fileData => {
+        const fileElement = document.createElement("div");
+        fileElement.classList.add("uploaded-file");
 
-    fileElement.innerHTML = `
-        <p><strong>${fileData.name || 'Unnamed File'}</strong> (${fileData.size || 'Unknown Size'})</p>
-        <p>Type: ${fileData.type || 'Unknown Type'}</p>
-        <p>Uploaded by: ${fileData.uploader || 'Anonymous'}</p>
-        <p>Time: ${fileData.timestamp || new Date().toLocaleString()}</p>
-        <a href="${fileData.fileUrl || '#'}" target="_blank" download>Download</a>
-        <hr>
-    `;
+        fileElement.innerHTML = `
+            <p><strong>${fileData.name || 'Unnamed File'}</strong> (${fileData.size || 'Unknown Size'})</p>
+            <p>Type: ${fileData.type || 'Unknown Type'}</p>
+            <p>Uploaded by: ${fileData.uploader || 'Anonymous'}</p>
+            <p>Time: ${fileData.timestamp || new Date().toLocaleString()}</p>
+            <a href="${fileData.fileUrl || '#'}" target="_blank" download>Download</a>
+            <hr>
+        `;
 
-    materialsList.appendChild(fileElement);
-    // Always append to the uploader's materials content
-    if (fileData.uploader === getUserName()) {
-        materialsContent.appendChild(fileElement.cloneNode(true));
-        materialsContent.classList.remove("hidden");
-    }
+        materialsList.appendChild(fileElement);
+        // Always append to the uploader's materials content
+        if (fileData.uploader === getUserName()) {
+            materialsContent.appendChild(fileElement.cloneNode(true));
+            materialsContent.classList.remove("hidden");
+        }
+    });
 }
+
 
 // Function to render study plan inside study-plan-content
 function renderStudyPlan(studyData) {
@@ -1155,7 +1160,7 @@ async function decryptData(encryptedData) {
             if ((decryptedData.admin_name === decryptedData.creatorName) && (decryptedData.creatorName)) {
                 document.getElementById("pleasewait-popups").style.display = "none";
                 console.log("Blocked popup ");
-                
+
                 console.log("Admin detected. Creating room...");
 
                 setUserName(decryptedData.creatorName)
@@ -1183,7 +1188,7 @@ async function decryptData(encryptedData) {
                     username: decryptedData.creatorName || "guest009"
                 });
                 // Show the "Please Wait" popup
-                document.getElementById("pleasewait-popups").style.display = "flex"; 
+                document.getElementById("pleasewait-popups").style.display = "flex";
                 socket.on("joinApproved", ({ roomCode }) => {
                     console.log("Admin approved your request. Entering the room...");
                     // Wait 2 seconds before hiding the popup
@@ -1208,6 +1213,7 @@ async function decryptData(encryptedData) {
 
             populateUserDetails()
 
+
             document.getElementById("upload-materials-input").addEventListener("change", function (event) {
                 const files = event.target.files;
                 const materialsList = document.getElementById("materials-list");
@@ -1227,7 +1233,7 @@ async function decryptData(encryptedData) {
                             fileUrl: file ? URL.createObjectURL(file) : '#'
                         };
 
-                        renderFileUpload(fileData);
+                        // renderFileUpload(fileData);
 
                         // Emit the file upload event to the server
                         socket.emit("fileUploaded", {
@@ -1236,7 +1242,7 @@ async function decryptData(encryptedData) {
                         });
 
                         // Render the file upload locally
-                        renderFileUpload(fileData);
+                        // renderFileUpload(fileData);
                     });
 
                     // Hide message after 3 seconds
@@ -1284,6 +1290,24 @@ async function decryptData(encryptedData) {
                 }
 
                 console.log("New message received:", newMessage);
+            });
+
+            // Function to receive and display audio messages
+            socket.on('receiveAudioMessage', ({ sender, audioData }) => {
+                console.log("sender and audiodata: ", sender, audioData);
+
+                const messagesContainer = document.getElementById('messages');
+
+                const messageDiv = document.createElement('div');
+                messageDiv.classList.add('message');
+                messageDiv.innerHTML = `<strong>${sender}:</strong> `;
+
+                const audioElement = document.createElement('audio');
+                audioElement.controls = true;
+                audioElement.src = audioData;
+
+                messageDiv.appendChild(audioElement);
+                messagesContainer.appendChild(messageDiv);
             });
 
             socket.on("error", (error) => {
@@ -1376,6 +1400,7 @@ async function decryptData(encryptedData) {
             // Assuming this is your socket listener in frontend
 
             socket.on("newFileUpload", (fileData) => {
+                console.log("File Data array: ", fileData);
                 renderFileUpload(fileData);
             });
 
@@ -1393,6 +1418,7 @@ async function decryptData(encryptedData) {
             //     populateUserDetails();
             //     console.log("User joined:", userName);
             // });
+
 
             socket.on("getStudyPlan", (Data) => {
 

@@ -199,11 +199,16 @@ io.on("connection", (socket) => {
         console.log("File history: ", filesHistory);
 
         // Emit the new file upload to the room
-        socket.to(roomCode).emit("newFileUpload", fileData);
+        socket.to(roomCode).emit("newFileUpload", filesHistory[roomCode]);
+    });
+
+    // Handle audio messages
+    socket.on('sendAudioMessage', ({ roomCode, userId, audioData }) => {
+        io.to(roomCode).emit('receiveAudioMessage', { sender: `User ${userId}`, audioData });
     });
 
     // 🔹 User Sends File
-    socket.on("sendFile", ({ code, file, userId }) => {
+    socket.on("sendMessage", ({ code, file, userId }) => {
         const roomCode = code;
 
         // Initialize filesHistory[roomCode] as an array if it doesn't exist
