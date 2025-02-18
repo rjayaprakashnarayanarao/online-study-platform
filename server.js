@@ -204,7 +204,7 @@ io.on("connection", (socket) => {
 
     // Handle audio messages
     socket.on('sendAudioMessage', ({ roomCode, userId, audioData }) => {
-        io.to(roomCode).emit('receiveAudioMessage', { sender: `User ${userId}`, audioData });
+        io.to(roomCode).emit('receiveAudioMessage', {roomCode, sender: userId, audioData });
     });
 
     // 🔹 User Sends File

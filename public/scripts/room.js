@@ -1,5 +1,6 @@
 // Add the msg functions here
 let messages = [];
+let voiceMessage = [];
 var roomCode;
 var username;
 let uploadedFiles = {};
@@ -910,9 +911,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Add an event listener to the Details button
-    document.querySelector('.details-button')?.addEventListener('click', () => {
-        showPopup();
-    });
+    // document.querySelector('.details-button')?.addEventListener('click', () => {
+    //     showPopup();
+    // });
 
 
     // Start the room timer
@@ -1242,7 +1243,7 @@ async function decryptData(encryptedData) {
                         });
 
                         // Render the file upload locally
-                        // renderFileUpload(fileData);
+                        renderFileUpload(fileData);
                     });
 
                     // Hide message after 3 seconds
@@ -1293,22 +1294,37 @@ async function decryptData(encryptedData) {
             });
 
             // Function to receive and display audio messages
-            socket.on('receiveAudioMessage', ({ sender, audioData }) => {
-                console.log("sender and audiodata: ", sender, audioData);
-
+            socket.on('receiveAudioMessage', ({ roomCode, sender, audioData }) => {
+                console.log("Received audio message from:", sender, "in room:", roomCode);
+            
+                // Ensure voiceMessage object is initialized properly
+                if (!voiceMessage[roomCode]) {
+                    voiceMessage[roomCode] = [];
+                }
+            
+                // Store the message with sender details
+                voiceMessage[roomCode].push({ sender, audioData });
+            
                 const messagesContainer = document.getElementById('messages');
-
+            
                 const messageDiv = document.createElement('div');
                 messageDiv.classList.add('message');
-                messageDiv.innerHTML = `<strong>${sender}:</strong> `;
-
+                
+                // Retrieve the latest message for this roomCode
+                const latestMessage = voiceMessage[roomCode][voiceMessage[roomCode].length - 1];
+            
+                messageDiv.innerHTML = `<strong>${latestMessage.sender}:</strong> `;
+            
                 const audioElement = document.createElement('audio');
                 audioElement.controls = true;
-                audioElement.src = audioData;
-
+                audioElement.src = latestMessage.audioData;
+            
                 messageDiv.appendChild(audioElement);
                 messagesContainer.appendChild(messageDiv);
+                console.log("Audio Data: ",voiceMessage);
+                
             });
+            
 
             socket.on("error", (error) => {
                 console.log("error:", error);
