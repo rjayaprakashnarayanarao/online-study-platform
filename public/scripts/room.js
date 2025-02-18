@@ -1153,6 +1153,9 @@ async function decryptData(encryptedData) {
 
             // Check if the user is the admin (room creator)
             if ((decryptedData.admin_name === decryptedData.creatorName) && (decryptedData.creatorName)) {
+                document.getElementById("pleasewait-popups").style.display = "none";
+                console.log("Blocked popup ");
+                
                 console.log("Admin detected. Creating room...");
 
                 setUserName(decryptedData.creatorName)
@@ -1180,12 +1183,12 @@ async function decryptData(encryptedData) {
                     username: decryptedData.creatorName || "guest009"
                 });
                 // Show the "Please Wait" popup
-                document.getElementById("pleasewait-popup").style.display = "flex"; 
+                document.getElementById("pleasewait-popups").style.display = "flex"; 
                 socket.on("joinApproved", ({ roomCode }) => {
                     console.log("Admin approved your request. Entering the room...");
                     // Wait 2 seconds before hiding the popup
                     setTimeout(() => {
-                        document.getElementById("pleasewait-popup").style.display = "none";
+                        document.getElementById("pleasewait-popups").style.display = "none";
                     }, 2000);
                     // Emit 'finalJoinRoom' instead of 'joinRoom'
                     socket.emit("finalJoinRoom", { roomCode, username: getUserName() });
