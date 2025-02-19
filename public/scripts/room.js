@@ -1256,7 +1256,7 @@ async function decryptData(encryptedData) {
             // Listen for new messages
             socket.on("newMessage", (newMessage) => {
                 // Extract userId and message from the newMessage object
-                const userId = newMessage.userId; // The user ID of the sender
+                const userId = newMessage.sender; // The user ID of the sender
                 const message = newMessage.message; // The message content
 
                 // Ensure the messages structure exists for the user and type
@@ -1264,9 +1264,12 @@ async function decryptData(encryptedData) {
                     messages[userId] = {};
                 }
 
+                console.log("Finding message type: ",message);
+                
+
                 // Determine the type of message (e.g., "chat" or "info")
                 // Assuming the message object has a `type` property
-                const type = message.type || "chat"; // Default to "chat" if type is not provided
+                const type = message.messageType || "chat"; // Default to "chat" if type is not provided
 
                 if (!messages[userId][type]) {
                     messages[userId][type] = [];

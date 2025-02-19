@@ -207,26 +207,26 @@ io.on("connection", (socket) => {
         io.to(roomCode).emit('receiveAudioMessage', {roomCode, sender: userId, audioData });
     });
 
-    // 🔹 User Sends File
-    socket.on("sendMessage", ({ code, file, userId }) => {
-        const roomCode = code;
+    // // 🔹 User Sends File
+    // socket.on("sendMessage", ({ code, message:file, userId }) => {
+    //     const roomCode = code;
 
-        // Initialize filesHistory[roomCode] as an array if it doesn't exist
-        if (!filesHistory[roomCode]) {
-            filesHistory[roomCode] = [];
-        }
+    //     // Initialize filesHistory[roomCode] as an array if it doesn't exist
+    //     if (!filesHistory[roomCode]) {
+    //         filesHistory[roomCode] = [];
+    //     }
 
-        // Create a new message object for the file
-        const newMessage = { sender: socket.id, file, userId };
-        console.log("New file sent: ", newMessage);
+    //     // Create a new message object for the file
+    //     const newMessage = { sender: socket.id, file, userId };
+    //     console.log("New file sent: ", newMessage);
 
-        // Push the new file into the filesHistory
-        filesHistory[roomCode].push(newMessage.file);
-        console.log("File history: ", filesHistory);
+    //     // Push the new file into the filesHistory
+    //     filesHistory[roomCode].push(newMessage.file);
+    //     console.log("File history: ", filesHistory);
 
-        // Emit the new message to the room
-        io.to(roomCode).emit("newMessage", newMessage);
-    });
+    //     // Emit the new message to the room
+    //     io.to(roomCode).emit("newMessage", newMessage);
+    // });
 
     // Handle study plan addition
     socket.on("addStudyPlan", (data) => {
