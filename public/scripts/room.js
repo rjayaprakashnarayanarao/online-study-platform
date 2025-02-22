@@ -1,6 +1,5 @@
 // Add the msg functions here
 let messages = [];
-let voiceMessage = [];
 var roomCode;
 var username;
 let uploadedFiles = {};
@@ -911,9 +910,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Add an event listener to the Details button
-    // document.querySelector('.details-button')?.addEventListener('click', () => {
-    //     showPopup();
-    // });
+    document.querySelector('.details-button')?.addEventListener('click', () => {
+        showPopup();
+    });
 
 
     // Start the room timer
@@ -1153,9 +1152,7 @@ async function decryptData(encryptedData) {
             console.log("Decrypted Data:", decryptedData);
             // roomCode = decryptedData.room_id
             setRoomCode(decryptedData.room_id);
-            const socket = io("http://localhost:3000", {
-                query: { userId: decryptedData.creatorName },
-            });
+            const socket = io()
 
             // Check if the user is the admin (room creator)
             if ((decryptedData.admin_name === decryptedData.creatorName) && (decryptedData.creatorName)) {
@@ -1243,7 +1240,7 @@ async function decryptData(encryptedData) {
                         });
 
                         // Render the file upload locally
-                        renderFileUpload(fileData);
+                        // renderFileUpload(fileData);
                     });
 
                     // Hide message after 3 seconds
@@ -1256,7 +1253,7 @@ async function decryptData(encryptedData) {
             // Listen for new messages
             socket.on("newMessage", (newMessage) => {
                 // Extract userId and message from the newMessage object
-                const userId = newMessage.sender; // The user ID of the sender
+                const userId = newMessage.userId; // The user ID of the sender
                 const message = newMessage.message; // The message content
 
                 // Ensure the messages structure exists for the user and type
@@ -1264,12 +1261,9 @@ async function decryptData(encryptedData) {
                     messages[userId] = {};
                 }
 
-                console.log("Finding message type: ",message);
-                
-
                 // Determine the type of message (e.g., "chat" or "info")
                 // Assuming the message object has a `type` property
-                const type = message.messageType || "chat"; // Default to "chat" if type is not provided
+                const type = message.type || "chat"; // Default to "chat" if type is not provided
 
                 if (!messages[userId][type]) {
                     messages[userId][type] = [];
@@ -1297,37 +1291,22 @@ async function decryptData(encryptedData) {
             });
 
             // Function to receive and display audio messages
-            socket.on('receiveAudioMessage', ({ roomCode, sender, audioData }) => {
-                console.log("Received audio message from:", sender, "in room:", roomCode);
-            
-                // Ensure voiceMessage object is initialized properly
-                if (!voiceMessage[roomCode]) {
-                    voiceMessage[roomCode] = [];
-                }
-            
-                // Store the message with sender details
-                voiceMessage[roomCode].push({ sender, audioData });
-            
+            socket.on('receiveAudioMessage', ({ sender, audioData }) => {
+                console.log("sender and audiodata: ", sender, audioData);
+
                 const messagesContainer = document.getElementById('messages');
-            
+
                 const messageDiv = document.createElement('div');
                 messageDiv.classList.add('message');
-                
-                // Retrieve the latest message for this roomCode
-                const latestMessage = voiceMessage[roomCode][voiceMessage[roomCode].length - 1];
-            
-                messageDiv.innerHTML = `<strong>${latestMessage.sender}:</strong> `;
-            
+                messageDiv.innerHTML = `<strong>${sender}:</strong> `;
+
                 const audioElement = document.createElement('audio');
                 audioElement.controls = true;
-                audioElement.src = latestMessage.audioData;
-            
+                audioElement.src = audioData;
+
                 messageDiv.appendChild(audioElement);
                 messagesContainer.appendChild(messageDiv);
-                console.log("Audio Data: ",voiceMessage);
-                
             });
-            
 
             socket.on("error", (error) => {
                 console.log("error:", error);
