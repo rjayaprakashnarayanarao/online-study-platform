@@ -1,5 +1,13 @@
 let roomType = null;
 console.log("This site is under RJP's rule");
+
+// check if the user is using a mobile device
+document.addEventListener("DOMContentLoaded", function () {
+    if (window.innerWidth < 768) {
+        document.getElementById("mobile-warning").style.display = "block";
+    }
+});
+
 // Check if user is signed in or not
 document.addEventListener("DOMContentLoaded",async () => {
     const profileName = document.querySelector(".profile-section h3");
