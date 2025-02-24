@@ -8,6 +8,9 @@ const { Server } = require("socket.io");
 const Rooms = require('./models/rooms.model'); // Import Rooms model
 const { searchWikipedia } = require("./wikiSearch");
 const { getGeminiTutorResponse } = require("./geminiTutor");
+const multer = require("multer");
+const path = require("path");
+const File = require("./models/files.model");
 
 const app = express();
 const server = http.createServer(app);
@@ -19,6 +22,21 @@ const io = new Server(server, {
 });
 
 const port = process.env.PORT || 3000;
+
+app.use("/uploads", express.static("uploads")); // Serve uploaded files
+
+// Setup Multer for file storage
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, "uploads/"); // Files stored in the uploads folder
+    },
+    filename: function (req, file, cb) {
+        cb(null, Date.now() + path.extname(file.originalname)); // Unique filename
+    }
+});
+
+const upload = multer({ storage });
+
 
 app.use(cors());
 app.use(express.json());
@@ -55,6 +73,41 @@ io.on("connection", (socket) => {
 
     }
 
+    // Handle file uploads
+    // File Upload Endpoint
+    app.post("/upload", upload.single("file"), async (req, res) => {
+        try {
+            const { roomCode, uploader, socket_id } = req.body;
+            const file = req.file;
+
+            if (!file) {
+                return res.status(400).json({ error: "No file uploaded" });
+            }
+
+            const fileData = await File.create({
+                socket_id: socket_id, // Set ID to socketId from frontend
+                path: `/uploads/${file.filename}`,
+                type: file.mimetype,
+                uploader: uploader,
+                roomCode: roomCode
+            });
+
+            res.status(201).json({ message: "File uploaded successfully", file: fileData });
+        } catch (error) {
+            console.error("Error uploading file:", error);
+            res.status(500).json({ error: "Internal server error" });
+        }
+    });
+
+    app.get("/getMaterials/:socket_id",async(req,res)=>{
+        const socket_id = req.params.socket_id
+        console.log("Socket id: ",socket_id);
+        
+        const data = await File.findAll({where:{socket_id:socket_id}})
+        console.log("File Data with socketid : ",data);        
+        res.json(data)
+    })
+
     // 🔸 Admin Creates Room
     socket.on("createRoom", async ({ roomCode, adminName }) => {
         console.log("Create Room Event received. Room Code:", roomCode);
@@ -73,7 +126,7 @@ io.on("connection", (socket) => {
                 { socket_id: id }, // Update field
                 { where: { room_id: roomCode } } // Condition
             );
-            console.log(id);
+            // console.log(id);
 
             messageHistory[roomCode] = []; // Initialize message history
             filesHistory[roomCode] = []; // Inititialize files history
@@ -107,7 +160,7 @@ io.on("connection", (socket) => {
                 return;
             }
 
-             // Get the admin socket ID from the database
+            // Get the admin socket ID from the database
             const adminSocketId = room.socket_id;
 
             // Check if the requesting user is the admin (skip approval if they are)
@@ -130,7 +183,6 @@ io.on("connection", (socket) => {
             // console.log(`${username} joined room ${roomCode}`);
 
             // // socket.emit("messageHistory", messageHistory[roomCode] || []);
-            // io.to(roomCode).emit("userJoined", { userName: username, user: socket.id, roomName: room.dataValues.room_name, roomId: room.dataValues.room_id, newMessage: messageHistory[roomCode] || [] });
             // io.to(roomCode).emit("messageHistory", messageHistory[roomCode] || [])
             // io.to(roomCode).emit("updateUsers", { users: Array.from(activeUsers.get(roomCode)) });
         } catch (error) {
@@ -140,19 +192,18 @@ io.on("connection", (socket) => {
     });
 
     // Handle Admin's Decision
-    socket.on("approveUser", async({ socketId, roomCode, username, approved }) => {
+    socket.on("approveUser", async ({ socketId, roomCode, username, approved }) => {
         if (approved) {
             io.to(socketId).emit("joinApproved", { roomCode });
             console.log(`${username} was approved to join room ${roomCode}`);
             const room = await Rooms.findOne({ where: { room_id: roomCode } });
-            
+
             // Add the user to the active list
             if (!activeUsers.has(roomCode)) activeUsers.set(roomCode, new Set());
             activeUsers.get(roomCode).add(username);
 
             // Notify the room that a new user has joined
-            // io.to(roomCode).emit("userJoined", { username });
-            io.to(roomCode).emit("userJoined", { userName: username, user: socket.id, roomName: room.dataValues.room_name, roomId: room.dataValues.room_id, newMessage: messageHistory[roomCode] || [] });
+            io.to(roomCode).emit("userJoined", { userName: username, user: socketId, roomName: room.dataValues.room_name, roomId: room.dataValues.room_id, newMessage: messageHistory[roomCode] || [] });
 
         } else {
             io.to(socketId).emit("joinDenied");
@@ -160,51 +211,57 @@ io.on("connection", (socket) => {
         }
     });
 
-    socket.on("finalJoinRoom", ({ roomCode, username }) => {
+    socket.on("finalJoinRoom", ({ roomCode, username , sockerId}) => {
         // Join the user's socket to the room
         socket.join(roomCode);
-        
+
         // Add username to active users
         if (!activeUsers.has(roomCode)) {
             activeUsers.set(roomCode, new Set());
         }
         activeUsers.get(roomCode).add(username);
-        
+
         // Update userSocketMap
-        userSocketMap.set(socket.id, { roomCode, username });
-        
+        userSocketMap.set(sockerId, { roomCode, username });
+
         console.log(`${username} joined room ${roomCode}`);
-        
+
         // Notify all clients in the room about the new user and updated list
-        io.to(roomCode).emit("userJoined", { 
-            userName: username, 
-            user: socket.id, 
-            newMessage: messageHistory[roomCode] || [] 
+        io.to(roomCode).emit("userJoined", {
+            userName: username,
+            user: sockerId,
+            newMessage: messageHistory[roomCode] || []
         });
         io.to(roomCode).emit("updateUsers", { users: Array.from(activeUsers.get(roomCode)) });
     });
-    
+
 
     // 🔹 User Uploads File (Real-time Sharing)
-    socket.on("fileUploaded", (data) => {
-        const { roomCode, fileData } = data;
+    socket.on("fileUploaded", async (data) => {
+        try {
+            const { roomCode, fileData } = data;
 
-        // Initialize filesHistory[roomCode] as an array if it doesn't exist
-        if (!filesHistory[roomCode]) {
-            filesHistory[roomCode] = [];
+            // Store file info in database
+            const savedFile = await File.create({
+                socket_id: fileData.socket_id, // Use socket ID as the file ID
+                path: fileData.fileUrl, // Adjust this if you need a relative path
+                type: fileData.type,
+                uploader: fileData.uploader,
+                roomCode: roomCode
+            });
+
+            console.log("File stored:", savedFile);
+
+            // Broadcast the new file upload
+            io.to(roomCode).emit("newFileUpload", savedFile);
+        } catch (error) {
+            console.error("Error storing file:", error);
         }
-
-        // Push the new file data into the array
-        filesHistory[roomCode].push(fileData);
-        console.log("File history: ", filesHistory);
-
-        // Emit the new file upload to the room
-        socket.to(roomCode).emit("newFileUpload", filesHistory[roomCode]);
     });
 
     // Handle audio messages
     socket.on('sendAudioMessage', ({ roomCode, userId, audioData }) => {
-        io.to(roomCode).emit('receiveAudioMessage', {roomCode, sender: userId, audioData });
+        io.to(roomCode).emit('receiveAudioMessage', { roomCode, sender: userId, audioData });
     });
 
     // // 🔹 User Sends File
@@ -230,7 +287,7 @@ io.on("connection", (socket) => {
 
     // Handle study plan addition
     socket.on("addStudyPlan", (data) => {
-        
+
         roomCode = data.roomCode
         // Initialize filesHistory[roomCode] as an array if it doesn't exist
         if (!studyPlanList[roomCode]) {
@@ -239,7 +296,7 @@ io.on("connection", (socket) => {
 
         studyPlanList[roomCode].push(data)
         console.log("Study Plan Added:", studyPlanList[roomCode]);
-        io.to(roomCode).emit("getStudyPlan",{studyPlanList,roomCode})
+        io.to(roomCode).emit("getStudyPlan", { studyPlanList, roomCode })
     });
 
     // Handle resource addition
@@ -252,7 +309,7 @@ io.on("connection", (socket) => {
         }
         resourceList[roomCode].push(data)
         console.log("Resource Added:", resourceList[roomCode]);
-        socket.to(roomCode).emit("getResource",{resourceList,roomCode})
+        socket.to(roomCode).emit("getResource", { resourceList, roomCode })
     });
 
     // 🔹 User Sends Message
@@ -316,6 +373,13 @@ io.on("connection", (socket) => {
     });
 });
 
+// Serve uploaded files
+app.get("/uploads/:filename", (req, res) => {
+    const filename = req.params.filename;
+    const filepath = path.join(__dirname, "uploads", filename);
+    res.sendFile(filepath);
+});
+
 // 🔹 Handle AI Tutor Requests
 app.post("/tutor", async (req, res) => {
     const { topic, level } = req.body;
@@ -349,6 +413,7 @@ app.post("/tutor", async (req, res) => {
 });
 
 const axios = require('axios');
+const { AsyncLocalStorage } = require('async_hooks');
 // Google Books API Endpoint
 app.get('/api/books', async (req, res) => {
     const query = req.query.q;

@@ -361,11 +361,6 @@ function renderResource(resourceData) {
     }
 }
 
-// Initialize Lucide icons
-document.addEventListener('DOMContentLoaded', () => {
-    lucide.createIcons();
-    document.querySelector('.close-button').addEventListener('click', closePopupBox);
-});
 
 // Function to get URL parameter by name
 function getQueryParam(name) {
@@ -390,36 +385,7 @@ let users = [
     // { id: 'user1', name: 'Jaya Prakash' }
 ];
 
-// Function to populate user details
-function populateUserDetails() {
-    const userDetailsContainer = document.getElementById('user-details-container');
-    userDetailsContainer.innerHTML = ''; // Clear existing user details
 
-    users.forEach((user, index) => {
-        const userDiv = document.createElement('div');
-        userDiv.className = 'single-user';
-        userDiv.id = `user${index + 1}`; // Set unique ID for each user
-        userDiv.innerHTML = `
-            <p>${user.name}</p>
-            <div class="user-options">
-                <button class="user-info" onclick="openPopup('${user.id}', 'info')"><i class="fa-solid fa-info"></i></button>
-                <button class="chat-box" onclick="openPopup('${user.id}', 'chat')"><i class="fa-brands fa-rocketchat"></i></button>
-            </div>
-        `;
-        // Attach click event listener
-        userDiv.addEventListener('click', function () {
-            handleUserSelection(userDiv, user.name);
-        });
-
-        userDetailsContainer.appendChild(userDiv);
-    });
-
-    // Show the default message if no user is selected
-    document.getElementById('default-message').style.display = 'block';
-    document.querySelector('.materials-content').style.display = 'none';
-    document.querySelector('.study-plan-content').style.display = 'none';
-    document.querySelector('.resources-content').style.display = 'none';
-}
 
 // Open the upload popup
 function openUploadPopup() {
@@ -448,10 +414,7 @@ function switchUploadTab(tabName) {
     document.querySelector(`[data-tab="${tabName}"]`).classList.add("active");
 }
 
-// Handle file upload
-document.getElementById("upload-materials-input").addEventListener("change", function () {
-    document.getElementById("upload-materials-message").classList.remove("hidden");
-});
+
 // Add study plan entry
 function addStudyPlan() {
     const unitName = document.getElementById("study-unit-name").value;
@@ -498,78 +461,11 @@ function addResource() {
     }
 }
 
-// Attach the popup open function to the Upload button
-document.querySelector(".upload-button").addEventListener("click", function (event) {
-    event.preventDefault(); // Prevent redirection
-    openUploadPopup();
-});
-
-// Function to change the tooltip text to "Copied!"
-function showCopiedTooltip(icon) {
-    const tooltip = icon.nextElementSibling;
-    tooltip.textContent = "Copied!";
-    setTimeout(() => {
-        tooltip.textContent = "Copy Room Code";
-    }, 2000); // Reset the tooltip text after 2 seconds
-}
-
-document.addEventListener('DOMContentLoaded', function () {
-    if (typeof google !== 'undefined' && google.books) {
-        google.books.load(); // Load the Books API
-        google.books.setOnLoadCallback(initGoogleBooks);
-    } else {
-        console.error("Google Books API is not loaded.");
-    }
-});
-
-function initGoogleBooks() {
-    console.log("Google Books API loaded successfully.");
-    // Any Google Books related code should go here
-}
-
-// Open Library Popup when clicking the Library button
-document.querySelector(".library-button").addEventListener("click", function () {
-    document.getElementById("lib-popup").classList.remove("hidden");
-    document.getElementById("close-viewer").style.display = 'none';
-});
-
-// Close Library Popup when clicking the close button
-document.querySelector(".close-lib-popup").addEventListener("click", function () {
-    document.getElementById("lib-popup").classList.add("hidden");
-    closeViewerCanvas();
-    clearSearchResults();
-});
-
 let displayedResults = 12; // Number of results to show initially
 let currentBookData = []; // Store search results globally
 let previousSearchResults = ""; // Store the previous search results before selecting a book
 
-// Book Search using Backend API (Google Books)
-document.getElementById("search-button").addEventListener("click", function () {
-    const query = document.getElementById("book-search").value.trim();
-    if (!query) return;
 
-    const resultsContainer = document.getElementById("search-results");
-    resultsContainer.innerHTML = "<p>Loading...</p>"; // Display loading text
-
-    // Fetch book data from the backend server
-    fetch(`https://www.googleapis.com/books/v1/volumes?q=${query}&maxResults=40`)
-        .then(response => response.json())
-        .then(data => {
-            const resultsContainer = document.getElementById("search-results");
-            resultsContainer.innerHTML = "";
-
-            if (!data.items || data.items.length === 0) {
-                resultsContainer.innerHTML = "<p>No results found.</p>";
-                return;
-            }
-
-            // Display initial results
-            displayResults(data);
-
-        })
-        .catch(error => console.error("Error fetching books:", error));
-});
 
 // Function to display book search results
 function displayResults(data, isAppending = false) {
@@ -716,107 +612,6 @@ function returnToSearch() {
     }
 }
 
-// ai functionality
-document.addEventListener('DOMContentLoaded', () => {
-    // Add an event listener to the AI button
-    let closeAiPopup = document.querySelector('.close-ai-popup');
-    let aiButton = document.querySelector('.ai-button');
-    const aiPopup = document.getElementById('ai-popup');
-
-    // If .ai-button does NOT exist, create and append it
-    if (!aiButton) {
-        console.warn("ai-button not found! Creating one dynamically...");
-
-        // Create new button element
-        aiButton = document.createElement('button');
-        aiButton.className = 'ai-button';
-        aiButton.innerHTML = 'AI <i class="fa-solid fa-robot"></i>';
-
-        // Append it to the header or body
-        const header = document.querySelector('header');
-        if (header) {
-            header.appendChild(aiButton);
-        } else {
-            document.body.appendChild(aiButton);
-        }
-    }
-
-    // Now add the event listener safely
-    aiButton.addEventListener('click', function (event) {
-        event.preventDefault();
-        if (aiPopup) {
-            aiPopup.classList.remove('hidden');
-        }
-    });
-
-    // If .close-ai-popup does NOT exist, create and append it
-    if (!closeAiPopup) {
-        console.warn(".close-ai-popup not found! Creating one...");
-        closeAiPopup = document.createElement('button');
-        closeAiPopup.className = 'close-ai-popup';
-        closeAiPopup.innerHTML = '✖';
-
-        // Append it inside #ai-popup
-        const aiPopup = document.getElementById('ai-popup');
-        if (aiPopup) {
-            aiPopup.appendChild(closeAiPopup);
-        }
-    }
-
-    // Add an event listener to the AI popup close button
-    document.querySelector('.close-ai-popup').addEventListener('click', function (event) {
-        event.preventDefault();
-        document.getElementById('ai-popup').classList.add('hidden');
-    });
-
-    // Handle AI Tutor Form submission
-    document.getElementById("tutorForm").addEventListener("submit", async function (event) {
-        event.preventDefault();
-
-        const topic = document.getElementById("topic").value;
-        const level = document.getElementById("level").value;
-
-        document.getElementById("results").innerHTML = `
-            <img src="./Images/gif-thinking.gif" alt="robo" style="display: block; margin: 0 auto 1rem; width: 150px; margin-bottom: 0;">
-            Thinking...
-            `;
-
-        try {
-            console.log("topic level: ", topic, level);
-
-            const response = await fetch("http://localhost:3000/tutor", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ topic, level }),
-            });
-
-            const data = await response.json();
-
-            document.getElementById("results").innerHTML = `
-                <h2>Topic: ${data.topic}</h2>
-                <h3>Level: ${data.level}</h3>
-                <h4>Helper Response:</h4>
-                <div class="tutor-response">${marked.parse(data.tutorResponse)}</div>
-                <h4>Wikipedia Result:</h4>
-                <ul>
-                    ${Array.isArray(data.searchResults) && data.searchResults.length > 0
-                    ? data.searchResults.map(item => `<li>${item.replace(/\n/g, '<br>')}</li>`).join("")
-                    : "<li>No search results available.</li>"
-                }
-                </ul>
-                <img src="./Images/gif-done.gif" alt="robo" style="display: block; margin: 0 auto; width: 150px;">
-            `;
-
-            console.log("Response from server:", data);
-        } catch (error) {
-            console.error("Error:", error);
-            document.getElementById("results").innerHTML = `
-                <img src="./Images/gif-fail.gif" alt="robo" style="display: block; margin: 0 auto; width: 150px;">
-                An error occurred.
-            `;
-        }
-    });
-});
 
 // Show popup card on page load
 window.onload = async function () {
@@ -879,87 +674,6 @@ window.onload = async function () {
 };
 
 
-// Share options functionality
-document.addEventListener('DOMContentLoaded', () => {
-
-    // Add event listeners to all single-user divs
-    document.querySelectorAll('.single-user').forEach(user => {
-        user.addEventListener('click', handleUserSelection);
-    });
-
-    //share options functionality
-    const shareIcon = document.getElementById('share-icon');
-    const shareOptions = document.getElementById('share-options');
-
-    shareIcon?.addEventListener('click', (event) => {
-        event.stopPropagation(); // Prevent click event from propagating
-        // Toggle the display of the share options menu
-        shareOptions.classList.toggle('show');
-    });
-
-    // Close the share options menu when clicking outside
-    document.addEventListener('click', (event) => {
-        if (!shareOptions.contains(event.target) && !shareIcon.contains(event.target)) {
-            shareOptions.classList.remove('show');
-        }
-    });
-
-    // Add an event listener to the close button
-    document.querySelector('.close-popup')?.addEventListener('click', () => {
-        closePopup();
-    });
-
-    // Add an event listener to the Details button
-    document.querySelector('.details-button')?.addEventListener('click', () => {
-        showPopup();
-    });
-
-
-    // Start the room timer
-    startRoomTimer();
-});
-
-// Function to handle user selection
-function handleUserSelection(selectedUser, username) {
-    // Remove 'selected' class from all users
-    document.querySelectorAll('.single-user').forEach(user => {
-        user.classList.remove('selected');
-    });
-
-    // Add 'selected' class to clicked user
-    selectedUser.classList.add('selected');
-
-    // Hide the default message
-    document.getElementById('default-message').style.display = 'none';
-
-    // Update the materials-content with the selected user
-    const materialsContent = document.querySelector('.materials-content');
-    materialsContent.innerHTML = `<h3>Materials Content</h3><p>Selected User: ${username}</p>`;
-
-    // Load uploaded files for the selected user
-    const userId = selectedUser.id;
-    console.log("UserId: ", userId);
-
-    if (uploadedFiles[userId]) {
-        const materialsList = document.createElement('div');
-        materialsList.id = 'materials-list';
-        uploadedFiles[userId].forEach(file => {
-            const listItem = document.createElement('p');
-            listItem.innerHTML = `<a href="#" onclick="alert('File: ${file.name}')">${file.name}</a>`;
-            materialsList.appendChild(listItem);
-        });
-        materialsContent.appendChild(materialsList);
-    }
-
-    document.querySelector('.study-plan-content').innerHTML = `<h3>Study Plan Content</h3><p>Selected User: ${username}</p>`;
-    document.querySelector('.resources-content').innerHTML = `<h3>Resources Content</h3><p>Selected User: ${username}</p>`;
-
-    // Ensure only the Materials section is visible by default
-    document.querySelector('.materials-content').style.display = 'block';
-    document.querySelector('.study-plan-content').style.display = 'none';
-    document.querySelector('.resources-content').style.display = 'none';
-    toggleHiddenGrid('materials'); // Calls function to highlight materials by default
-}
 // Toggle hidden grid content
 function toggleHiddenGrid(section) {
     const selectedUser = document.querySelector('.single-user.selected');
@@ -1050,11 +764,7 @@ function exitRoom() {
 // Clear the timer when the user leaves the page
 window.addEventListener('beforeunload', stopRoomTimer);
 
-// Start the room timer when the page loads and populate user details
-document.addEventListener('DOMContentLoaded', () => {
-    startRoomTimer();
-    populateUserDetails();
-});
+
 
 // Function to update sharing links dynamically
 const updateShareLinks = () => {
@@ -1194,7 +904,7 @@ async function decryptData(encryptedData) {
                         document.getElementById("pleasewait-popups").style.display = "none";
                     }, 2000);
                     // Emit 'finalJoinRoom' instead of 'joinRoom'
-                    socket.emit("finalJoinRoom", { roomCode, username: getUserName() });
+                    socket.emit("finalJoinRoom", { roomCode, username: getUserName(), sockerId: socket.id });
                 });
 
                 socket.on("joinDenied", () => {
@@ -1210,43 +920,367 @@ async function decryptData(encryptedData) {
             }
 
             populateUserDetails()
+            // ai functionality
+            document.addEventListener('DOMContentLoaded', () => {
+                // Add an event listener to the AI button
+                let closeAiPopup = document.querySelector('.close-ai-popup');
+                let aiButton = document.querySelector('.ai-button');
+                const aiPopup = document.getElementById('ai-popup');
 
+                // If .ai-button does NOT exist, create and append it
+                if (!aiButton) {
+                    console.warn("ai-button not found! Creating one dynamically...");
 
-            document.getElementById("upload-materials-input").addEventListener("change", function (event) {
-                const files = event.target.files;
-                const materialsList = document.getElementById("materials-list");
-                const message = document.getElementById("upload-materials-message");
+                    // Create new button element
+                    aiButton = document.createElement('button');
+                    aiButton.className = 'ai-button';
+                    aiButton.innerHTML = 'AI <i class="fa-solid fa-robot"></i>';
 
-                if (files.length > 0) {
-                    message.classList.remove("hidden");
-                    materialsList.innerHTML = ""; // Clear previous list
+                    // Append it to the header or body
+                    const header = document.querySelector('header');
+                    if (header) {
+                        header.appendChild(aiButton);
+                    } else {
+                        document.body.appendChild(aiButton);
+                    }
+                }
 
-                    Array.from(files).forEach(file => {
-                        const fileData = {
-                            name: file.name || 'Unnamed File',
-                            size: file.size || 'Unknown Size',
-                            type: file.type || 'Unknown Type',
-                            uploader: selectedUser || getUserName(),
-                            timestamp: new Date().toLocaleString(),
-                            fileUrl: file ? URL.createObjectURL(file) : '#'
-                        };
+                // Now add the event listener safely
+                aiButton.addEventListener('click', function (event) {
+                    event.preventDefault();
+                    if (aiPopup) {
+                        aiPopup.classList.remove('hidden');
+                    }
+                });
 
-                        // renderFileUpload(fileData);
+                // If .close-ai-popup does NOT exist, create and append it
+                if (!closeAiPopup) {
+                    console.warn(".close-ai-popup not found! Creating one...");
+                    closeAiPopup = document.createElement('button');
+                    closeAiPopup.className = 'close-ai-popup';
+                    closeAiPopup.innerHTML = '✖';
 
-                        // Emit the file upload event to the server
-                        socket.emit("fileUploaded", {
-                            roomCode: getRoomCode(),
-                            fileData: fileData
+                    // Append it inside #ai-popup
+                    const aiPopup = document.getElementById('ai-popup');
+                    if (aiPopup) {
+                        aiPopup.appendChild(closeAiPopup);
+                    }
+                }
+
+                // Add an event listener to the AI popup close button
+                document.querySelector('.close-ai-popup').addEventListener('click', function (event) {
+                    event.preventDefault();
+                    document.getElementById('ai-popup').classList.add('hidden');
+                });
+
+                // Handle AI Tutor Form submission
+                document.getElementById("tutorForm").addEventListener("submit", async function (event) {
+                    event.preventDefault();
+
+                    const topic = document.getElementById("topic").value;
+                    const level = document.getElementById("level").value;
+
+                    document.getElementById("results").innerHTML = `
+            <img src="./Images/gif-thinking.gif" alt="robo" style="display: block; margin: 0 auto 1rem; width: 150px; margin-bottom: 0;">
+            Thinking...
+            `;
+
+                    try {
+                        console.log("topic level: ", topic, level);
+
+                        const response = await fetch("http://localhost:3000/tutor", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ topic, level }),
                         });
 
-                        // Render the file upload locally
-                        // renderFileUpload(fileData);
+                        const data = await response.json();
+
+                        document.getElementById("results").innerHTML = `
+                <h2>Topic: ${data.topic}</h2>
+                <h3>Level: ${data.level}</h3>
+                <h4>Helper Response:</h4>
+                <div class="tutor-response">${marked.parse(data.tutorResponse)}</div>
+                <h4>Wikipedia Result:</h4>
+                <ul>
+                    ${Array.isArray(data.searchResults) && data.searchResults.length > 0
+                                ? data.searchResults.map(item => `<li>${item.replace(/\n/g, '<br>')}</li>`).join("")
+                                : "<li>No search results available.</li>"
+                            }
+                </ul>
+                <img src="./Images/gif-done.gif" alt="robo" style="display: block; margin: 0 auto; width: 150px;">
+            `;
+
+                        console.log("Response from server:", data);
+                    } catch (error) {
+                        console.error("Error:", error);
+                        document.getElementById("results").innerHTML = `
+                <img src="./Images/gif-fail.gif" alt="robo" style="display: block; margin: 0 auto; width: 150px;">
+                An error occurred.
+            `;
+                    }
+                });
+            });
+
+
+            // Copy Room Number Functionality
+            document.querySelectorAll('.fa-copy').forEach((icon) => {
+                icon.addEventListener('click', () => {
+                    event.stopPropagation();
+                    const textarea = document.createElement('textarea');
+                    textarea.value = document.getElementById('room-number').textContent;
+                    document.body.appendChild(textarea);
+                    textarea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textarea);
+                    console.log('Room number copied to clipboard!');
+                    showCopiedTooltip(icon); // Call the function to change the tooltip text
+                });
+            });
+            // Share options functionality
+            document.addEventListener('DOMContentLoaded', () => {
+
+                // Add event listeners to all single-user divs
+                document.querySelectorAll('.single-user').forEach(user => {
+                    user.addEventListener('click', handleUserSelection);
+                });
+
+                //share options functionality
+                const shareIcon = document.getElementById('share-icon');
+                const shareOptions = document.getElementById('share-options');
+
+                shareIcon?.addEventListener('click', (event) => {
+                    event.stopPropagation(); // Prevent click event from propagating
+                    // Toggle the display of the share options menu
+                    shareOptions.classList.toggle('show');
+                });
+
+                // Close the share options menu when clicking outside
+                document.addEventListener('click', (event) => {
+                    if (!shareOptions.contains(event.target) && !shareIcon.contains(event.target)) {
+                        shareOptions.classList.remove('show');
+                    }
+                });
+
+                // Add an event listener to the close button
+                document.querySelector('.close-popup')?.addEventListener('click', () => {
+                    closePopup();
+                });
+
+                // Add an event listener to the Details button
+                document.querySelector('.details-button')?.addEventListener('click', () => {
+                    showPopup();
+                });
+
+
+                // Start the room timer
+                startRoomTimer();
+            });
+
+            // Initialize Lucide icons
+            document.addEventListener('DOMContentLoaded', () => {
+                lucide.createIcons();
+                document.querySelector('.close-button').addEventListener('click', closePopupBox);
+            });
+
+
+            // Function to populate user details
+            function populateUserDetails() {
+                const userDetailsContainer = document.getElementById('user-details-container');
+                userDetailsContainer.innerHTML = ''; // Clear existing user details
+
+                users.forEach((user, index) => {
+                    const userDiv = document.createElement('div');
+                    userDiv.className = 'single-user';
+                    userDiv.id = `user${index + 1}`; // Set unique ID for each user
+                    userDiv.innerHTML = `
+            <p>${user.name}</p>
+            <div class="user-options">
+                <button class="user-info" onclick="openPopup('${user.id}', 'info')"><i class="fa-solid fa-info"></i></button>
+                <button class="chat-box" onclick="openPopup('${user.id}', 'chat')"><i class="fa-brands fa-rocketchat"></i></button>
+            </div>
+        `;
+                    // Attach click event listener
+                    userDiv.addEventListener('click', function () {
+                        handleUserSelection(userDiv, user.name);
                     });
 
-                    // Hide message after 3 seconds
-                    setTimeout(() => {
-                        message.classList.add("hidden");
-                    }, 3000);
+                    userDetailsContainer.appendChild(userDiv);
+                });
+
+                // Show the default message if no user is selected
+                document.getElementById('default-message').style.display = 'block';
+                document.querySelector('.materials-content').style.display = 'none';
+                document.querySelector('.study-plan-content').style.display = 'none';
+                document.querySelector('.resources-content').style.display = 'none';
+            }
+
+            // Start the room timer when the page loads and populate user details
+            document.addEventListener('DOMContentLoaded', () => {
+                startRoomTimer();
+                populateUserDetails();
+            });
+
+            // Book Search using Backend API (Google Books)
+            document.getElementById("search-button").addEventListener("click", function () {
+                const query = document.getElementById("book-search").value.trim();
+                if (!query) return;
+
+                const resultsContainer = document.getElementById("search-results");
+                resultsContainer.innerHTML = "<p>Loading...</p>"; // Display loading text
+
+                // Fetch book data from the backend server
+                fetch(`https://www.googleapis.com/books/v1/volumes?q=${query}&maxResults=40`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const resultsContainer = document.getElementById("search-results");
+                        resultsContainer.innerHTML = "";
+
+                        if (!data.items || data.items.length === 0) {
+                            resultsContainer.innerHTML = "<p>No results found.</p>";
+                            return;
+                        }
+
+                        // Display initial results
+                        displayResults(data);
+
+                    })
+                    .catch(error => console.error("Error fetching books:", error));
+            });
+
+            // Function to change the tooltip text to "Copied!"
+            function showCopiedTooltip(icon) {
+                const tooltip = icon.nextElementSibling;
+                tooltip.textContent = "Copied!";
+                setTimeout(() => {
+                    tooltip.textContent = "Copy Room Code";
+                }, 2000); // Reset the tooltip text after 2 seconds
+            }
+
+            document.addEventListener('DOMContentLoaded', function () {
+                if (typeof google !== 'undefined' && google.books) {
+                    google.books.load(); // Load the Books API
+                    google.books.setOnLoadCallback(initGoogleBooks);
+                } else {
+                    console.error("Google Books API is not loaded.");
+                }
+            });
+
+            function initGoogleBooks() {
+                console.log("Google Books API loaded successfully.");
+                // Any Google Books related code should go here
+            }
+
+            // Open Library Popup when clicking the Library button
+            document.querySelector(".library-button").addEventListener("click", function () {
+                document.getElementById("lib-popup").classList.remove("hidden");
+                document.getElementById("close-viewer").style.display = 'none';
+            });
+
+            // Close Library Popup when clicking the close button
+            document.querySelector(".close-lib-popup").addEventListener("click", function () {
+                document.getElementById("lib-popup").classList.add("hidden");
+                closeViewerCanvas();
+                clearSearchResults();
+            });
+
+            // Attach the popup open function to the Upload button
+            document.querySelector(".upload-button").addEventListener("click", function (event) {
+                event.preventDefault(); // Prevent redirection
+                openUploadPopup();
+            });
+
+            // Handle file upload
+            document.getElementById("upload-materials-input").addEventListener("change", function () {
+                document.getElementById("upload-materials-message").classList.remove("hidden");
+            });
+
+            // Function to handle user selection
+            async function handleUserSelection(selectedUser, username) {
+                // Remove 'selected' class from all users
+                document.querySelectorAll('.single-user').forEach(user => {
+                    user.classList.remove('selected');
+                });
+
+                // Add 'selected' class to clicked user
+                selectedUser.classList.add('selected');
+
+                // Hide the default message
+                document.getElementById('default-message').style.display = 'none';
+
+                // Update the materials-content with the selected user
+                const materialsContent = document.querySelector('.materials-content');
+                materialsContent.innerHTML = `<h3>Materials Content</h3><p>Selected User: ${username}</p>`;
+
+                // Load uploaded files for the selected user
+                const userId = selectedUser.id;
+                console.log("UserId: ", userId);
+                let materials;
+                await fetch(`http://localhost:3000/getMaterials/${socket.id}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        materials = data
+                        console.log("Materials::::::", materials);
+
+                    })
+                    .catch(error => console.error("Error fetching books:", error));
+
+
+                if (uploadedFiles[userId]) {
+                    const materialsList = document.createElement('div');
+                    materialsList.id = 'materials-list';
+                    uploadedFiles[userId].forEach(file => {
+                        const listItem = document.createElement('p');
+                        listItem.innerHTML = `<a href="#" onclick="alert('File: ${file.name}')">${file.name}</a>`;
+                        materialsList.appendChild(listItem);
+                    });
+                    materialsContent.appendChild(materialsList);
+                }
+
+                document.querySelector('.study-plan-content').innerHTML = `<h3>Study Plan Content</h3><p>Selected User: ${username}</p>`;
+                document.querySelector('.resources-content').innerHTML = `<h3>Resources Content</h3><p>Selected User: ${username}</p>`;
+
+                // Ensure only the Materials section is visible by default
+                document.querySelector('.materials-content').style.display = 'block';
+                document.querySelector('.study-plan-content').style.display = 'none';
+                document.querySelector('.resources-content').style.display = 'none';
+                toggleHiddenGrid('materials'); // Calls function to highlight materials by default
+            }
+
+            document.getElementById("upload-materials-input").addEventListener("change", async function (event) {
+                const files = event.target.files;
+                const roomCode = getRoomCode();
+                const uploader = selectedUser || getUserName();
+
+                if (files.length > 0) {
+                    for (const file of files) {
+                        const formData = new FormData();
+                        formData.append("file", file);
+                        formData.append("roomCode", roomCode);
+                        formData.append("uploader", uploader);
+                        formData.append("socket_id", socket.id)
+
+                        try {
+                            const response = await fetch("http://localhost:3000/upload", {
+                                method: "POST",
+                                body: formData
+                            });
+
+                            const result = await response.json();
+                            if (response.ok) {
+                                console.log("File uploaded:", result);
+                                socket.emit("fileUploaded", {
+                                    roomCode,
+                                    socket_id: socket.id,
+                                    fileData: result.file
+                                });
+                            } else {
+                                console.error("Upload failed:", result.message);
+                            }
+                        } catch (error) {
+                            console.error("Error uploading file:", error);
+                        }
+                    }
                 }
             });
 
@@ -1409,13 +1443,6 @@ async function decryptData(encryptedData) {
                 populateUserDetails();
                 console.log("Updated User List: ", users);
             });
-
-            // Listen for users joining
-            // socket.on("userJoined", ({ userName }) => {
-            //     users.push({ id: `user${users.length + 1}`, name: userName });
-            //     populateUserDetails();
-            //     console.log("User joined:", userName);
-            // });
 
 
             socket.on("getStudyPlan", (Data) => {
