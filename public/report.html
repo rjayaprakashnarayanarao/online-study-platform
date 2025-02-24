@@ -9,19 +9,21 @@
 </head>
 <body>
     <header>
-        <img src="your-logo.png" alt="logo">
+        <img src="Images/logo-sm-ylw.png" alt="logo">
         <div class="button-container">
             <button class="exit-button"><a href="index.html">Back</a> <i class="fa-solid fa-door-open"></i></button>
         </div>
     </header>
 
     <div class="container-form">
-        <h2 style="text-align: center; color: #333;">Report an Issue</h2>
-        <form action="post">
+        <h2>Report an Issue</h2>
+        <form id="report-form">
             <input type="email" placeholder="Enter your email" required>
             <textarea placeholder="Describe your issue here..." required></textarea>
             <button type="submit" class="submit-button">Submit</button>
         </form>
     </div>
+
+    <script src="./scripts/report.js"></script>
 </body>
 </html>

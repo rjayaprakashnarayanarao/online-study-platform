@@ -1,3 +1,9 @@
+/* global styles */
+* {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-user-select: none;
+}
+
 /* Header Styles */
 header {
   z-index: 1000;
