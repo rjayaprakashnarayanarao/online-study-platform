@@ -211,8 +211,7 @@ header img:hover {
 }
 
 .rooms:hover {
-  scale: 0.90 !important;
-  transform: translateY(-2px);
+  transform: translateY(1px);
   box-shadow: 0 4px 12px rgba(20, 33, 61, 0.08);
   border-color: #FCA311;
 }
@@ -238,9 +237,8 @@ header img:hover {
 }
 
 .go-btn:hover {
-  scale: 0.95 !important;
   background-color: #1a2b4d;
-  transform: translateY(-1px);
+  transform: translateY(-3px);
   box-shadow: 0 4px 12px rgba(20, 33, 61, 0.15);
 }
 
@@ -284,14 +282,14 @@ header img:hover {
   width: 400px !important;
   margin-right: 2%;
   margin-top: 8%;
-  background-color: #E5E5E5;
-  border: 1px solid #ddd;
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  background-color: #ffffff;
+  /* border: 1px solid #ddd; */
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(20, 33, 61, 0.12);
   display: flex;
   flex-direction: column;
-  border-top: 4px solid #000; /* Dark black line on top */
-  border-bottom: 4px solid #000; /* Dark black line on bottom */
+  padding: 24px;
+  transition: transform 0.3s ease;
   margin-left: auto; /* Ensures it stays on the right */
 }
 
@@ -317,17 +315,30 @@ header img:hover {
 }
 
 .fa-brands {
-  font-size: 28px;
-  height: 25px;
-  width: 25px;
-  border: 1px solid black;
+  font-size: 30px;
   color: #FCA311;
+  padding: 8px;
   border-radius: 50%;
-  background-color: #14213D;
-  margin-left: 1%;
-  margin-right: 2%;
-  padding: 10px;
   cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  background: transparent;
+  border: 2px solid transparent;
+  margin-right: 2%;
+}
+
+.fa-brands:hover {
+  color: #14213D;
+  background: #FCA311;
+  transform: scale(1.05) rotate(360deg);
+  box-shadow: 
+    0 10px 20px rgba(252, 163, 17, 0.2),
+    0 6px 6px rgba(252, 163, 17, 0.1);
+  border-color: #FCA311;
+}
+
+.fa-brands:active {
+  transform: scale(0.95);
+  box-shadow: none;
 }
 
 /* for info of person */
@@ -585,10 +596,6 @@ header img:hover {
   transition: transform 0.25s ease; /* Smooth transition for scaling effect */
 }
 
-.rooms:hover {
-  transform: scale(1.1); /* Slightly increase size on hover */
-}
-
 /* 3. Buttons */
 
 .join-btn, .create-btn {
@@ -730,6 +737,14 @@ header img:hover {
 .join-btn:active, .create-btn:active, .sign-out-btn:active {
   transform: translateY(0);
   box-shadow: 0 2px 4px rgba(252, 163, 17, 0.2);
+}
+
+.login-sign-up-btn {
+  width: 88% !important;
+  padding: 0.5rem 1rem !important;
+  font-size: 18px !important;
+  font-weight: 600 !important;
+  letter-spacing: 1px !important;
 }
 
 .sign-out-btn {
