@@ -282,13 +282,13 @@ function renderMessages(userId, type) {
 }
 
 function renderFileUpload(fileDataArray) {
-    uploadedFiles = fileDataArray
-    console.log("upload files:", uploadedFiles);
+    uploadedFiles[fileDataArray.uploader] = fileDataArray
+    console.log("upload files:", uploadedFiles[fileDataArray.uploader]);
 
     const materialsList = document.getElementById("materials-list");
     const materialsContent = document.querySelector(".materials-content");
     materialsList.innerHTML = ''; // Clear previous messages
-    fileDataArray.forEach(fileData => {
+    uploadedFiles[fileDataArray.uploader].forEach(fileData => {
         const fileElement = document.createElement("div");
         fileElement.classList.add("uploaded-file");
 
@@ -1088,11 +1088,11 @@ async function decryptData(encryptedData) {
             function populateUserDetails() {
                 const userDetailsContainer = document.getElementById('user-details-container');
                 userDetailsContainer.innerHTML = ''; // Clear existing user details
-
-                users.forEach((user, index) => {
+                console.log("USER::::::",users)
+                users.forEach((user) => {
                     const userDiv = document.createElement('div');
                     userDiv.className = 'single-user';
-                    userDiv.id = `user${index + 1}`; // Set unique ID for each user
+                    userDiv.id = `${user.name}`; // Set unique ID for each user
                     userDiv.innerHTML = `
             <p>${user.name}</p>
             <div class="user-options">
@@ -1216,26 +1216,30 @@ async function decryptData(encryptedData) {
                 const userId = selectedUser.id;
                 console.log("UserId: ", userId);
                 let materials;
-                await fetch(`http://localhost:3000/getMaterials/${socket.id}`)
+                await fetch(`http://localhost:3000/getMaterials/${userId}`)
                     .then(response => response.json())
                     .then(data => {
                         materials = data
                         console.log("Materials::::::", materials);
-
+                        uploadedFiles[userId] = materials
                     })
                     .catch(error => console.error("Error fetching books:", error));
 
-
+                console.log("Materials::::::",uploadedFiles[userId]);
+                
                 if (uploadedFiles[userId]) {
                     const materialsList = document.createElement('div');
                     materialsList.id = 'materials-list';
                     uploadedFiles[userId].forEach(file => {
+                        console.log("Each File: ",file);
+                        
+                        const fileName = file.uploader; // Extract filename from path
                         const listItem = document.createElement('p');
-                        listItem.innerHTML = `<a href="#" onclick="alert('File: ${file.name}')">${file.name}</a>`;
+                        listItem.innerHTML = `<a href="#" onclick="alert('File: ${fileName}')">${fileName}</a>`;
                         materialsList.appendChild(listItem);
                     });
                     materialsContent.appendChild(materialsList);
-                }
+                }                
 
                 document.querySelector('.study-plan-content').innerHTML = `<h3>Study Plan Content</h3><p>Selected User: ${username}</p>`;
                 document.querySelector('.resources-content').innerHTML = `<h3>Resources Content</h3><p>Selected User: ${username}</p>`;

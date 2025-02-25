@@ -102,9 +102,7 @@ io.on("connection", (socket) => {
     app.get("/getMaterials/:socket_id",async(req,res)=>{
         const socket_id = req.params.socket_id
         console.log("Socket id: ",socket_id);
-        
-        const data = await File.findAll({where:{socket_id:socket_id}})
-        console.log("File Data with socketid : ",data);        
+        const data = await File.findAll({where:{uploader:socket_id}})       
         res.json(data)
     })
 
@@ -241,14 +239,7 @@ io.on("connection", (socket) => {
         try {
             const { roomCode, fileData } = data;
 
-            // Store file info in database
-            const savedFile = await File.create({
-                socket_id: fileData.socket_id, // Use socket ID as the file ID
-                path: fileData.fileUrl, // Adjust this if you need a relative path
-                type: fileData.type,
-                uploader: fileData.uploader,
-                roomCode: roomCode
-            });
+            const savedFile = await File.findAll({where:{socket_id: fileData.socket_id}})
 
             console.log("File stored:", savedFile);
 
@@ -365,6 +356,7 @@ io.on("connection", (socket) => {
                     userSocketMap.delete(socket.id);
                 }
             }
+            await File.destroy({where:{socket_id: socket.id}})
         } catch (error) {
             console.error("Error handling disconnect:", error);
         }
