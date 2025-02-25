@@ -446,50 +446,133 @@ header img:hover {
 
 /* Style for the guidelines popup */
 .guidelines-popup {
+  border: 1px solid #FCA311;
   position: fixed;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background-color: #14213D;
-  color: #FCA311;
-  padding: 20px;
-  border: 1px solid #000;
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  background: linear-gradient(145deg, #14213D, #1a2b4d);
+  color: #fff;
+  padding: 2.5rem;
+  border-radius: 20px;
+  border-top-right-radius: 5px;
+  border-bottom-right-radius: 5px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
   z-index: 1000;
   max-width: 600px;
-  max-height: 540px;
   width: 90%;
+  max-height: 80vh;
   overflow-y: auto;
-  scrollbar-width: none; /* Hides the scrollbar in Firefox */
+  animation: fadeIn 0.3s ease-out;
+}
+
+.guidelines-popup::-webkit-scrollbar {
+  width: 6px;
+  border-bottom-right-radius: 20px;
+  border-top-right-radius: 20px;
+}
+
+.guidelines-popup::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 44px;
+}
+
+.guidelines-popup::-webkit-scrollbar-thumb {
+  background: #FCA311;
+  border-radius: 14px;
+}
+
+.guidelines-popup::-webkit-scrollbar-thumb:hover {
+  background: #e69310;
+  border-radius: 14px;
 }
 
 .guidelines-popup h2 {
-  font-size: 24px;
-  margin-bottom: 10px;
+  font-size: 2rem;
+  color: #FCA311;
+  margin-bottom: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.5px;
 }
 
 .guidelines-popup h3 {
-  font-size: 20px;
-  margin-top: 10px;
+  font-size: 1.5rem;
+  color: #FCA311;
+  margin: 1.5rem 0 1rem;
+  font-weight: 600;
 }
 
 .guidelines-popup h4 {
-  margin: 0;
+  font-size: 1.2rem;
+  color: #FCA311;
+  margin: 1.2rem 0 0.5rem;
+  font-weight: 500;
 }
 
 .guidelines-popup p {
-  font-size: 16px;
-  margin-bottom: 10px;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 1rem;
 }
 
 .close-guidelines {
-  position: fixed;
-  top: 10px;
-  right: 10px;
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  background: transparent;
+  border: 1px solid #FCA311;
+  color: red;
+  font-size: 2rem;
   cursor: pointer;
-  font-size: 24px;
-  color: #FCA311;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.close-guidelines:hover {
+  background: red;
+  color: white;
+  border: 1px solid red;
+  transform: rotate(90deg);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -48%);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+}
+
+@media (max-width: 768px) {
+  .guidelines-popup {
+    padding: 2rem;
+    max-height: 75vh;
+  }
+
+  .guidelines-popup h2 {
+    font-size: 1.75rem;
+  }
+
+  .guidelines-popup h3 {
+    font-size: 1.25rem;
+  }
+
+  .guidelines-popup h4 {
+    font-size: 1.1rem;
+  }
+
+  .guidelines-popup p {
+    font-size: 0.95rem;
+  }
 }
 
 /* 2. Rooms */
@@ -638,15 +721,31 @@ header img:hover {
   box-shadow: 0 4px 6px rgba(252, 163, 17, 0.2);
 }
 
-.join-btn:hover, .create-btn:hover {
+.join-btn:hover, .create-btn:hover, .sign-out-btn:hover {
   background: #e69310;
   transform: translateY(-2px);
   box-shadow: 0 6px 12px rgba(252, 163, 17, 0.3);
 }
 
-.join-btn:active, .create-btn:active {
+.join-btn:active, .create-btn:active, .sign-out-btn:active {
   transform: translateY(0);
   box-shadow: 0 2px 4px rgba(252, 163, 17, 0.2);
+}
+
+.sign-out-btn {
+  background-color: #FCA311;
+  color: #fff;
+  border: none;
+  padding: 1rem 2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  width: 95%;
+  box-shadow: 0 4px 6px rgba(252, 163, 17, 0.2);
 }
 
 .close {
