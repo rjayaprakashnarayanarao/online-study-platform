@@ -355,9 +355,6 @@ document.addEventListener("DOMContentLoaded", () => {
         certButton.className = 'cert-btn';
         certButton.textContent = 'Get Certified';
 
-        // ✅ Attach event listener directly after button creation
-        certButton.addEventListener("click", generateCertificate);
-
         levelContainer.appendChild(infoButton);
         levelContainer.appendChild(levelText);
         levelContainer.appendChild(certButton);

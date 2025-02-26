@@ -371,44 +371,101 @@ header img:hover {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1rem;
+  gap: 1.25rem;
+  padding: 1rem;
+  transition: transform 0.3s ease;
+}
+
+.progress-container:hover {
+  transform: translateY(-2px);
 }
 
 .circular-progress {
   position: relative;
-  width: 120px;
-  height: 120px;
+  width: 130px;
+  height: 130px;
   border-radius: 50%;
   display: flex;
   justify-content: center;
   align-items: center;
-  background: conic-gradient(#FCA311 0deg, rgba(252, 163, 17, 0.1) 0deg);
-  transition: all 0.3s ease;
+  background: conic-gradient(#fca311 0deg, rgba(252, 163, 17, 0.1) 0deg);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2), inset 0 2px 4px rgba(255, 255, 255, 0.1);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.circular-progress::before {
+  content: "";
+  position: absolute;
+  width: 110%;
+  height: 110%;
+  border-radius: 50%;
+  background: radial-gradient(circle at center, rgba(252, 163, 17, 0.2) 0%, transparent 70%);
+  z-index: -1;
+  animation: pulse 2s infinite;
 }
 
 .circular-progress .inner-circle {
-  width: 90%;
-  height: 90%;
+  width: 85%;
+  height: 85%;
   border-radius: 50%;
-  background: rgba(20, 33, 61, 0.8);
+  background: rgba(20, 33, 61, 0.95);
   display: flex;
   justify-content: center;
   align-items: center;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+  border: 2px solid rgba(252, 163, 17, 0.1);
 }
 
 .circular-progress .percentage {
   position: absolute;
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #FCA311;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #fca311;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  letter-spacing: 0.5px;
 }
 
 .progress-label {
   font-size: 1.1rem;
-  font-weight: 500;
+  font-weight: 600;
   text-align: center;
-  color: rgba(255, 255, 255, 0.9);
+  color: rgba(255, 255, 255, 0.95);
   margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  background: linear-gradient(135deg, #fca311, #e69310);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.4;
+    transform: scale(1.02);
+  }
+  100% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+}
+
+@media (max-width: 768px) {
+  .circular-progress {
+    width: 110px;
+    height: 110px;
+  }
+
+  .circular-progress .percentage {
+    font-size: 1.5rem;
+  }
+
+  .progress-label {
+    font-size: 1rem;
+  }
 }
 
 .close-popup {
