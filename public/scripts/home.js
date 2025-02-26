@@ -246,7 +246,6 @@ document.addEventListener("DOMContentLoaded", () => {
   
     if (superpowersIcon && popupBox) {
       superpowersIcon.addEventListener('click', () => {
-        console.log('superpowersIcon clicked');
   
         const popupContent = popupBox.querySelector('.popup-content');
         popupContent.innerHTML = ''; // Clear the previous content
@@ -352,8 +351,16 @@ document.addEventListener("DOMContentLoaded", () => {
         const levelText = document.createElement('span');
         levelText.textContent = `Level: ${CurrentLevel}`;
 
+        const certButton = document.createElement('button');
+        certButton.className = 'cert-btn';
+        certButton.textContent = 'Get Certified';
+
+        // ✅ Attach event listener directly after button creation
+        certButton.addEventListener("click", generateCertificate);
+
         levelContainer.appendChild(infoButton);
         levelContainer.appendChild(levelText);
+        levelContainer.appendChild(certButton);
         popupBox.appendChild(levelContainer);
 
         // Add event listener to the info button to show guidelines popup
@@ -399,6 +406,49 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
+// Add event listener for the certificate button
+document.addEventListener("click", function(event) {
+    if (event.target.classList.contains("cert-btn")) {
+        generateCertificate();
+    }
+});
+
+function generateCertificate() {
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (!user || !user.name) {
+        alert("You need to be logged in to generate a certificate!");
+        return;
+    }
+
+    const username = user.name;
+    const level = user.level || 1;
+
+    const canvas = document.createElement("canvas");
+    canvas.width = 800;
+    canvas.height = 600;
+    const ctx = canvas.getContext("2d");
+
+    const img = new Image();
+    img.src = "Images/certificate-test.jpeg"; // Ensure this path is correct
+
+    img.onload = function () {
+        ctx.drawImage(img, 0, 0, 800, 600);
+
+        ctx.font = "30px Arial";
+        ctx.fillStyle = "#333";
+        ctx.fillText(username, 300, 300);
+        ctx.fillText(`Level ${level}`, 300, 350);
+
+        const link = document.createElement("a");
+        link.download = `${username}_Certificate.png`;
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+    };
+
+    img.onerror = function () {
+        alert("Error loading certificate template. Check the file path.");
+    };
+}
 
 // Encryption function using Web Crypto API
 // Helper function to convert Uint8Array to Base64
