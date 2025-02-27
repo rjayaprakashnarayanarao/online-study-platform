@@ -30,6 +30,7 @@ document.querySelector("form").addEventListener("submit", async (event) => {
 
             // Optionally store user details (avoid sensitive information like passwords)
             localStorage.setItem("user", JSON.stringify(result.user));
+            localStorage.setItem("certificateName",JSON.stringify(result.certificateName))
             window.location.href = "/index.html"; // Redirect to another page
         } else {
             const errorMessage = result.message || "Login failed. Please try again.";

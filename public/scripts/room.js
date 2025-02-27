@@ -293,7 +293,7 @@ function renderFileUpload(fileDataArray) {
         fileElement.classList.add("uploaded-file");
 
         fileElement.innerHTML = `
-            <p><strong>${fileData.name || 'Unnamed File'}</strong> (${fileData.size || 'Unknown Size'})</p>
+            <p><strong>${fileData.FileName || 'Unnamed File'}</strong> (${fileData.size || 'Unknown Size'})</p>
             <p>Type: ${fileData.type || 'Unknown Type'}</p>
             <p>Uploaded by: ${fileData.uploader || 'Anonymous'}</p>
             <p>Time: ${fileData.timestamp || new Date().toLocaleString()}</p>
@@ -1220,20 +1220,17 @@ async function decryptData(encryptedData) {
                     .then(response => response.json())
                     .then(data => {
                         materials = data
-                        console.log("Materials::::::", materials);
                         uploadedFiles[userId] = materials
                     })
                     .catch(error => console.error("Error fetching books:", error));
 
-                console.log("Materials::::::",uploadedFiles[userId]);
-                
                 if (uploadedFiles[userId]) {
                     const materialsList = document.createElement('div');
                     materialsList.id = 'materials-list';
                     uploadedFiles[userId].forEach(file => {
                         console.log("Each File: ",file);
                         
-                        const fileName = file.uploader; // Extract filename from path
+                        const fileName = file.FileName; // Extract filename from path
                         const listItem = document.createElement('p');
                         listItem.innerHTML = `<a href="#" onclick="alert('File: ${fileName}')">${fileName}</a>`;
                         materialsList.appendChild(listItem);
@@ -1258,11 +1255,15 @@ async function decryptData(encryptedData) {
 
                 if (files.length > 0) {
                     for (const file of files) {
+                        console.log("file: ", file);
+                        
                         const formData = new FormData();
                         formData.append("file", file);
                         formData.append("roomCode", roomCode);
                         formData.append("uploader", uploader);
                         formData.append("socket_id", socket.id)
+                        formData.append("FileName",file.name);
+                        formData.append("FileSize",file.size);
 
                         try {
                             const response = await fetch("http://localhost:3000/upload", {

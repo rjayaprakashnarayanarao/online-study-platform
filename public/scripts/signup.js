@@ -9,6 +9,7 @@ document.querySelector("form").addEventListener("submit", async (event) => {
     // Collect form data
     const name = document.getElementById("name").value.trim();
     const email = document.getElementById("email").value.trim();
+    const certificateName = document.getElementById("CertificateName").value.trim();
     const password = document.getElementById("password").value;
     const password2 = document.getElementById("password2").value;
 
@@ -23,6 +24,7 @@ document.querySelector("form").addEventListener("submit", async (event) => {
     const signupData = {
         name: name,
         email: email,
+        certificateName: certificateName,
         password: password,
     };
 

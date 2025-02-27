@@ -1,5 +1,6 @@
 const { DataTypes } = require("sequelize");
 const {sequelize} = require("../config/database"); // Ensure you have a Sequelize instance
+const { all } = require("axios");
 
 const File = sequelize.define("File", {
     id: {
@@ -10,6 +11,14 @@ const File = sequelize.define("File", {
     socket_id:{
         type:DataTypes.STRING,
         allowNull:false,
+    },
+    FileName:{
+        type: DataTypes.STRING,
+        allowNull: true
+    },
+    FileSize:{
+        type: DataTypes.STRING,
+        allowNull: true
     },
     path: {
         type: DataTypes.STRING,

@@ -412,12 +412,12 @@ document.addEventListener("click", function(event) {
 
 function generateCertificate() {
     const user = JSON.parse(localStorage.getItem("user"));
-    if (!user || !user.name) {
+    if (!user || !user.certificateName) {
         alert("You need to be logged in to generate a certificate!");
         return;
     }
 
-    const username = user.name;
+    const username = user.certificateName;
     const level = user.level || 1;
 
     const canvas = document.createElement("canvas");

@@ -17,6 +17,10 @@ const User = sequelize.define('Users', {
         allowNull: false,
         unique: true
     },
+    certificateName: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
     password: {
         type: DataTypes.STRING,
         allowNull: false

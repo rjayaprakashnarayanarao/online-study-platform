@@ -11,6 +11,7 @@ const { getGeminiTutorResponse } = require("./geminiTutor");
 const multer = require("multer");
 const path = require("path");
 const File = require("./models/files.model");
+const Report = require("./models/report.model")
 
 const app = express();
 const server = http.createServer(app);
@@ -45,6 +46,15 @@ app.use(express.static('./public'));
 
 app.use('/api', route);
 
+app.post("/reportBug",async(req,res)=>{
+    const {Email, Description} = req.body
+    const data = await Report.create({
+        Email,
+        Description
+    })
+    res.json(data)
+})
+
 // 🔹 Store message history in-memory (can be optimized later)
 const messageHistory = {};
 
@@ -77,7 +87,7 @@ io.on("connection", (socket) => {
     // File Upload Endpoint
     app.post("/upload", upload.single("file"), async (req, res) => {
         try {
-            const { roomCode, uploader, socket_id } = req.body;
+            const { roomCode, uploader, socket_id , FileName, FileSize} = req.body;
             const file = req.file;
 
             if (!file) {
@@ -89,7 +99,9 @@ io.on("connection", (socket) => {
                 path: `/uploads/${file.filename}`,
                 type: file.mimetype,
                 uploader: uploader,
-                roomCode: roomCode
+                roomCode: roomCode,
+                FileName:FileName,
+                FileSize:FileSize
             });
 
             res.status(201).json({ message: "File uploaded successfully", file: fileData });
@@ -101,7 +113,7 @@ io.on("connection", (socket) => {
 
     app.get("/getMaterials/:socket_id",async(req,res)=>{
         const socket_id = req.params.socket_id
-        console.log("Socket id: ",socket_id);
+        // console.log("Socket id: ",socket_id);
         const data = await File.findAll({where:{uploader:socket_id}})       
         res.json(data)
     })
