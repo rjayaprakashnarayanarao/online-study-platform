@@ -1,18 +1,42 @@
+// models/Message.js
 const { DataTypes } = require('sequelize');
-const {sequelize} = require('../config/database')
+const sequelize = require('../config/database'); // Adjust according to your setup
 
 const Message = sequelize.define('Message', {
+    id: {
+        type: DataTypes.INTEGER,
+        autoIncrement: true,
+        primaryKey: true
+    },
+    userId: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+    type: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+    sender: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+    messageType: {
+        type: DataTypes.STRING, // 'Q' for Question, 'A' for Answer
+        allowNull: false
+    },
     text: {
-        type: DataTypes.STRING,
-        allowNull: false,
+        type: DataTypes.TEXT
     },
-    sender: {  // Ensure this exists
-        type: DataTypes.STRING,
-        allowNull: false,
+    audioUrl: {
+        type: DataTypes.STRING
     },
-    roomId: {
-        type: DataTypes.UUID,
-        allowNull: false,
+    likes: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0
+    },
+    dislikes: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0
     }
 });
 

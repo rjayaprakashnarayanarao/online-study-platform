@@ -25,6 +25,15 @@ const User = sequelize.define('Users', {
         type: DataTypes.STRING,
         allowNull: false
     },
+    Quizdom:{
+        type: DataTypes.INTEGER
+    },
+    Analytix:{
+        type: DataTypes.INTEGER
+    },
+    Rebuff:{
+        type: DataTypes.INTEGER
+    },
     otp:{
         type: DataTypes.INTEGER,
         allowNull:true

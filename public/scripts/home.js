@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 // Check if user is signed in or not
-document.addEventListener("DOMContentLoaded",async () => {
+document.addEventListener("DOMContentLoaded", async () => {
     const profileName = document.querySelector(".profile-section h3");
     const authButton = document.querySelector(".profile-section .join-btn");
     const signOutButton = document.querySelector(".profile-section .sign-out-btn");
@@ -52,7 +52,7 @@ document.addEventListener("DOMContentLoaded",async () => {
         const response = await fetch("api/room/getPublicRooms");
         const rooms = await response.json();
         console.log("Rooms:", rooms);
-        
+
         const roomsContainer = document.getElementById("roomsContainer");
         roomsContainer.innerHTML = ""; // Clear any existing content
 
@@ -69,8 +69,8 @@ document.addEventListener("DOMContentLoaded",async () => {
             joinButton.onclick = () => join(room.room_id); // Pass room code as parameter
 
             roomDiv.appendChild(roomTitle);
-            console.log("room code:",room.room_id);
-            
+            console.log("room code:", room.room_id);
+
             roomDiv.appendChild(joinButton);
             roomsContainer.appendChild(roomDiv);
         });
@@ -88,7 +88,7 @@ function filterRooms() {
     const roomsContainer = document.getElementById("roomsContainer");
     roomsContainer.innerHTML = ""; // Clear any existing content
 
-    const filteredRooms = window.roomsData.filter(room => 
+    const filteredRooms = window.roomsData.filter(room =>
         room.room_name.toLowerCase().includes(searchTerm)
     );
 
@@ -138,7 +138,7 @@ async function join(passedCode) {
     if (!code) {
         code = document.getElementById("join-code").value.trim();
     }
-    const data = {code,creatorName:text}
+    const data = { code, creatorName: text }
 
     try {
         // Encrypt the room code before redirecting
@@ -155,8 +155,8 @@ async function join(passedCode) {
 
 async function createRoom() {
     const roomName = document.getElementById("create-name").value.trim();
-    
-    if ( !roomName || !roomType) {
+
+    if (!roomName || !roomType) {
         alert("Please fill in all fields.");
         return;
     }
@@ -171,16 +171,16 @@ async function createRoom() {
     // If user exists and has a name, use it; otherwise, fallback to the text
     const admin_name = user && user.name ? user.name : text;
     const creatorName = text
-    
+
     const roomData = {
         creatorName,
         roomName,
         roomType,
         admin_name
     };
-    
+
     console.log("Room Data: ", roomData);
-    
+
     try {
         const response = await fetch('/api/room/createRoom', {
             method: 'POST',
@@ -197,7 +197,7 @@ async function createRoom() {
 
             // Encrypt the result object
             const encryptedData = await encryptData(result);
-            console.log("Encrypted Data: ",encryptedData);
+            console.log("Encrypted Data: ", encryptedData);
 
 
             // Redirect to room.html with encrypted data as a query parameter
@@ -243,129 +243,131 @@ goBtns.forEach(btn => {
 document.addEventListener("DOMContentLoaded", () => {
     const superpowersIcon = document.getElementById('superpowers-icon');
     const popupBox = document.getElementById('popup-box');
-  
+
     if (superpowersIcon && popupBox) {
-      superpowersIcon.addEventListener('click', () => {
-  
-        const popupContent = popupBox.querySelector('.popup-content');
-        popupContent.innerHTML = ''; // Clear the previous content
-        
-        const userData = localStorage.getItem("user");
-        if (userData && JSON.parse(userData).name) {
-          console.log('user is logged in');
-  
-          const progressData = {
-            Quizdom: 29, // Example value
-            Analytix: 10, // Example value
-            Rebuff: 5 // Example value
-          };
+        superpowersIcon.addEventListener('click', () => {
 
-           // Create and append elements for each progress data
-           for (const [key, value] of Object.entries(progressData)) {
-            const progressContainer = document.createElement('div');
-            progressContainer.className = 'progress-container';
+            const popupContent = popupBox.querySelector('.popup-content');
+            popupContent.innerHTML = ''; // Clear the previous content
 
-            const progressElement = document.createElement('div');
-            progressElement.className = 'circular-progress';
-            progressElement.setAttribute('data-inner-circle-color', 'black');
-            progressElement.setAttribute('data-percentage', value);
-            progressElement.setAttribute('data-progress-color', 'white');
-            progressElement.setAttribute('data-bg-color', 'grey');
-            progressElement.innerHTML = `
+            const userData = localStorage.getItem("user");
+            if (userData && JSON.parse(userData).name) {
+                
+                let Quizdom = JSON.parse(userData).Quizdom
+                let Analytix = JSON.parse(userData).Analytix 
+                let Rebuff = JSON.parse(userData).Rebuff
+                               
+                var progressData = {
+                    Quizdom: Number(Quizdom) || 0, 
+                    Analytix: Number(Analytix) || 0, 
+                    Rebuff: Number(Rebuff) || 0
+                };
+
+                // Create and append elements for each progress data
+                for (const [key, value] of Object.entries(progressData)) {
+                    const progressContainer = document.createElement('div');
+                    progressContainer.className = 'progress-container';
+
+                    const progressElement = document.createElement('div');
+                    progressElement.className = 'circular-progress';
+                    progressElement.setAttribute('data-inner-circle-color', 'black');
+                    progressElement.setAttribute('data-percentage', value);
+                    progressElement.setAttribute('data-progress-color', 'white');
+                    progressElement.setAttribute('data-bg-color', 'grey');
+                    progressElement.innerHTML = `
               <div class="inner-circle"></div>
               <p class="percentage">${value}%</p>
             `;
-            const labelElement = document.createElement('p');
-            labelElement.textContent = key;
-            labelElement.className = 'progress-label';
+                    const labelElement = document.createElement('p');
+                    labelElement.textContent = key;
+                    labelElement.className = 'progress-label';
 
-            progressContainer.appendChild(progressElement);
-            progressContainer.appendChild(labelElement);
-            popupContent.appendChild(progressContainer);
-        }
+                    progressContainer.appendChild(progressElement);
+                    progressContainer.appendChild(labelElement);
+                    popupContent.appendChild(progressContainer);
+                }
 
-        // Add circular progress bar functionality
-        const circularProgress = document.querySelectorAll(".circular-progress");
+                // Add circular progress bar functionality
+                const circularProgress = document.querySelectorAll(".circular-progress");
 
-        Array.from(circularProgress).forEach((progressBar) => {
-            const progressValue = progressBar.querySelector(".percentage");
-            const innerCircle = progressBar.querySelector(".inner-circle");
-            let startValue = 0,
-            endValue = Number(progressBar.getAttribute("data-percentage")),
-            speed = 50,
-            progressColor = progressBar.getAttribute("data-progress-color");
+                Array.from(circularProgress).forEach((progressBar) => {
+                    const progressValue = progressBar.querySelector(".percentage");
+                    const innerCircle = progressBar.querySelector(".inner-circle");
+                    let startValue = 0,
+                        endValue = Number(progressBar.getAttribute("data-percentage")),
+                        speed = 50,
+                        progressColor = progressBar.getAttribute("data-progress-color");
 
-            const progress = setInterval(() => {
-            startValue++;
-            progressValue.textContent = `${startValue}%`;
-            progressValue.style.color = `${progressColor}`;
+                    const progress = setInterval(() => {
+                        startValue++;
+                        progressValue.textContent = `${startValue}%`;
+                        progressValue.style.color = `${progressColor}`;
 
-            innerCircle.style.backgroundColor = `${progressBar.getAttribute(
-                "data-inner-circle-color"
-            )}`;
+                        innerCircle.style.backgroundColor = `${progressBar.getAttribute(
+                            "data-inner-circle-color"
+                        )}`;
 
-            progressBar.style.background = `conic-gradient(${progressColor} ${
-                startValue * 3.6
-            }deg,${progressBar.getAttribute("data-bg-color")} 0deg)`;
-            if (startValue === endValue) {
-                clearInterval(progress);
+                        progressBar.style.background = `conic-gradient(${progressColor} ${startValue * 3.6
+                            }deg,${progressBar.getAttribute("data-bg-color")} 0deg)`;
+                        if (startValue === endValue) {
+                            clearInterval(progress);
+                        }
+                    }, speed);
+                });
+
+            } else {
+                console.log('user is not logged in');
+                const message = document.createElement('p');
+                message.textContent = 'Login is required to proceed with calculating your levels and accessing relevant data.';
+                popupContent.appendChild(message);
             }
-        }, speed);
-        });
 
-        } else {
-          console.log('user is not logged in');
-          const message = document.createElement('p');
-          message.textContent = 'Login is required to proceed with calculating your levels and accessing relevant data.';
-          popupContent.appendChild(message);
-        }
-  
-        const closePopup = document.createElement('span');
-        closePopup.className = 'close-popup';
-        closePopup.innerHTML = '&times;';
-        closePopup.addEventListener('click', () => {
-          popupBox.style.display = 'none';
-        });
-  
-        popupContent.appendChild(closePopup);
-        popupBox.style.display = 'block';
+            const closePopup = document.createElement('span');
+            closePopup.className = 'close-popup';
+            closePopup.innerHTML = '&times;';
+            closePopup.addEventListener('click', () => {
+                popupBox.style.display = 'none';
+            });
 
-        // Retrieve the actual level number from user data
-        const user = JSON.parse(userData);
-        const CurrentLevel = user.level || 1; // Replace with actual logic to get the level number
+            popupContent.appendChild(closePopup);
+            popupBox.style.display = 'block';
 
-        // Remove existing level container if it exists
-        const existingLevelContainer = document.querySelector('.level-container');
-        if (existingLevelContainer) {
-          existingLevelContainer.remove();
-        }
+            // Retrieve the actual level number from user data
+            const user = JSON.parse(userData);
+            const CurrentLevel = user.level || 1; // Replace with actual logic to get the level number
 
-        // Create and append the new div for Level outside of popup-content
-        const levelContainer = document.createElement('div');
-        levelContainer.className = 'level-container';
+            // Remove existing level container if it exists
+            const existingLevelContainer = document.querySelector('.level-container');
+            if (existingLevelContainer) {
+                existingLevelContainer.remove();
+            }
 
-        const infoButton = document.createElement('button');
-        infoButton.className = 'info-btn';
-        infoButton.innerHTML = '<i class="fa-solid fa-info-circle"></i>';
+            // Create and append the new div for Level outside of popup-content
+            const levelContainer = document.createElement('div');
+            levelContainer.className = 'level-container';
 
-        const levelText = document.createElement('span');
-        levelText.textContent = `Level: ${CurrentLevel}`;
+            const infoButton = document.createElement('button');
+            infoButton.className = 'info-btn';
+            infoButton.innerHTML = '<i class="fa-solid fa-info-circle"></i>';
 
-        const certButton = document.createElement('button');
-        certButton.className = 'cert-btn';
-        certButton.textContent = 'Get Certified';
+            const levelText = document.createElement('span');
+            levelText.textContent = `Level: ${CurrentLevel}`;
 
-        levelContainer.appendChild(infoButton);
-        levelContainer.appendChild(levelText);
-        levelContainer.appendChild(certButton);
-        popupBox.appendChild(levelContainer);
+            const certButton = document.createElement('button');
+            certButton.className = 'cert-btn';
+            certButton.textContent = 'Get Certified';
 
-        // Add event listener to the info button to show guidelines popup
-        infoButton.addEventListener('click', () => {
-            const guidelinesPopup = document.createElement('div');
-            guidelinesPopup.className = 'guidelines-popup';
+            levelContainer.appendChild(infoButton);
+            levelContainer.appendChild(levelText);
+            levelContainer.appendChild(certButton);
+            popupBox.appendChild(levelContainer);
 
-            const guidelinesContent = `
+            // Add event listener to the info button to show guidelines popup
+            infoButton.addEventListener('click', () => {
+                const guidelinesPopup = document.createElement('div');
+                guidelinesPopup.className = 'guidelines-popup';
+
+                const guidelinesContent = `
               <h2>User Guidelines:</h2>
               <p>Your level in this application is determined by your engagement in knowledge-sharing and problem-solving. It is influenced by three key factors: Quizdom, Analytix, and Rebuff. Understanding these metrics will help you make the most of the platform and grow your expertise.</p>
               <h3>Level Progression Criteria:</h3>
@@ -384,27 +386,27 @@ document.addEventListener("DOMContentLoaded", () => {
               <h4>Stay active, contribute effectively, and keep leveling up!</h4>
             `;
 
-            guidelinesPopup.innerHTML = guidelinesContent;
+                guidelinesPopup.innerHTML = guidelinesContent;
 
-            const closeGuidelines = document.createElement('span');
-            closeGuidelines.className = 'close-guidelines';
-            closeGuidelines.innerHTML = '&times;';
-            closeGuidelines.addEventListener('click', () => {
-              guidelinesPopup.remove();
+                const closeGuidelines = document.createElement('span');
+                closeGuidelines.className = 'close-guidelines';
+                closeGuidelines.innerHTML = '&times;';
+                closeGuidelines.addEventListener('click', () => {
+                    guidelinesPopup.remove();
+                });
+
+                guidelinesPopup.appendChild(closeGuidelines);
+                document.body.appendChild(guidelinesPopup);
             });
 
-            guidelinesPopup.appendChild(closeGuidelines);
-            document.body.appendChild(guidelinesPopup);
         });
-
-    });
     } else {
-      console.error('superpowersIcon or popupBox is not found in the DOM');
+        console.error('superpowersIcon or popupBox is not found in the DOM');
     }
 });
 
 // Add event listener for the certificate button
-document.addEventListener("click", function(event) {
+document.addEventListener("click", function (event) {
     if (event.target.classList.contains("cert-btn")) {
         generateCertificate();
     }
