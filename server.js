@@ -46,8 +46,8 @@ app.use(express.static('./public'));
 
 app.use('/api', route);
 
-app.post("/reportBug",async(req,res)=>{
-    const {Email, Description} = req.body
+app.post("/reportBug", async (req, res) => {
+    const { Email, Description } = req.body
     const data = await Report.create({
         Email,
         Description
@@ -70,6 +70,8 @@ const activeUsers = new Map(); // Map to track active users in each room
 
 const userSocketMap = new Map(); // Maps socket ID to username
 
+const messages = {}; // Example: { roomId: { userId: { type: [{ messageObj }] } } }
+
 
 io.on("connection", (socket) => {
     console.log("User connected:", socket.id);
@@ -87,7 +89,7 @@ io.on("connection", (socket) => {
     // File Upload Endpoint
     app.post("/upload", upload.single("file"), async (req, res) => {
         try {
-            const { roomCode, uploader, socket_id , FileName, FileSize} = req.body;
+            const { roomCode, uploader, socket_id, FileName, FileSize } = req.body;
             const file = req.file;
 
             if (!file) {
@@ -100,8 +102,8 @@ io.on("connection", (socket) => {
                 type: file.mimetype,
                 uploader: uploader,
                 roomCode: roomCode,
-                FileName:FileName,
-                FileSize:FileSize
+                FileName: FileName,
+                FileSize: FileSize
             });
 
             res.status(201).json({ message: "File uploaded successfully", file: fileData });
@@ -111,10 +113,10 @@ io.on("connection", (socket) => {
         }
     });
 
-    app.get("/getMaterials/:socket_id",async(req,res)=>{
+    app.get("/getMaterials/:socket_id", async (req, res) => {
         const socket_id = req.params.socket_id
         // console.log("Socket id: ",socket_id);
-        const data = await File.findAll({where:{uploader:socket_id}})       
+        const data = await File.findAll({ where: { uploader: socket_id } })
         res.json(data)
     })
 
@@ -221,7 +223,7 @@ io.on("connection", (socket) => {
         }
     });
 
-    socket.on("finalJoinRoom", ({ roomCode, username , sockerId}) => {
+    socket.on("finalJoinRoom", ({ roomCode, username, sockerId }) => {
         // Join the user's socket to the room
         socket.join(roomCode);
 
@@ -246,12 +248,105 @@ io.on("connection", (socket) => {
     });
 
 
+    socket.on('likeMessage', ({ messageId, userId, type, roomId }) => {
+        roomId = Number(roomId);
+        console.log("logged all: ", messageId, userId, type, roomId);
+
+        // Ensure the room exists
+        if (!messages[roomId]) {
+            console.log("Room ID not found, creating:", roomId);
+            messages[roomId] = {}; // Create the room
+        }
+
+        // Ensure the user exists in the room
+        if (!messages[roomId][userId]) {
+            console.log("User ID not found, creating:", userId);
+            messages[roomId][userId] = {}; // Create the user entry
+        }
+
+        // Ensure the type exists for the user
+        if (!messages[roomId][userId][type]) {
+            console.log("Type not found, creating:", type);
+            messages[roomId][userId][type] = []; // Create the message array
+        }
+
+        const userMessages = messages[roomId][userId][type];
+
+        console.log("User Messages:", userMessages);
+
+        // Find the message
+        let message = userMessages.find(m => m.id === messageId);
+
+        if (!message) {
+            console.log("Message not found, creating new message with ID:", messageId);
+            message = {
+                id: messageId,
+                likes: 0,
+                dislikes: 0,
+                liked: false,
+                disliked: false,
+                messageType: 'A' // Default messageType to 'A'
+            };
+            userMessages.push(message); // Add the new message to the list
+        }
+
+        console.log("Message Found or Created:", message);
+
+        // Update the like/dislike status
+        if (message.messageType === 'A') {
+            if (message.liked) {
+                message.likes--;
+                message.liked = false;
+            } else {
+                if (message.disliked) {
+                    message.dislikes--;
+                    message.disliked = false;
+                }
+                message.likes++;
+                message.liked = true;
+            }
+
+            console.log("Updated Message:", message);
+
+            // Broadcast update to all users in the room
+            io.to(roomId).emit('updateMessage', { messageId, likes: message.likes, dislikes: message.dislikes });
+            console.log("Emitted updateMessage event");
+        } else {
+            console.log("MessageType is not 'A':", message.messageType);
+        }
+    });
+
+    // Handle dislike event
+    socket.on('dislikeMessage', ({ messageId, userId, type, roomId }) => {
+        console.log("logged all: ", messageId, userId, type, roomId);
+
+        const userMessages = messages[roomId]?.[userId]?.[type] || [];
+        const message = userMessages.find(m => m.id === messageId);
+
+        if (message && message.messageType === 'A') {
+            if (message.disliked) {
+                message.dislikes--;
+                message.disliked = false;
+            } else {
+                if (message.liked) {
+                    message.likes--;
+                    message.liked = false;
+                }
+                message.dislikes++;
+                message.disliked = true;
+            }
+            // Broadcast update to all users in the room
+            io.to(roomId).emit('updateMessage', { messageId, likes: message.likes, dislikes: message.dislikes });
+        }
+        console.log("Got into dislike");
+    });
+
     // 🔹 User Uploads File (Real-time Sharing)
     socket.on("fileUploaded", async (data) => {
         try {
             const { roomCode, fileData } = data;
 
-            const savedFile = await File.findAll({where:{socket_id: fileData.socket_id}})
+            const savedFile = await File.findAll({ where: { socket_id: fileData.socket_id } })
 
             console.log("File stored:", savedFile);
 
@@ -368,7 +463,7 @@ io.on("connection", (socket) => {
                     userSocketMap.delete(socket.id);
                 }
             }
-            await File.destroy({where:{socket_id: socket.id}})
+            await File.destroy({ where: { socket_id: socket.id } })
         } catch (error) {
             console.error("Error handling disconnect:", error);
         }

@@ -181,46 +181,31 @@ function sendMessage(event) {
 
 // Function to like a message
 function likeMessage(messageId, userId, type) {
-    const userMessages = messages[userId][type];
-    const message = userMessages.find(m => m.id === messageId);
-    if (message && message.messageType === 'A') { // Only allow liking answers
-        if (message.liked) {
-            message.likes--;
-            message.liked = false;
-        } else {
-            if (message.disliked) {
-                message.dislikes--;
-                message.disliked = false;
-            }
-            message.likes++;
-            message.liked = true;
-        }
-        renderMessages(userId, type);
-    }
+    console.log("clicked in like");
+
+    socket.emit('likeMessage', { messageId, userId, type, roomId: roomCode });
 }
 
 // Function to dislike a message
 function dislikeMessage(messageId, userId, type) {
-    const userMessages = messages[userId][type];
-    const message = userMessages.find(m => m.id === messageId);
-    if (message && message.messageType === 'A') { // Only allow disliking answers
-        if (message.disliked) {
-            message.dislikes--;
-            message.disliked = false;
-        } else {
-            if (message.liked) {
-                message.likes--;
-                message.liked = false;
-            }
-            if (!message.dislikes) {
-                message.dislikes = 0;
-            }
-            message.dislikes++;
-            message.disliked = true;
-        }
-        renderMessages(userId, type);
-    }
+    console.log("clicked in dislike");
+
+    socket.emit('dislikeMessage', { messageId, userId, type, roomId: roomCode });
 }
+
+// Listen for real-time updates
+socket.on('updateMessage', ({ messageId, likes, dislikes }) => {
+    console.log("got into this");
+
+    // Find the message element and update like/dislike counts
+    const messageDiv = document.querySelector(`[data-id="${messageId}"]`);
+    if (messageDiv) {
+        const likeCount = messageDiv.querySelector('.like-count');
+        const dislikeCount = messageDiv.querySelector('.dislike-count');
+        if (likeCount) likeCount.textContent = likes;
+        if (dislikeCount) dislikeCount.textContent = dislikes;
+    }
+});
 
 // Function to render messages for a specific user and option
 function renderMessages(userId, type) {
@@ -1088,7 +1073,7 @@ async function decryptData(encryptedData) {
             function populateUserDetails() {
                 const userDetailsContainer = document.getElementById('user-details-container');
                 userDetailsContainer.innerHTML = ''; // Clear existing user details
-                console.log("USER::::::",users)
+                console.log("USER::::::", users)
                 users.forEach((user) => {
                     const userDiv = document.createElement('div');
                     userDiv.className = 'single-user';
@@ -1228,15 +1213,15 @@ async function decryptData(encryptedData) {
                     const materialsList = document.createElement('div');
                     materialsList.id = 'materials-list';
                     uploadedFiles[userId].forEach(file => {
-                        console.log("Each File: ",file);
-                        
+                        console.log("Each File: ", file);
+
                         const fileName = file.FileName; // Extract filename from path
                         const listItem = document.createElement('p');
                         listItem.innerHTML = `<a href="#" onclick="alert('File: ${fileName}')">${fileName}</a>`;
                         materialsList.appendChild(listItem);
                     });
                     materialsContent.appendChild(materialsList);
-                }                
+                }
 
                 document.querySelector('.study-plan-content').innerHTML = `<h3>Study Plan Content</h3><p>Selected User: ${username}</p>`;
                 document.querySelector('.resources-content').innerHTML = `<h3>Resources Content</h3><p>Selected User: ${username}</p>`;
@@ -1256,14 +1241,14 @@ async function decryptData(encryptedData) {
                 if (files.length > 0) {
                     for (const file of files) {
                         console.log("file: ", file);
-                        
+
                         const formData = new FormData();
                         formData.append("file", file);
                         formData.append("roomCode", roomCode);
                         formData.append("uploader", uploader);
                         formData.append("socket_id", socket.id)
-                        formData.append("FileName",file.name);
-                        formData.append("FileSize",file.size);
+                        formData.append("FileName", file.name);
+                        formData.append("FileSize", file.size);
 
                         try {
                             const response = await fetch("http://localhost:3000/upload", {
@@ -1503,6 +1488,20 @@ async function decryptData(encryptedData) {
                         entry.innerHTML = `<a href="${link}" target="_blank">${description}</a>`;
                         resourceList.appendChild(entry); // Append (instead of prepend)
                     });
+                }
+            });
+
+            // Listen for real-time updates
+            socket.on('updateMessage', ({ messageId, likes, dislikes }) => {
+                console.log("got into this");
+
+                // Find the message element and update like/dislike counts
+                const messageDiv = document.querySelector(`[data-id="${messageId}"]`);
+                if (messageDiv) {
+                    const likeCount = messageDiv.querySelector('.like-count');
+                    const dislikeCount = messageDiv.querySelector('.dislike-count');
+                    if (likeCount) likeCount.textContent = likes;
+                    if (dislikeCount) dislikeCount.textContent = dislikes;
                 }
             });
 
