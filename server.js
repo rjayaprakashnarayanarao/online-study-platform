@@ -187,16 +187,6 @@ io.on("connection", (socket) => {
             // Notify the admin that a user wants to join
             io.to(adminSocketId).emit("userJoinRequest", { username, socketId: socket.id, roomCode });
 
-            // socket.join(roomCode);
-            // activeUsers.get(roomCode).add(username); // Store username in the room's user set
-            // userSocketMap.set(socket.id, { roomCode, username }); // Store mapping
-            // console.log("roomid: ", room.dataValues.room_id);
-
-            // console.log(`${username} joined room ${roomCode}`);
-
-            // // socket.emit("messageHistory", messageHistory[roomCode] || []);
-            // io.to(roomCode).emit("messageHistory", messageHistory[roomCode] || [])
-            // io.to(roomCode).emit("updateUsers", { users: Array.from(activeUsers.get(roomCode)) });
         } catch (error) {
             console.error("Error joining room:", error);
             socket.emit("error", "Failed to join room.");

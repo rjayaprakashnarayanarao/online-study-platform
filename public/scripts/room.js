@@ -7,7 +7,7 @@ let resource = {};
 let studyPlan = {};
 let selectedUser = null;
 const userButtons = {};
-const socket = io()
+const socket = io();
 console.log("This site is under RJP's rule");
 
 
@@ -896,12 +896,6 @@ async function decryptData(encryptedData) {
                     alert("The admin didn't allow you.");
                     window.location.href = "index.html"; // Redirect back
                 });
-                // User joins an existing room
-
-                // socket.on("roomJoined", (data) => {
-                //     populateUserDetails()
-                //     console.log("Joined room successfully:", data);
-                // });
             }
 
             populateUserDetails()
