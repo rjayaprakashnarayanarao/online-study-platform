@@ -12,6 +12,10 @@ const multer = require("multer");
 const path = require("path");
 const File = require("./models/files.model");
 const Report = require("./models/report.model")
+const axios = require('axios');
+const fs = require("fs");
+express.json()
+express.urlencoded({ extended: true })
 
 const app = express();
 const server = http.createServer(app);
@@ -21,6 +25,10 @@ const io = new Server(server, {
         methods: ["GET", "POST"]
     }
 });
+
+// 🔹 Sightengine API Credentials
+const SIGHTENGINE_USER = "76135450";
+const SIGHTENGINE_SECRET = "tUhvF43Jy8y7fBTMZzu5vdJGPyLNtSNN";
 
 const port = process.env.PORT || 3000;
 
@@ -73,6 +81,76 @@ const userSocketMap = new Map(); // Maps socket ID to username
 const messages = {}; // Example: { roomId: { userId: { type: [{ messageObj }] } } }
 
 
+// Handle file uploads
+// 🔹 File Upload API (With NSFW Check)
+app.post("/upload", upload.single("file"), async (req, res) => {
+    try {
+        const { roomCode, uploader, socket_id, FileName, FileSize } = req.body;
+        const file = req.file;
+        console.log("body: ",req.body);
+        
+        if (!file) {
+            return res.status(400).json({ error: "No file uploaded" });
+        }
+
+        const filePath = path.join(__dirname, "uploads", file.filename);
+
+        // 🔹 Check File Type
+        const fileType = file.mimetype.split("/")[0];
+
+        let isNSFW = false;
+
+
+        // 🔹 Send File to Sightengine for NSFW Check
+        const response = await axios.get("https://api.sightengine.com/1.0/check.json", {
+            params: {
+                models: "nudity,offensive",
+                api_user: SIGHTENGINE_USER,
+                api_secret: SIGHTENGINE_SECRET,
+                url: `https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQf7X37qvPgID8ob0KksvsDIw1qFAyyY6ai1Q&s` // Must be accessible online (Use a public URL for real deployment)
+            }
+        });
+
+        const { nudity, offensive } = response.data;
+
+        if (nudity.safe < 0.7 || offensive.prob > 0.5) {
+            isNSFW = true;
+        }
+
+        if (isNSFW) {
+            // ❌ Delete the NSFW File
+            fs.unlinkSync(filePath);
+            return res.status(400).json({ error: "NSFW content detected. Upload rejected." });
+        }
+
+        console.log("Data: ", isNSFW)
+        // ✅ Save File to Database
+        const fileData = await File.create({
+            socket_id,
+            path: `/uploads/${file.filename}`,
+            type: file.mimetype,
+            uploader,
+            roomCode,
+            FileName,
+            FileSize
+        });
+
+        res.status(201).json({ message: "File uploaded successfully", file: fileData });
+
+    } catch (error) {
+        console.error("Error uploading file:", error);
+        res.status(500).json({ error: "Internal server error" });
+    }
+});
+
+app.get("/getMaterials/:socket_id", async (req, res) => {
+    const socket_id = req.params.socket_id
+    // console.log("Socket id: ",socket_id);
+    const data = await File.findAll({ where: { uploader: socket_id } })
+    res.json(data)
+})
+
+
 io.on("connection", (socket) => {
     console.log("User connected:", socket.id);
     const id = socket.id
@@ -84,41 +162,6 @@ io.on("connection", (socket) => {
         console.log("error:", error.message);
 
     }
-
-    // Handle file uploads
-    // File Upload Endpoint
-    app.post("/upload", upload.single("file"), async (req, res) => {
-        try {
-            const { roomCode, uploader, socket_id, FileName, FileSize } = req.body;
-            const file = req.file;
-
-            if (!file) {
-                return res.status(400).json({ error: "No file uploaded" });
-            }
-
-            const fileData = await File.create({
-                socket_id: socket_id, // Set ID to socketId from frontend
-                path: `/uploads/${file.filename}`,
-                type: file.mimetype,
-                uploader: uploader,
-                roomCode: roomCode,
-                FileName: FileName,
-                FileSize: FileSize
-            });
-
-            res.status(201).json({ message: "File uploaded successfully", file: fileData });
-        } catch (error) {
-            console.error("Error uploading file:", error);
-            res.status(500).json({ error: "Internal server error" });
-        }
-    });
-
-    app.get("/getMaterials/:socket_id", async (req, res) => {
-        const socket_id = req.params.socket_id
-        // console.log("Socket id: ",socket_id);
-        const data = await File.findAll({ where: { uploader: socket_id } })
-        res.json(data)
-    })
 
     // 🔸 Admin Creates Room
     socket.on("createRoom", async ({ roomCode, adminName }) => {
@@ -183,9 +226,10 @@ io.on("connection", (socket) => {
                 socket.emit("joinApproved", { roomCode });
                 return;
             }
-
+            console.log("room type: ",room.dataValues.room_type);
+            
             // Notify the admin that a user wants to join
-            io.to(adminSocketId).emit("userJoinRequest", { username, socketId: socket.id, roomCode });
+            io.to(adminSocketId).emit("userJoinRequest", { username, socketId: socket.id, roomCode , roomType: room.dataValues.room_type});
 
         } catch (error) {
             console.error("Error joining room:", error);
@@ -501,7 +545,6 @@ app.post("/tutor", async (req, res) => {
     }
 });
 
-const axios = require('axios');
 const { AsyncLocalStorage } = require('async_hooks');
 // Google Books API Endpoint
 app.get('/api/books', async (req, res) => {

@@ -1332,10 +1332,12 @@ async function decryptData(encryptedData) {
 
 
             // admin's decision
-            socket.on("userJoinRequest", async ({ username, socketId, roomCode }) => {
-                const confirmation = await confirm(`${username} wants to join the room. Allow entry?`);
+            socket.on("userJoinRequest", async ({ username, socketId, roomCode, roomType }) => {
+                console.log("room type: ", roomType);
+                let confirmation = roomType == "Public" ? true : await confirm(`${username} wants to join the room. Allow entry?`);
                 socket.emit("approveUser", { socketId, roomCode, username, approved: confirmation });
             });
+            
             socket.on("roomClosed", (message) => {
                 alert(message); // Show an alert
                 window.location.href = "index.html"; // Redirect to index.html
