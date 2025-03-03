@@ -282,14 +282,28 @@ function renderFileUpload(fileDataArray) {
             <p>Type: ${fileData.type || 'Unknown Type'}</p>
             <p>Uploaded by: ${fileData.uploader || 'Anonymous'}</p>
             <p>Time: ${fileData.timestamp || new Date().toLocaleString()}</p>
-            <a href="${fileData.fileUrl || '#'}" target="_blank" download>Download</a>
             <hr>
         `;
 
         materialsList.appendChild(fileElement);
         // Always append to the uploader's materials content
         if (fileData.uploader === getUserName()) {
-            materialsContent.appendChild(fileElement.cloneNode(true));
+            const contentFileElement = document.createElement("div");
+            contentFileElement.classList.add("uploaded-file");
+            
+            contentFileElement.innerHTML = `
+                <p><strong>${fileData.FileName || 'Unnamed File'}</strong> (${fileData.size || 'Unknown Size'})</p>
+                <p>Type: ${fileData.type || 'Unknown Type'}</p>
+                <p>Uploaded by: ${fileData.uploader || 'Anonymous'}</p>
+                <p>Time: ${fileData.timestamp || new Date().toLocaleString()}</p>
+                <div class="file-actions">
+                    <a href="${fileData.fileUrl || '#'}" target="_blank" class="file-action-btn view-btn">View</a>
+                    <a href="${fileData.fileUrl || '#'}" download class="file-action-btn download-btn">Download</a>
+                </div>
+                <hr>
+            `;
+            
+            materialsContent.appendChild(contentFileElement);
             materialsContent.classList.remove("hidden");
         }
     });

@@ -1915,6 +1915,44 @@ button[onclick="clearSearchResults()"]:disabled {
   text-decoration: underline;
 }
 
+/* Add these styles to your CSS file for better styling of the view and download buttons */
+.file-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 8px;
+  margin-bottom: 8px;
+}
+
+.file-action-btn {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+.view-btn {
+  background-color: #14213d;
+  color: white;
+}
+
+.view-btn:hover {
+  background-color: #1a2b4d;
+  transform: translateY(-2px);
+}
+
+.download-btn {
+  background-color: #fca311;
+  color: white;
+}
+
+.download-btn:hover {
+  background-color: #e69310;
+  transform: translateY(-2px);
+}
+
 /* Success message styling */
 #upload-materials-message {
   color: #22c55e;
