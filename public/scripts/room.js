@@ -298,53 +298,77 @@ function renderFileUpload(fileDataArray) {
 
 // Function to render study plan inside study-plan-content
 function renderStudyPlan(studyData) {
-    const studyPlanList = document.getElementById("study-plan-list");
+    console.log("STUDYDATA: ", studyData);
+
+    const { studyPlanList, roomCode } = studyData;
+    const studyPlans = studyPlanList[roomCode] || [];
+
+    const studyPlanListElement = document.getElementById("study-plan-list");
     const studyPlanContent = document.querySelector(".study-plan-content");
 
-    const studyElement = document.createElement("div");
-    studyElement.classList.add("study-plan-entry");
+    // Clear previous content
+    studyPlanListElement.innerHTML = '';
 
-    studyElement.innerHTML = `
-        <p><strong>Unit:</strong> ${studyData.unitName}</p>
-        <p><strong>Study Time:</strong> ${studyData.studyTime}</p>
-        <p><strong>Added by:</strong> ${studyData.uploader}</p>
-        <hr>
-    `;
+    studyPlans.forEach(plan => {
+        const studyElement = document.createElement("div");
+        studyElement.classList.add("study-plan-entry");
 
-    // Append to study plan list
-    studyPlanList.appendChild(studyElement);
+        studyElement.innerHTML = `
+            <p><strong>Unit:</strong> ${plan.unitName || 'Unnamed Unit'}</p>
+            <p><strong>Study Time:</strong> ${plan.studyTime || 'Unknown Time'}</p>
+            <p><strong>Room Code:</strong> ${plan.roomCode}</p>
+            <hr>
+        `;
 
-    // Append to study plan content and ensure visibility only for uploader
-    if (studyData.uploader === getUserName()) {
-        studyPlanContent.appendChild(studyElement.cloneNode(true));
-        studyPlanContent.classList.remove("hidden");
-    }
+        // Append to study plan list
+        studyPlanListElement.appendChild(studyElement);
+
+        // Append to study plan content and ensure visibility only for uploader
+        if (plan.uploader === getUserName()) {
+            studyPlanContent.appendChild(studyElement.cloneNode(true));
+            studyPlanContent.classList.remove("hidden");
+        }
+    });
 }
 
-// Function to render resource inside resources-content
+
+// Function to render resources inside resources-content
 function renderResource(resourceData) {
-    const resourceList = document.getElementById("resource-list");
+    console.log("resource Data", resourceData);
+
+    const { resourceList, roomCode } = resourceData;
+    const resources = resourceList[roomCode] || [];
+
+    const resourceListElement = document.getElementById("resource-list");
     const resourcesContent = document.querySelector(".resources-content");
 
-    const resourceElement = document.createElement("div");
-    resourceElement.classList.add("resource-entry");
+    // Clear previous content
+    resourceListElement.innerHTML = '';
 
-    resourceElement.innerHTML = `
-        <p><strong>Resource Link:</strong> <a href="${resourceData.link}" target="_blank">${resourceData.link}</a></p>
-        <p><strong>Description:</strong> ${resourceData.description}</p>
-        <p><strong>Added by:</strong> ${resourceData.uploader}</p>
-        <hr>
-    `;
+    resources.forEach(resource => {
+        const resourceElement = document.createElement("div");
+        resourceElement.classList.add("resource-entry");
 
-    // Append to resource list
-    resourceList.appendChild(resourceElement);
+        resourceElement.innerHTML = `
+            <p><strong>Resource Link:</strong> 
+                <a href="${resource.link || '#'}" target="_blank">${resource.link || 'No Link Provided'}</a>
+            </p>
+            <p><strong>Description:</strong> ${resource.description || 'No Description'}</p>
+            <p><strong>Room Code:</strong> ${resource.roomCode}</p>
+            <hr>
+        `;
 
-    // Append to resources content and ensure visibility only for uploader
-    if (resourceData.uploader === getUserName()) {
-        resourcesContent.appendChild(resourceElement.cloneNode(true));
-        resourcesContent.classList.remove("hidden");
-    }
+        // Append to resource list
+        resourceListElement.appendChild(resourceElement);
+
+        // Append to resources content and ensure visibility only for uploader
+        if (resource.uploader === getUserName()) {
+            resourcesContent.appendChild(resourceElement.cloneNode(true));
+            resourcesContent.classList.remove("hidden");
+        }
+    });
 }
+
 
 
 // Function to get URL parameter by name
@@ -1458,6 +1482,7 @@ async function decryptData(encryptedData) {
                         studyPlanDisplay.appendChild(entry); // Use appendChild to maintain order
                     });
                 }
+                renderStudyPlan(Data)
             });
 
 
@@ -1485,6 +1510,7 @@ async function decryptData(encryptedData) {
                         resourceList.appendChild(entry); // Append (instead of prepend)
                     });
                 }
+                renderResource(Data)
             });
 
             // Listen for real-time updates

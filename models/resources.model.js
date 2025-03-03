@@ -1,7 +1,7 @@
 const { DataTypes } = require("sequelize");
 const {sequelize} = require("../config/database");
 
-const File = sequelize.define("File", {
+const Resource = sequelize.define("Resource", {
     id: {
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4,
@@ -11,22 +11,14 @@ const File = sequelize.define("File", {
         type:DataTypes.STRING,
         allowNull:false,
     },
-    FileName:{
+    link:{
         type: DataTypes.STRING,
         allowNull: true
     },
-    FileSize:{
+    description:{
         type: DataTypes.STRING,
         allowNull: true
     },
-    path: {
-        type: DataTypes.STRING,
-        allowNull: false
-    },
-    type: {
-        type: DataTypes.STRING
-    },
-    
     uploader: {
         type: DataTypes.STRING // You can link this to a user table if needed
     },
@@ -35,4 +27,4 @@ const File = sequelize.define("File", {
     }
 });
 
-module.exports = File;
+module.exports = Resource;

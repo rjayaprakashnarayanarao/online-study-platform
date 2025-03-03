@@ -93,37 +93,37 @@ app.post("/upload", upload.single("file"), async (req, res) => {
             return res.status(400).json({ error: "No file uploaded" });
         }
 
-        const filePath = path.join(__dirname, "uploads", file.filename);
+        // const filePath = path.join(__dirname, "uploads", file.filename);
 
-        // 🔹 Check File Type
-        const fileType = file.mimetype.split("/")[0];
+        // // 🔹 Check File Type
+        // const fileType = file.mimetype.split("/")[0];
 
-        let isNSFW = false;
+        // let isNSFW = false;
 
 
-        // 🔹 Send File to Sightengine for NSFW Check
-        const response = await axios.get("https://api.sightengine.com/1.0/check.json", {
-            params: {
-                models: "nudity,offensive",
-                api_user: SIGHTENGINE_USER,
-                api_secret: SIGHTENGINE_SECRET,
-                url: `https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQf7X37qvPgID8ob0KksvsDIw1qFAyyY6ai1Q&s` // Must be accessible online (Use a public URL for real deployment)
-            }
-        });
+        // // 🔹 Send File to Sightengine for NSFW Check
+        // const response = await axios.get("https://api.sightengine.com/1.0/check.json", {
+        //     params: {
+        //         models: "nudity,offensive",
+        //         api_user: SIGHTENGINE_USER,
+        //         api_secret: SIGHTENGINE_SECRET,
+        //         url: `https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQf7X37qvPgID8ob0KksvsDIw1qFAyyY6ai1Q&s` // Must be accessible online (Use a public URL for real deployment)
+        //     }
+        // });
 
-        const { nudity, offensive } = response.data;
+        // const { nudity, offensive } = response.data;
 
-        if (nudity.safe < 0.7 || offensive.prob > 0.5) {
-            isNSFW = true;
-        }
+        // if (nudity.safe < 0.7 || offensive.prob > 0.5) {
+        //     isNSFW = true;
+        // }
 
-        if (isNSFW) {
-            // ❌ Delete the NSFW File
-            fs.unlinkSync(filePath);
-            return res.status(400).json({ error: "NSFW content detected. Upload rejected." });
-        }
+        // if (isNSFW) {
+        //     // ❌ Delete the NSFW File
+        //     fs.unlinkSync(filePath);
+        //     return res.status(400).json({ error: "NSFW content detected. Upload rejected." });
+        // }
 
-        console.log("Data: ", isNSFW)
+        // console.log("Data: ", isNSFW)
         // ✅ Save File to Database
         const fileData = await File.create({
             socket_id,
