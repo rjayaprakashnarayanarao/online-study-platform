@@ -911,7 +911,7 @@ async function decryptData(encryptedData) {
                     // Wait 2 seconds before hiding the popup
                     setTimeout(() => {
                         document.getElementById("pleasewait-popups").style.display = "none";
-                    }, 2000);
+                    }, 1000);
                     // Emit 'finalJoinRoom' instead of 'joinRoom'
                     socket.emit("finalJoinRoom", { roomCode, username: getUserName(), sockerId: socket.id });
                 });

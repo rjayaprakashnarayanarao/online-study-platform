@@ -67,8 +67,7 @@ header img:hover {
 }
 
 /* Please Wait Popup Styles */
-.pleasewait-popup {
-  display: none;
+#pleasewait-popups {
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.75);
@@ -77,8 +76,6 @@ header img:hover {
   align-items: center;
   justify-content: center;
   z-index: 10000;
-  visibility: hidden;
-  opacity: 0;
   transition: all 0.3s ease;
 }
 
@@ -113,18 +110,18 @@ header img:hover {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .hidden {
-  visibility: hidden;
-  opacity: 0;
-}
-
-.show {
-  visibility: visible;
-  opacity: 1;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  display: none !important;
 }
 
 /* Button Styles */
