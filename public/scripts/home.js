@@ -87,7 +87,6 @@ function filterRooms() {
     const searchTerm = document.getElementById("search-bar").value.toLowerCase();
     const roomsContainer = document.getElementById("roomsContainer");
     roomsContainer.innerHTML = ""; // Clear any existing content
-
     const filteredRooms = window.roomsData.filter(room =>
         room.room_name.toLowerCase().includes(searchTerm)
     );
@@ -253,9 +252,9 @@ document.addEventListener("DOMContentLoaded", () => {
             const userData = localStorage.getItem("user");
             if (userData && JSON.parse(userData).name) {
                 
-                let Quizdom = JSON.parse(userData).Quizdom
-                let Analytix = JSON.parse(userData).Analytix 
-                let Rebuff = JSON.parse(userData).Rebuff
+                let Quizdom = 27 // JSON.parse(userData).Quizdom
+                let Analytix = 69 //JSON.parse(userData).Analytix 
+                let Rebuff =  9 //JSON.parse(userData).Rebuff
                                
                 var progressData = {
                     Quizdom: Number(Quizdom) || 0, 

@@ -130,6 +130,8 @@ function openPopup(userId, type) {
             popupTitle.textContent = 'User Information';
             chatContainer.style.display = 'none';
             infoContainer.style.display = 'block';
+            // Display user information in the progress section
+            displayUserInfo(userId);
             break;
     }
 
@@ -267,46 +269,58 @@ function renderMessages(userId, type) {
 }
 
 function renderFileUpload(fileDataArray) {
-    uploadedFiles[fileDataArray.uploader] = fileDataArray
+    // Store files for the uploader
+    if (!uploadedFiles[fileDataArray.uploader]) {
+        uploadedFiles[fileDataArray.uploader] = [];
+    }
+    uploadedFiles[fileDataArray.uploader].push(fileDataArray);
     console.log("upload files:", uploadedFiles[fileDataArray.uploader]);
 
+    // Update materials list in the upload popup
     const materialsList = document.getElementById("materials-list");
-    const materialsContent = document.querySelector(".materials-content");
-    materialsList.innerHTML = ''; // Clear previous messages
-    uploadedFiles[fileDataArray.uploader].forEach(fileData => {
+    if (materialsList) {
         const fileElement = document.createElement("div");
         fileElement.classList.add("uploaded-file");
 
         fileElement.innerHTML = `
-            <p><strong>${fileData.FileName || 'Unnamed File'}</strong> (${fileData.size || 'Unknown Size'})</p>
-            <p>Type: ${fileData.type || 'Unknown Type'}</p>
-            <p>Uploaded by: ${fileData.uploader || 'Anonymous'}</p>
-            <p>Time: ${fileData.timestamp || new Date().toLocaleString()}</p>
+            <p><strong>${fileDataArray.FileName || 'Unnamed File'}</strong> (${fileDataArray.FileSize || 'Unknown Size'})</p>
+            <p>Type: ${fileDataArray.type || 'Unknown Type'}</p>
+            <p>Uploaded by: ${fileDataArray.uploader || 'Anonymous'}</p>
+            <p>Time: ${fileDataArray.timestamp || new Date().toLocaleString()}</p>
+            <div class="file-actions">
+                <a href="${fileDataArray.path || '#'}" target="_blank" class="file-action-btn view-btn">View</a>
+                <a href="${fileDataArray.path || '#'}" download class="file-action-btn download-btn">Download</a>
+            </div>
             <hr>
         `;
-
         materialsList.appendChild(fileElement);
-        // Always append to the uploader's materials content
-        if (fileData.uploader === getUserName()) {
-            const contentFileElement = document.createElement("div");
-            contentFileElement.classList.add("uploaded-file");
-            
-            contentFileElement.innerHTML = `
-                <p><strong>${fileData.FileName || 'Unnamed File'}</strong> (${fileData.size || 'Unknown Size'})</p>
-                <p>Type: ${fileData.type || 'Unknown Type'}</p>
-                <p>Uploaded by: ${fileData.uploader || 'Anonymous'}</p>
-                <p>Time: ${fileData.timestamp || new Date().toLocaleString()}</p>
-                <div class="file-actions">
-                    <a href="${fileData.fileUrl || '#'}" target="_blank" class="file-action-btn view-btn">View</a>
-                    <a href="${fileData.fileUrl || '#'}" download class="file-action-btn download-btn">Download</a>
-                </div>
-                <hr>
-            `;
-            
-            materialsContent.appendChild(contentFileElement);
-            materialsContent.classList.remove("hidden");
-        }
-    });
+    }
+
+    // Update materials content if the uploader is the current user
+    const materialsContent = document.querySelector(".materials-content");
+    if (materialsContent && fileDataArray.uploader === getUserName()) {
+        const contentList = materialsContent.querySelector('#materials-list') || document.createElement('div');
+        contentList.id = 'materials-list';
+        
+        const fileElement = document.createElement("div");
+        fileElement.classList.add("uploaded-file");
+        
+        fileElement.innerHTML = `
+            <p><strong>${fileDataArray.FileName || 'Unnamed File'}</strong> (${fileDataArray.FileSize || 'Unknown Size'})</p>
+            <p>Type: ${fileDataArray.type || 'Unknown Type'}</p>
+            <p>Uploaded by: ${fileDataArray.uploader || 'Anonymous'}</p>
+            <p>Time: ${fileDataArray.timestamp || new Date().toLocaleString()}</p>
+            <div class="file-actions">
+                <a href="${fileDataArray.path || '#'}" target="_blank" class="file-action-btn view-btn">View</a>
+                <a href="${fileDataArray.path || '#'}" download class="file-action-btn download-btn">Download</a>
+            </div>
+            <hr>
+        `;
+        
+        contentList.appendChild(fileElement);
+        materialsContent.appendChild(contentList);
+        materialsContent.classList.remove("hidden");
+    }
 }
 
 
@@ -708,8 +722,11 @@ function toggleHiddenGrid(section) {
         document.getElementById('default-message').style.display = 'block';
 
         // Hide all section contents
+        document.querySelector('.materials-content').classList.add('hidden');
         document.querySelector('.materials-content').style.display = 'none';
+        document.querySelector('.study-plan-content').classList.add('hidden');
         document.querySelector('.study-plan-content').style.display = 'none';
+        document.querySelector('.resources-content').classList.add('hidden');
         document.querySelector('.resources-content').style.display = 'none';
 
         // Remove highlights from sections
@@ -726,15 +743,15 @@ function toggleHiddenGrid(section) {
         const content = document.querySelector(`.${sec}-content`);
         const sectionElement = document.querySelector(`.${sec}`);
         if (sec === section) {
-            content.style.display = 'block'; // Show selected section
+            content.classList.remove('hidden'); // Remove hidden class
+            content.style.display = 'block'; // Set display to block
             sectionElement.classList.add('active'); // Highlight selected section
         } else {
-            content.style.display = 'none'; // Hide others
+            content.classList.add('hidden'); // Add hidden class
+            content.style.display = 'none'; // Set display to none
             sectionElement.classList.remove('active'); // Remove highlight
         }
     });
-
-    // hiddenGrid.classList.toggle('hidden');
 }
 
 // Room timer functionality
@@ -1225,44 +1242,110 @@ async function decryptData(encryptedData) {
                 // Hide the default message
                 document.getElementById('default-message').style.display = 'none';
 
-                // Update the materials-content with the selected user
-                const materialsContent = document.querySelector('.materials-content');
-                materialsContent.innerHTML = `<h3>Materials Content</h3><p>Selected User: ${username}</p>`;
-
-                // Load uploaded files for the selected user
                 const userId = selectedUser.id;
                 console.log("UserId: ", userId);
-                let materials;
-                await fetch(`http://localhost:3000/getMaterials/${userId}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        materials = data
-                        uploadedFiles[userId] = materials
-                    })
-                    .catch(error => console.error("Error fetching books:", error));
 
-                if (uploadedFiles[userId]) {
-                    const materialsList = document.createElement('div');
-                    materialsList.id = 'materials-list';
-                    uploadedFiles[userId].forEach(file => {
-                        console.log("Each File: ", file);
-
-                        const fileName = file.FileName; // Extract filename from path
-                        const listItem = document.createElement('p');
-                        listItem.innerHTML = `<a href="#" onclick="alert('File: ${fileName}')">${fileName}</a>`;
-                        materialsList.appendChild(listItem);
-                    });
-                    materialsContent.appendChild(materialsList);
+                // Handle Materials Content
+                const materialsContent = document.querySelector('.materials-content');
+                materialsContent.innerHTML = `<h3>Materials Content</h3><p>Selected User: ${username}</p>`;
+                
+                // Fetch materials for the selected user
+                try {
+                    const response = await fetch(`http://localhost:3000/getMaterials/${userId}`);
+                    const materials = await response.json();
+                    
+                    if (materials && materials.length > 0) {
+                        const materialsList = document.createElement('div');
+                        materialsList.id = 'materials-list';
+                        
+                        materials.forEach(file => {
+                            const listItem = document.createElement('div');
+                            listItem.classList.add('uploaded-file');
+                            listItem.innerHTML = `
+                                <p><strong>${file.FileName || 'Unnamed File'}</strong> (${file.FileSize || 'Unknown Size'})</p>
+                                <p>Type: ${file.type || 'Unknown Type'}</p>
+                                <p>Uploaded by: ${file.uploader || username}</p>
+                                <p>Time: ${file.timestamp || new Date().toLocaleString()}</p>
+                                <div class="file-actions">
+                                    <a href="${file.path || '#'}" target="_blank" class="file-action-btn view-btn">View</a>
+                                    <a href="${file.path || '#'}" download class="file-action-btn download-btn">Download</a>
+                                </div>
+                                <hr>
+                            `;
+                            materialsList.appendChild(listItem);
+                        });
+                        
+                        materialsContent.appendChild(materialsList);
+                    } else {
+                        materialsContent.innerHTML += '<p>No materials uploaded yet.</p>';
+                    }
+                } catch (error) {
+                    console.error("Error fetching materials:", error);
+                    materialsContent.innerHTML += '<p>Error loading materials. Please try again.</p>';
                 }
 
-                document.querySelector('.study-plan-content').innerHTML = `<h3>Study Plan Content</h3><p>Selected User: ${username}</p>`;
-                document.querySelector('.resources-content').innerHTML = `<h3>Resources Content</h3><p>Selected User: ${username}</p>`;
+                // Handle Study Plan Content
+                const studyPlanContent = document.querySelector('.study-plan-content');
+                studyPlanContent.innerHTML = `<h3>Study Plan Content</h3><p>Selected User: ${username}</p>`;
+                
+                const studyPlans = studyPlan[roomCode] || [];
+                if (studyPlans.length > 0) {
+                    const studyPlanList = document.createElement('div');
+                    studyPlanList.id = 'study-plan-list';
+                    studyPlans.forEach(plan => {
+                        if (plan.uploader === username) {
+                            const listItem = document.createElement('div');
+                            listItem.classList.add('study-plan-entry');
+                            listItem.innerHTML = `
+                                <p><strong>Unit:</strong> ${plan.unitName || 'Unnamed Unit'}</p>
+                                <p><strong>Study Time:</strong> ${plan.studyTime || 'Unknown Time'}</p>
+                                <p><strong>Uploaded by:</strong> ${plan.uploader || username}</p>
+                                <hr>
+                            `;
+                            studyPlanList.appendChild(listItem);
+                        }
+                    });
+                    studyPlanContent.appendChild(studyPlanList);
+                } else {
+                    studyPlanContent.innerHTML += '<p>No study plans created yet.</p>';
+                }
+
+                // Handle Resources Content
+                const resourcesContent = document.querySelector('.resources-content');
+                resourcesContent.innerHTML = `<h3>Resources Content</h3><p>Selected User: ${username}</p>`;
+                
+                const resources = resource[roomCode] || [];
+                if (resources.length > 0) {
+                    const resourceList = document.createElement('div');
+                    resourceList.id = 'resource-list';
+                    resources.forEach(resource => {
+                        if (resource.uploader === username) {
+                            const listItem = document.createElement('div');
+                            listItem.classList.add('resource-entry');
+                            listItem.innerHTML = `
+                                <p><strong>Resource Link:</strong> 
+                                    <a href="${resource.link || '#'}" target="_blank">${resource.link || 'No Link Provided'}</a>
+                                </p>
+                                <p><strong>Description:</strong> ${resource.description || 'No Description'}</p>
+                                <p><strong>Uploaded by:</strong> ${resource.uploader || username}</p>
+                                <hr>
+                            `;
+                            resourceList.appendChild(listItem);
+                        }
+                    });
+                    resourcesContent.appendChild(resourceList);
+                } else {
+                    resourcesContent.innerHTML += '<p>No resources shared yet.</p>';
+                }
 
                 // Ensure only the Materials section is visible by default
-                document.querySelector('.materials-content').style.display = 'block';
-                document.querySelector('.study-plan-content').style.display = 'none';
-                document.querySelector('.resources-content').style.display = 'none';
-                toggleHiddenGrid('materials'); // Calls function to highlight materials by default
+                document.querySelector('.materials-content').classList.remove('hidden');
+                document.querySelector('.study-plan-content').classList.add('hidden');
+                document.querySelector('.resources-content').classList.add('hidden');
+                
+                // Highlight the materials section
+                document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+                document.querySelector('.materials').classList.add('active');
             }
 
             document.getElementById("upload-materials-input").addEventListener("change", async function (event) {
@@ -1557,3 +1640,79 @@ async function decryptData(encryptedData) {
         console.log("No 'data' parameter found in the URL.");
     }
 })();
+
+// Function to display user information in the progress section
+function displayUserInfo(userId) {
+    const progressSection = document.getElementById('progress-section');
+    const user = users.find(u => u.id === userId);
+    
+    if (!user) {
+        progressSection.innerHTML = '<h3>User Information</h3><p>User not found</p>';
+        return;
+    }
+    
+    // Get user's materials, study plan, and resources
+    const materials = uploadedFiles[userId] || [];
+    const studyPlans = studyPlan[roomCode] || [];
+    const resources = resource[roomCode] || [];
+    
+    // Calculate progress metrics
+    const materialsCount = materials.length;
+    const studyPlansCount = studyPlans.length;
+    const resourcesCount = resources.length;
+    
+    // Calculate message stats
+    const userMessages = messages[userId] || {};
+    const questionCount = userMessages.chat ? userMessages.chat.filter(m => m.messageType === 'Q').length : 0;
+    const answerCount = userMessages.chat ? userMessages.chat.filter(m => m.messageType === 'A').length : 0;
+    
+    // Create HTML for user info
+    progressSection.innerHTML = `
+        <h3>User Information</h3>
+        <div class="user-profile">
+            <div class="user-avatar">
+                <i class="fas fa-user-circle"></i>
+            </div>
+            <div class="user-details">
+                <h4>${user.name}</h4>
+                <p>User ID: ${user.id}</p>
+            </div>
+        </div>
+        <div class="user-stats">
+            <div class="stat-item">
+                <h4>Materials</h4>
+                <div class="progress-bar">
+                    <div class="progress" style="width: ${Math.min(materialsCount * 20, 100)}%"></div>
+                </div>
+                <p>${materialsCount} files uploaded</p>
+            </div>
+            <div class="stat-item">
+                <h4>Study Plans</h4>
+                <div class="progress-bar">
+                    <div class="progress" style="width: ${Math.min(studyPlansCount * 20, 100)}%"></div>
+                </div>
+                <p>${studyPlansCount} plans created</p>
+            </div>
+            <div class="stat-item">
+                <h4>Resources</h4>
+                <div class="progress-bar">
+                    <div class="progress" style="width: ${Math.min(resourcesCount * 20, 100)}%"></div>
+                </div>
+                <p>${resourcesCount} resources shared</p>
+            </div>
+            <div class="stat-item">
+                <h4>Communication</h4>
+                <div class="message-stats">
+                    <div class="message-stat">
+                        <span class="stat-label">Questions:</span>
+                        <span class="stat-value">${questionCount}</span>
+                    </div>
+                    <div class="message-stat">
+                        <span class="stat-label">Answers:</span>
+                        <span class="stat-value">${answerCount}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+}
